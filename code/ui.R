@@ -1,6 +1,6 @@
 ##################################
 # Place Based Belonging App.     #
-# by Anwesha Guha.               #
+# by OAR Extern team             #
 # ui.R file                      #
 ##################################
 
@@ -13,7 +13,7 @@ library(tigris)
 library(reactable)
 library(markdown)
 
-path <- "/Users/aguha/Desktop/r_projects/oar/place-based-belonging/app"
+path <- here::here()
 setwd(path)
 
 col1 <- c(rep("Undergraduate", 17), rep("International", 2), rep("Graduate", 2))

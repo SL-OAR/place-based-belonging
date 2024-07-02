@@ -1,6 +1,6 @@
 ##################################
 # Place Based Belonging App.     #
-# by Anwesha Guha.               #
+# by OAR Extern team             #
 # server.R file                  #
 ##################################
 
@@ -9,11 +9,12 @@ library(tidyverse)
 library(rvest)
 library(leaflet.extras)
 library(reactable)
+library(here)
 
-path <- "/Users/aguha/Desktop/r_projects/oar/place-based-belonging/app"
+path <- here::here()
 setwd(path)
 
-pbb_tables_for_rt <- readRDS("~/Desktop/r_projects/oar/place-based-belonging/app/data/separated/pbb_tables_for_rt.rds")
+pbb_tables_for_rt <- readRDS(here::here("data/separated/pbb_tables_for_rt.rds"))
 
 df_names <- names(pbb_tables_for_rt)
 
