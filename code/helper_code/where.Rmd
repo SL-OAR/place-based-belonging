@@ -1,0 +1,300 @@
+---
+title: "Where?"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## What we need here:
+
+- tables under "Where?" tab
+- omit heatmaps (these are in their own section)
+- campus inclusiveness treemap
+- emu inclusiveness treemap
+
+
+
+## UI draft
+
+```{r}
+# UI draft
+# Used code from the campus-belonging rmd
+
+dashboardBody(
+  tabItem(tabName = "table", 
+          fluidRow(
+              column(3, uiOutput("dynamicFilter")),
+              column(6, reactableOutput("table") %>% withSpinner(color = "navy")),
+              column(3, plotOutput("treemap")),
+              column(3, plotOutput("treemap_emu")))
+          )
+  )
+
+
+```
+
+## Server draft
+
+```{r server}
+# Server Draft
+
+library(reactable)
+library(htmltools)
+library(treemapify)
+library(shiny)
+library(tidyverse)
+library(rvest)
+library(leaflet.extras)
+
+########################################
+
+## Functions ##
+
+########################################
+
+# Function for interactive reactables
+
+reactable_fun<- function(dat) {
+  options(
+    reactable.theme = reactableTheme(
+      color = "hsl(233, 9%, 87%)",
+      backgroundColor = "hsl(233, 9%, 19%)",
+      borderColor = "hsl(233, 9%, 22%)",
+      stripedColor = "hsl(233, 12%, 22%)",
+      highlightColor = "hsl(233, 12%, 24%)",
+      inputStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      selectStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonHoverStyle = list(backgroundColor = "hsl(233, 9%, 25%)"),
+      pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
+    )
+  )
+  rt<- dat %>%
+    reactable(
+      .,
+      groupBy = "agg_place",
+      showPageSizeOptions = T,
+      paginateSubRows = T,
+      defaultSorted = c("agg_place", "full_place"),
+      sortable = T,
+      showSortable = T,
+      striped = T,
+      highlight = T,
+      bordered = T,
+      defaultColDef = colDef(
+        vAlign = "center",
+        headerVAlign = "bottom"
+      ),
+      columns = list(
+        agg_place = colDef(
+          name = "Aggregated Place",
+          filterable = T,
+          align = "left",
+          minWidth = 240
+        ),
+        full_place = colDef(
+          name = "Place",
+          align = "left",
+          minWidth = 215
+        ),
+        n_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Belong"
+            }'
+          )
+        ),
+        n_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(separators = T, digits = 0),
+          html = T,
+          header = JS(
+            'function(column) {
+              return `<div style="font-style: italic">n</div>` + "Don\'t" +
+              "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_click_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Click" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_b = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Belong"
+            }'
+          )
+        ),
+        perc_stud_db = colDef(
+          aggregate = "sum",
+          align = "center",
+          format = colFormat(percent = T, digits = 1),
+          html = T,
+          header = JS(
+            'function(column) {
+              return "Student" + "<br>Don\'t" + "<br>Belong"
+            }'
+          )
+        ),
+        incl = colDef(
+          aggregate = "mean",
+          name = "Inclusive",
+          align = "center",
+          format = colFormat(percent = T, digits = 1)
+        )
+      )
+    )
+  return(rt)
+}
+
+
+##############################################
+
+# Function for tree map
+
+inclusive_tree_fun <- function(dat) {
+        df <- dat
+        cp <- as.vector(if_else(df$incl > 75, "#30313A", "#FCFFA4"))
+        plot <- dat %>%
+            ggplot(aes(area = tot, fill = incl, label = place)) +
+            geom_treemap() +
+            geom_treemap_text(place = "center", grow = TRUE, reflow = TRUE, color = cp) +
+            scale_fill_viridis_c(name = "Inclusiveness", option = "inferno", limits = c(0, 100)) +
+            theme(
+                panel.background = element_rect(fill = "#30313A"),
+                plot.background = element_rect(color = "#30313A", fill = "#30313A"),
+                legend.background = element_rect(fill = "#30313A"),
+                legend.title = element_text(color = "#FCFFA4"),
+                legend.text = element_text(color = "#FCFFA4"),
+                plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")
+            )
+        return(plot)
+}
+
+########################################
+
+## Server Logic ##
+
+########################################
+
+
+shinyServer(function(input, output) {
+    
+    # Dynamic UI for additional filters
+    output$dynamicFilter <- renderUI({
+    if(input$typeSelect == "Undergraduate") {
+        # Default tag list for Undergraduate
+        filters <- tagList(
+            selectInput("yearSelect", "Select Year:", 
+                        choices = c("2018", "2019", "2020", "2022", "Overall")),
+            selectInput("cohortSelect", "Select Cohort:", 
+                        choices = c("15/16", "16/17", "17/18", "18/19", "19/20", "20/21", "21/22", "All Cohorts"))
+        )
+
+        # Add floor selection for specific years
+        if (input$yearSelect %in% c("2018", "2019")) {
+            filters <- tagList(
+                filters,
+                selectInput("floorSelect", "Select Floor:", 
+                            choices = c("Full Building", "Level 1", "Level 2"))
+            )
+        }
+
+        return(filters)
+    } else if(input$typeSelect == "International") {
+        # Filters for International
+        return(tagList(
+            selectInput("intSelect", "Select Category:", 
+                        choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
+        ))
+    } else if(input$typeSelect == "Graduate") {
+        # Filters for Graduate
+        return(tagList(
+            selectInput("yearSelect", "Select Year:", 
+                        choices = c("2022", "Overall"))
+        ))
+    }
+  })
+
+    
+    # Render the correct table based on the input selection
+    output$table <- renderReactable({
+        if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
+            rt_cam_us_ug
+        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2022") {
+            rt_cam_us_ug_ay2122
+        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2020") {
+            rt_cam_us_ug_ay1920
+        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2019") {
+            rt_cam_us_ug_ay1819
+        } else if(input$typeSelect == "Undergraduate" && input$yearSelect == "2018") {
+            rt_cam_us_ug_ay1718
+        } else if(input$typeSelect == "International" && input$intSelect == "Overall") {
+            rt_cam_i
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
+            rt_cam_i_ay2122
+        } else if(input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
+            rt_cam_i_ug_ay1920
+        } else if(input$typeSelect == "Graduate") {
+            rt_cam_gr_ay2122
+        }
+    })
+    
+
+
+# Render tree map based on input
+    output$treemap <- renderPlot({
+        if(input$typeSelect == "Undergraduate" && input$yearSelect == "Overall") {
+          rt_cam_us_ug
+        } else if (input$typeSelect == "Undergraduate" && input$yearSelect == "2022") {
+            rt_cam_us_ug_ay2122
+        } else if (input$typeSelect == "Undergraduate" && input$yearSelect == "2020") {
+            rt_cam_us_ug_ay1920
+        } else if (input$typeSelect == "Undergraduate" && input$yearSelect == "2019") {
+            rt_cam_us_ug_ay1819
+        } else if (input$typeSelect == "Undergraduate" && input$yearSelect == "2018") {
+            rt_cam_us_ug_ay1718
+        } else if (input$typeSelect == "International" && input$intSelect == "Overall") {
+            rt_cam_i
+        } else if (input$typeSelect == "International" && input$intSelect == "Undergrad and Grad 2022") {
+            rt_cam_i_ay2122
+        } else if (input$typeSelect == "International" && input$intSelect == "Undergrad 2020") {
+            rt_cam_i_ug_ay1920
+        } else if (input$typeSelect == "Graduate") {
+            rt_cam_gr_ay2122
+        }
+    })
+
+})
+
+```
+
+
