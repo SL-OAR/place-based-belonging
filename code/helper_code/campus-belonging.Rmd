@@ -224,11 +224,11 @@ inclusive_bar_fun<- function(dat, b_cp, e_cp) {
 ## Data Tables
 ```{r}
 # # bar plots
-# tables_bp <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_bp.rds")
-# # tree maps
-# tables_tm <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_tm.rds")
-# # reactable tables
-# tables_rt <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_rt.rds")
+tables_bp <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_bp.rds")
+# tree maps
+tables_tm <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_tm.rds")
+# reactable tables
+tables_rt <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_rt.rds")
 ```
 ## UI draft
 ```{r}
