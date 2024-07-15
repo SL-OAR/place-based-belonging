@@ -81,13 +81,13 @@ ui <- shinyUI(fluidPage(
         tabItem(tabName = "campus",
                 
                 fluidRow(
-                  column(width = 6,
-                         box(width = NULL, uiOutput("dynamicFilter")),
-                         box(width = NULL, background = "black",
-                             "Some text here.")),
-                  column(width = 6,
-                         box(width = NULL, title = "Belong", solidHeader = TRUE),
-                         box(width = NULL, title = "Don't Belong", solidHeader = TRUE)))
+                  column(4, uiOutput("typeSelect")),
+                  column(4, uiOutput("yearSelect")),
+                  column(4, uiOutput("cohortSelect"))),
+                fluidRow(box(width = NULL, title = "Belong", solidHeader = TRUE),
+                         box(width = NULL, title = "Don't Belong", solidHeader = TRUE)) %>% 
+                fluidRow(
+                  reactableOutput("table") %>% withSpinner(color = "green"))
                 
         ),
         
@@ -97,17 +97,12 @@ ui <- shinyUI(fluidPage(
                   column(4, uiOutput("typeSelect")),
                   column(4, uiOutput("yearSelect")),
                   column(4, uiOutput("cohortSelect"))),
+                fluidRow(box(imageOutput("emuImage"))),
+                # fluidRow(box(width = NULL, title = "Belong", solidHeader = TRUE),
+                #          box(width = NULL, title = "Don't Belong", solidHeader = TRUE)),
                 fluidRow(
                   reactableOutput("table") %>% withSpinner(color = "green"))
-                
-                # fluidRow(
-                #   column(width = 6,
-                #          box(width = NULL, uiOutput("dynamicFilter")),
-                #          box(width = NULL, background = "black",
-                #              "Some text here.")),
-                #   column(width = 6,
-                #          box(width = NULL, title = "Belong", solidHeader = TRUE),
-                #          box(width = NULL, title = "Don't Belong", solidHeader = TRUE)))
+               
         ),
         
         tabItem(tabName = "inclusiveness",
@@ -199,6 +194,8 @@ server <- function(input, output, session) {
     if (input$typeSelect == "Undergraduate") {
       selectInput("cohortSelect", "Select Cohort:", 
                   choices = c("15/16", "16/17", "17/18", "18/19", "19/20", "20/21", "21/22", "All Cohorts"))
+    } else {
+      selectInput("cohortSelect", "No cohort available.")
     }
   })
   
