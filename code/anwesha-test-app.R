@@ -18,6 +18,7 @@ for (name in pbb_tables_for_tm_names) {
   assign(name, pbb_tables_for_tm[[name]])
 }
 
+source("code/helpers.R")
 
 #########################################################
 ### UI                                                ###
@@ -115,20 +116,25 @@ ui <- shinyUI(fluidPage(
         ),
         
         tabItem(tabName = "inclusiveness",
-                
                 fluidRow(
                   column(width = 6,
-                         box(width = NULL, title = "Campus Inclusiveness - Aggregate", solidHeader = TRUE)),
-                         box(width = NULL, title = "Campus Inclusiveness - Disaggregated", solidHeader = TRUE,
-                             plotOutput("campusTree"))),
+                         box(width = 12, style = "height:400px;", title = "Campus Inclusiveness - Aggregate", solidHeader = TRUE,
+                             plotOutput("campusBar")),
+                         box(width = 12, style = "height:400px;", title = "Campus Inclusiveness - Disaggregated", solidHeader = TRUE,
+                             plotOutput("campusTree"))
+                  ),
                   column(width = 6,
-                         box(width = NULL, title = "EMU Inclusiveness - Aggregate", solidHeader = TRUE),
-                         box(width = NULL, title = "EMU Inclusiveness - Disaggregated", solidHeader = TRUE)),
+                         box(width = 12, style = "height:400px;", title = "EMU Inclusiveness - Aggregate", solidHeader = TRUE,
+                             plotOutput("emuBar")),
+                         box(width = 12, style = "height:400px;", title = "EMU Inclusiveness - Disaggregated", solidHeader = TRUE,
+                             plotOutput("emuTree"))
+                  )
+                ),
                 fluidRow(
-                  column(4, uiOutput("typeSelect")),
-                  column(4, uiOutput("yearSelect")),
-                  column(4, uiOutput("cohortSelect")))
-                
+                  column(width = 4, uiOutput("typeSelect")),
+                  column(width = 4, uiOutput("yearSelect")),
+                  column(width = 4, uiOutput("cohortSelect"))
+                )
         ),
         
         tabItem(tabName = "words",
@@ -196,9 +202,12 @@ server <- function(input, output, session) {
     if (input$typeSelect == "Undergraduate") {
       selectInput("yearSelect", "Select Year:", 
                   choices = c("2018", "2019", "2020", "2022", "Overall"))
-    } else if (input$typeSelect == "Graduate") {
+    } else if (input$typeSelect == "International") {
       selectInput("yearSelect", "Select Year:", 
-                  choices = c("2022", "Overall"))
+                  choices = c("Undergrad 2020", "Overall"))
+    } else if (input$typeSelect == "Graduate") {
+      selectInput("yearSelect", "Select Year:",
+                  choices = c("Overall"))
     }
   })
   
@@ -206,7 +215,7 @@ server <- function(input, output, session) {
     req(input$typeSelect)
     if (input$typeSelect == "Undergraduate") {
       selectInput("cohortSelect", "Select Cohort:", 
-                  choices = c("15/16", "16/17", "17/18", "18/19", "19/20", "20/21", "21/22", "All Cohorts"))
+                  choices = c("1st Year", "2nd Year", "3rd Year", "4th Year", "All Years"))
     } else {
       selectInput("cohortSelect", "No cohort available.")
     }
@@ -263,72 +272,21 @@ server <- function(input, output, session) {
   
   # Render treemaps
   output$campusTree <- renderPlot({
-    # Undergrad
-    if(input$typeSelect == "Undergraduate") {
-      year <- input$yearSelect
-      
-      if(input$yearSelect == "Overall") {
-        inclusive_tree_fun(cam_us_ug)
-      } else if (input$yearSelect == "2022") {
-        if(input$cohortSelect == "All Years") { 
-          inclusive_tree_fun(cam_us_ug)
-        } else if(input$cohortSelect == "4th Year") { 
-          reactable_fun(us_ug_ay2122_c2122)
-        } else if(input$cohortSelect == "3rd Year") { 
-          reactable_fun(us_ug_ay2122_c2021)
-        } else if(input$cohortSelect == "2nd Year") { 
-          reactable_fun(us_ug_ay2122_c1920)
-        } else if(input$cohortSelect == "1st Year") { 
-          reactable_fun(us_ug_ay2122_c1819)
-        }
-      } else if (input$yearSelect == "2020") {
-        if(input$cohortSelect == "All Years") {
-          reactable_fun(us_us_ay1920)
-        } else if(input$cohortSelect == "4th Year") { 
-          reactable_fun(us_ug_ay1920_c1920)
-        } else if(input$cohortSelect == "3rd Year") { 
-          reactable_fun(us_ug_ay1920_c1819)
-        } else if(input$cohortSelect == "2nd Year") { 
-          reactable_fun(us_ug_ay1920_c1718)
-        } else if(input$cohortSelect == "1st Year") { 
-          reactable_fun(us_ug_ay1920_c1617)
-        }
-      } else if (input$yearSelect == "2019") {
-        if(input$cohortSelect == "All Years") {
-          reactable_fun(us_us_ay1819)
-        } else if(input$cohortSelect == "4th Year") { 
-          reactable_fun(us_ug_ay1819_c1819)
-        } else if(input$cohortSelect == "3rd Year") { 
-          reactable_fun(us_ug_ay1819_c1718)
-        } else if(input$cohortSelect == "2nd Year") { 
-          reactable_fun(us_ug_ay1819_c1617)
-        } else if(input$cohortSelect == "1st Year") { 
-          reactable_fun(us_ug_ay1819_c1516)
-        }
-      }
-    }
-    # International
-    else if(input$typeSelect == "International") {
-      if (input$yearSelect == "Overall") {
-        reactable_fun(i)
-      } else if (input$yearSelect == "Undergrad and Grad 2022") {
-        reactable_fun(i_ay2122)
-      } else if (input$yearSelect == "Undergrad 2020") {
-        reactable_fun(i_ug_ay1920)
-      }
-    }
-    # Graduate
-    else if(input$typeSelect == "Graduate") {
-      if (input$yearSelect == "2022") {
-        reactable_fun(gr_ay2122)
-      } else if (input$yearSelect == "Overall") {
-        box("Idk")
-      }
-    } else {
-      HTML("<p>No data available for the selected options.</p>")
-    }
+    renderCampusTree(input)
+  })
+
+  output$emuTree <- renderPlot({
+    renderEmuTree(input)
+  })  
+  
+  # Render inclusiveness bars
+  output$campusBar <- renderPlot({
+    renderCampusBar(input)
   })
   
+  output$emuBar <- renderPlot({
+    renderEmuBar(input)
+  })  
   
   
   # Render the correct images based on the input selection

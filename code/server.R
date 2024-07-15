@@ -59,7 +59,7 @@ shinyServer(function(input, output, session) {
       if(input$selectedYear == "Overall") {
         reactable_fun(us_ug)
       } else if (input$selectedYear == "2022") {
-        if(input$selectedCohort == "All Years") {reactable_fun(us_us_ay2122)
+        if(input$selectedCohort == "All Years") {reactable_fun(us_ug_ay2122)
         } elseif(input$selectedCohort == "4th Year") { reactable_fun(us_ug_ay2122_c2122)
         } elseif(input$selectedCohort == "3th Year") { reactable_fun(us_ug_ay2122_c2021)
         } elseif(input$selectedCohort == "2nd Year") { reactable_fun(us_ug_ay2122_c1920)
