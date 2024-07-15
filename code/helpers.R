@@ -1,4 +1,7 @@
-#rendering reactable tables
+
+## Functions
+
+#### Rendering reactable tables ###
 reactable_fun<- function(dat) {
   options(
     reactable.theme = reactableTheme(
@@ -117,4 +120,27 @@ reactable_fun<- function(dat) {
       )
     )
   return(rt)
+}
+
+
+
+#### Tree map function ###
+
+inclusive_tree_fun <- function(dat) {
+  df <- dat
+  cp <- as.vector(if_else(df$incl > 75, "#30313A", "#FCFFA4"))
+  plot <- dat %>%
+    ggplot(aes(area = tot, fill = incl, label = place)) +
+    geom_treemap() +
+    geom_treemap_text(place = "center", grow = TRUE, reflow = TRUE, color = cp) +
+    scale_fill_viridis_c(name = "Inclusiveness", option = "inferno", limits = c(0, 100)) +
+    theme(
+      panel.background = element_rect(fill = "#30313A"),
+      plot.background = element_rect(color = "#30313A", fill = "#30313A"),
+      legend.background = element_rect(fill = "#30313A"),
+      legend.title = element_text(color = "#FCFFA4"),
+      legend.text = element_text(color = "#FCFFA4"),
+      plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")
+    )
+  return(plot)
 }

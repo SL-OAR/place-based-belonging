@@ -51,15 +51,16 @@ shinyUI(fluidPage(
 
     skin = "blue",
 
-    dashboardHeader(title="University of Oregon Place Based Belonging", titleWidth = 200),
+    dashboardHeader(title="University of Oregon Place Based Belonging", 
+                    titleWidth = 450),
 
     dashboardSidebar(width = 300,
                      sidebarMenu(
-                       HTML(paste0(
-                         "<br>",
-                         "<a href='https://studentlife.uoregon.edu/research' target='_blank'><img style = 'display: block; margin-left: auto; margin-right: auto;' src='uo_stacked_gray.svg' width = '186'></a>",
-                         "<br>"
-                       )),
+                       tags$a(href="https://studentlife.uoregon.edu/research",
+                              tags$img(src="uo_stacked_gray.png", 
+                                       title="UO gray logo",
+                                       width="280", 
+                                       height="210")),
                        menuItem("Who is SWaSI?", tabName = "about", icon = icon("users")),
                        menuItem("Summary", tabName = "summary", icon = icon("thumbtack")),
                        menuItem("Where? Campus Belonging", tabName = "campus", icon = icon("table")),
