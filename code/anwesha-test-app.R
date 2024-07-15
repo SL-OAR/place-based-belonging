@@ -10,6 +10,15 @@ library(here)
 path <- here::here()
 setwd(path)
 
+pbb_tables_for_tm <- readRDS(here::here("data/separated/pbb_tables_for_tm.rds"))
+
+pbb_tables_for_tm_names <- names(pbb_tables_for_tm)
+
+for (name in pbb_tables_for_tm_names) {
+  assign(name, pbb_tables_for_tm[[name]])
+}
+
+
 #########################################################
 ### UI                                                ###
 #########################################################
@@ -109,12 +118,16 @@ ui <- shinyUI(fluidPage(
                 
                 fluidRow(
                   column(width = 6,
-                         box(width = NULL, title = "Campus Inclusiveness", solidHeader = TRUE),
-                         box(width = NULL, title = "EMU Inclusiveness", solidHeader = TRUE))),
-                column(width = 6,
-                       box(width = NULL, uiOutput("dynamicFilter")),
-                       box(width = NULL, background = "black",
-                           "Some text here."))
+                         box(width = NULL, title = "Campus Inclusiveness - Aggregate", solidHeader = TRUE)),
+                         box(width = NULL, title = "Campus Inclusiveness - Disaggregated", solidHeader = TRUE,
+                             plotOutput("campusTree"))),
+                  column(width = 6,
+                         box(width = NULL, title = "EMU Inclusiveness - Aggregate", solidHeader = TRUE),
+                         box(width = NULL, title = "EMU Inclusiveness - Disaggregated", solidHeader = TRUE)),
+                fluidRow(
+                  column(4, uiOutput("typeSelect")),
+                  column(4, uiOutput("yearSelect")),
+                  column(4, uiOutput("cohortSelect")))
                 
         ),
         
@@ -247,6 +260,76 @@ server <- function(input, output, session) {
       HTML("<p>No data available for the selected options.</p>")
     }
   })
+  
+  # Render treemaps
+  output$campusTree <- renderPlot({
+    # Undergrad
+    if(input$typeSelect == "Undergraduate") {
+      year <- input$yearSelect
+      
+      if(input$yearSelect == "Overall") {
+        inclusive_tree_fun(cam_us_ug)
+      } else if (input$yearSelect == "2022") {
+        if(input$cohortSelect == "All Years") { 
+          inclusive_tree_fun(cam_us_ug)
+        } else if(input$cohortSelect == "4th Year") { 
+          reactable_fun(us_ug_ay2122_c2122)
+        } else if(input$cohortSelect == "3rd Year") { 
+          reactable_fun(us_ug_ay2122_c2021)
+        } else if(input$cohortSelect == "2nd Year") { 
+          reactable_fun(us_ug_ay2122_c1920)
+        } else if(input$cohortSelect == "1st Year") { 
+          reactable_fun(us_ug_ay2122_c1819)
+        }
+      } else if (input$yearSelect == "2020") {
+        if(input$cohortSelect == "All Years") {
+          reactable_fun(us_us_ay1920)
+        } else if(input$cohortSelect == "4th Year") { 
+          reactable_fun(us_ug_ay1920_c1920)
+        } else if(input$cohortSelect == "3rd Year") { 
+          reactable_fun(us_ug_ay1920_c1819)
+        } else if(input$cohortSelect == "2nd Year") { 
+          reactable_fun(us_ug_ay1920_c1718)
+        } else if(input$cohortSelect == "1st Year") { 
+          reactable_fun(us_ug_ay1920_c1617)
+        }
+      } else if (input$yearSelect == "2019") {
+        if(input$cohortSelect == "All Years") {
+          reactable_fun(us_us_ay1819)
+        } else if(input$cohortSelect == "4th Year") { 
+          reactable_fun(us_ug_ay1819_c1819)
+        } else if(input$cohortSelect == "3rd Year") { 
+          reactable_fun(us_ug_ay1819_c1718)
+        } else if(input$cohortSelect == "2nd Year") { 
+          reactable_fun(us_ug_ay1819_c1617)
+        } else if(input$cohortSelect == "1st Year") { 
+          reactable_fun(us_ug_ay1819_c1516)
+        }
+      }
+    }
+    # International
+    else if(input$typeSelect == "International") {
+      if (input$yearSelect == "Overall") {
+        reactable_fun(i)
+      } else if (input$yearSelect == "Undergrad and Grad 2022") {
+        reactable_fun(i_ay2122)
+      } else if (input$yearSelect == "Undergrad 2020") {
+        reactable_fun(i_ug_ay1920)
+      }
+    }
+    # Graduate
+    else if(input$typeSelect == "Graduate") {
+      if (input$yearSelect == "2022") {
+        reactable_fun(gr_ay2122)
+      } else if (input$yearSelect == "Overall") {
+        box("Idk")
+      }
+    } else {
+      HTML("<p>No data available for the selected options.</p>")
+    }
+  })
+  
+  
   
   # Render the correct images based on the input selection
   output$emuImage <- renderUI({

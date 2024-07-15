@@ -14,13 +14,14 @@ library(here)
 path <- here::here()
 setwd(path)
 
-pbb_tables_for_rt <- readRDS(here::here("data/separated/pbb_tables_for_rt.rds"))
+pbb_tables_for_tm <- readRDS(here::here("data/separated/pbb_tables_for_tm.rds"))
 
-df_names <- names(pbb_tables_for_rt)
+pbb_tables_for_tm_names <- names(pbb_tables_for_tm)
 
-for (name in df_names) {
-  assign(name, pbb_tables_for_rt[[name]])
+for (name in pbb_tables_for_tm_names) {
+  assign(name, pbb_tables_for_tm[[name]])
 }
+
 
 #####################
 # SUPPORT FUNCTIONS #
