@@ -207,7 +207,7 @@ server <- function(input, output, session) {
                   choices = c("Undergrad 2020", "Overall"))
     } else if (input$typeSelect == "Graduate") {
       selectInput("yearSelect", "Select Year:",
-                  choices = c("Overall"))
+                  choices = c("Overall", "2022"))
     }
   })
   

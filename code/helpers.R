@@ -147,74 +147,6 @@ inclusive_tree_fun <- function(dat) {
 
 ### Break down inclusiveness functions so server is not crowded
 
-### Campus Trees
-
-renderCampusTree <- function(input) {
-  if(input$typeSelect == "Undergraduate") {
-    year <- input$yearSelect
-    
-    if(input$yearSelect == "Overall") {
-      inclusive_tree_fun(cam_us_ug)
-    } else if (input$yearSelect == "2022") {
-      if(input$cohortSelect == "All Years") { 
-        inclusive_tree_fun(cam_us_ug_ay2122)
-      } else if(input$cohortSelect == "4th Year") { 
-        inclusive_tree_fun(cam_us_ug_ay2122_c2122)
-      } else if(input$cohortSelect == "3rd Year") { 
-        inclusive_tree_fun(cam_us_ug_ay2122_c2021)
-      } else if(input$cohortSelect == "2nd Year") { 
-        inclusive_tree_fun(cam_us_ug_ay2122_c1920)
-      } else if(input$cohortSelect == "1st Year") { 
-        inclusive_tree_fun(cam_us_ug_ay2122_c1819)
-      }
-    } else if (input$yearSelect == "2020") {
-      if(input$cohortSelect == "All Years") {
-        inclusive_tree_fun(cam_us_ug_ay1920)
-      } else if(input$cohortSelect == "4th Year") { 
-        inclusive_tree_fun(cam_us_ug_ay1920_c1920)
-      } else if(input$cohortSelect == "3rd Year") { 
-        inclusive_tree_fun(cam_us_ug_ay1920_c1819)
-      } else if(input$cohortSelect == "2nd Year") { 
-        inclusive_tree_fun(cam_us_ug_ay1920_c1718)
-      } else if(input$cohortSelect == "1st Year") { 
-        inclusive_tree_fun(cam_us_ug_ay1920_c1617)
-      }
-    } else if (input$yearSelect == "2019") {
-      if(input$cohortSelect == "All Years") {
-        inclusive_tree_fun(cam_us_ug_ay1819)
-      } else if(input$cohortSelect == "4th Year") { 
-        inclusive_tree_fun(cam_us_ug_ay1819_c1819)
-      } else if(input$cohortSelect == "3rd Year") { 
-        inclusive_tree_fun(cam_us_ug_ay1819_c1718)
-      } else if(input$cohortSelect == "2nd Year") { 
-        inclusive_tree_fun(cam_us_ug_ay1819_c1617)
-      } else if(input$cohortSelect == "1st Year") { 
-        inclusive_tree_fun(cam_us_ug_ay1819_c1516)
-      }
-    } else if (input$yearSelect == "2018") {
-      inclusive_tree_fun(cam_us_ug_ay1718)
-    }
-  }
-  # International
-  else if(input$typeSelect == "International") {
-    if (input$yearSelect == "Overall") {
-      inclusive_tree_fun(cam_i)
-    } else if (input$yearSelect == "Undergrad 2020") {
-      inclusive_tree_fun(cam_i_ug_ay1920)
-    }
-  }
-  # Graduate
-  else if(input$typeSelect == "Graduate") {
-    if (input$yearSelect == "2022") {
-      inclusive_tree_fun(cam_gr_ay2122)
-    } else if (input$yearSelect == "Overall") {
-      box("Idk")
-    }
-  } else {
-    HTML("<p>No data available for the selected options.</p>")
-  }
-}
-
 ### EMU Trees
 
 renderEmuTree <- function(input) {
@@ -222,6 +154,42 @@ renderEmuTree <- function(input) {
     year <- input$yearSelect
     
     if(input$yearSelect == "Overall") {
+      inclusive_tree_fun(emu_us_ug)
+    } else if (input$yearSelect == "2022") {
+      if(input$cohortSelect == "All Years") { 
+        inclusive_tree_fun(emu_us_ug_ay2122)
+      } else if(input$cohortSelect == "4th Year") { 
+        inclusive_tree_fun(emu_us_ug_ay2122_c2122)
+      } 
+    } else if (input$yearSelect == "2020") {
+      if(input$cohortSelect == "All Years") {
+        inclusive_tree_fun(emu_us_ug_ay1920)
+      } else if(input$cohortSelect == "4th Year") { 
+        inclusive_tree_fun(emu_us_ug_ay1920_c1920)
+      } else if(input$cohortSelect == "3rd Year") { 
+        inclusive_tree_fun(emu_us_ug_ay1920_c1819)
+      } 
+    } else if (input$yearSelect == "2019") {
+      if(input$cohortSelect == "All Years") {
+        inclusive_tree_fun(emu_us_ug_ay1819)
+      } else if(input$cohortSelect == "4th Year") { 
+        inclusive_tree_fun(emu_us_ug_ay1819_c1819)
+      } 
+    } else if (input$yearSelect == "2018") {
+      inclusive_tree_fun(emu_us_ug_ay1718)
+    }
+  } else {
+    box(width = NULL, background = "black", "No data available for the selected options.")
+  }
+}
+
+### Campus Trees
+
+renderCampusTree <- function(input) {
+  
+  if(input$typeSelect == "Undergraduate") {
+    year <- input$yearSelect
+    if(input$yearSelect == "Overall") {
       inclusive_tree_fun(cam_us_ug)
     } else if (input$yearSelect == "2022") {
       if(input$cohortSelect == "All Years") { 
@@ -265,6 +233,7 @@ renderEmuTree <- function(input) {
   }
   # International
   else if(input$typeSelect == "International") {
+    year <- input$yearSelect
     if (input$yearSelect == "Overall") {
       inclusive_tree_fun(cam_i)
     } else if (input$yearSelect == "Undergrad 2020") {
@@ -273,10 +242,11 @@ renderEmuTree <- function(input) {
   }
   # Graduate
   else if(input$typeSelect == "Graduate") {
+    year <- input$yearSelect
     if (input$yearSelect == "2022") {
       inclusive_tree_fun(cam_gr_ay2122)
     } else if (input$yearSelect == "Overall") {
-      box("Idk")
+      box(width = NULL, background = "black", "No data available for the selected options.")
     }
   } else {
     HTML("<p>No data available for the selected options.</p>")
