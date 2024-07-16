@@ -14,13 +14,14 @@ library(here)
 path <- here::here()
 setwd(path)
 
-pbb_tables_for_rt <- readRDS(here::here("data/separated/pbb_tables_for_rt.rds"))
+pbb_tables_for_tm <- readRDS(here::here("data/separated/pbb_tables_for_tm.rds"))
 
-df_names <- names(pbb_tables_for_rt)
+pbb_tables_for_tm_names <- names(pbb_tables_for_tm)
 
-for (name in df_names) {
-  assign(name, pbb_tables_for_rt[[name]])
+for (name in pbb_tables_for_tm_names) {
+  assign(name, pbb_tables_for_tm[[name]])
 }
+
 
 #####################
 # SUPPORT FUNCTIONS #
@@ -58,7 +59,7 @@ shinyServer(function(input, output, session) {
       if(input$selectedYear == "Overall") {
         reactable_fun(us_ug)
       } else if (input$selectedYear == "2022") {
-        if(input$selectedCohort == "All Years") {reactable_fun(us_us_ay2122)
+        if(input$selectedCohort == "All Years") {reactable_fun(us_ug_ay2122)
         } elseif(input$selectedCohort == "4th Year") { reactable_fun(us_ug_ay2122_c2122)
         } elseif(input$selectedCohort == "3th Year") { reactable_fun(us_ug_ay2122_c2021)
         } elseif(input$selectedCohort == "2nd Year") { reactable_fun(us_ug_ay2122_c1920)
