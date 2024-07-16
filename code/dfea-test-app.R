@@ -103,7 +103,7 @@ ui <- fluidPage(
         ),
 
         tabItem(tabName = "campus",
-        # where? campus belonging heat maps 
+        # where: campus belonging heat maps 
                 fluidRow(
                   column(width = 6,
                          box(width = NULL, uiOutput("dynamicFilter")),
@@ -137,7 +137,7 @@ ui <- fluidPage(
         ),
 
         tabItem(tabName = "inclusiveness",
-
+          # where: campus inclusiveness tree maps AND tables collectively
                 fluidRow(
                   column(width = 6,
                          box(width = NULL, title = "Campus Inclusiveness", solidHeader = TRUE),
@@ -416,7 +416,9 @@ tables_tm <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfO
 tables_rt <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_rt.rds")
 
 
-# add reactable_fun() is here
+################
+# SERVER LOGIC #
+################
 server <- function(input, output) {
   # Dynamic UI for additional filters
   output$dynamicFilter <- renderUI({
