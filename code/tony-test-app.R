@@ -11,135 +11,205 @@ library(shinydashboard)
 library(shinycssloaders)
 
 
-#tables_bp <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_bp.rds")
+path <- here::here()
+setwd(path)
+
+# Reading in data
+# tree maps
+pbb_tables_for_tm <- readRDS(here::here("data/separated/pbb_tables_for_tm.rds"))
+
+pbb_tables_for_tm_names <- names(pbb_tables_for_tm)
+
+for (name in pbb_tables_for_tm_names) {
+  assign(name, pbb_tables_for_tm[[name]])
+}
+
 # reactable tables
-#tables_rt <- readRDS("/Users/daragon/Library/CloudStorage/OneDrive-UniversityOfOregon/OAR EXTERN/SWaSI/place-based belonging/pbb_tables_for_rt.rds")
+pbb_tables_for_rt <- readRDS(here::here("data/separated/pbb_tables_for_rt.rds"))
+
+pbb_tables_for_rt_names <- names(pbb_tables_for_rt)
+
+for (name in pbb_tables_for_rt_names) {
+  assign(name, pbb_tables_for_rt[[name]])
+}
+
+# bar plots
+pbb_tables_for_bp <- readRDS(here::here("data/separated/pbb_tables_for_bp.rds"))
+
+pbb_tables_for_bp_names <- names(pbb_tables_for_bp)
+
+for (name in pbb_tables_for_bp_names) {
+  assign(name, pbb_tables_for_bp[[name]])
+}
+
+
+source("code/helpers.R")
+
+
 
 
 # Anwesha's  UI
-ui <- dashboardPage(
-  skin = "blue",
-  dashboardHeader(title = "University of Oregon Place Based Belonging", titleWidth = 200),
-  dashboardSidebar(
-    width = 300,
-    sidebarMenu(
-      HTML(paste0(
-        "<br>",
-        "<a href='https://studentlife.uoregon.edu/research' target='_blank'><img style = 'display: block; margin-left: auto; margin-right: auto;' src='uo_stacked_gray.svg' width = '186'></a>",
-        "<br>"
-      )),
-      menuItem("Who is SWaSI?", tabName = "about", icon = icon("users")),
-      menuItem("Summary", tabName = "summary", icon = icon("thumbtack")),
-      menuItem("Where? Campus Belonging", tabName = "campus", icon = icon("table")),
-      menuItem("Where? EMU Belonging", tabName = "emu", icon = icon("random", lib = "glyphicon")),
-      menuItem("Where? Inclusiveness", tabName = "inclusiveness", icon = icon("stats", lib = "glyphicon")),
-      menuItem("Why There? Wordnets & Wordclouds", tabName = "words", icon = icon("dashboard")),
-      menuItem("Why There? Emotions", tabName = "emotions", icon = icon("dashboard")),
-      menuItem("Where for Whom?", tabName = "whom", icon = icon("question")),
-      menuItem("Between Here and Where?", tabName = "between", icon = icon("question")),
-      menuItem("Supplemental Method", tabName = "method", icon = icon("question")),
-      HTML(paste0("<br>",
-                  "<br>",
-                  "<script>",
-                  "var today = new Date();",
-                  "var yyyy = today.getFullYear();",
-                  "</script>",
-                  "<p style = 'text-align: center;'><small>&copy; - <a href='https://github.com/UOSLAR' target='_blank'>https://github.com/UOSLAR</a> - <script>document.write(yyyy);</script></small></p>")
-      )
-    )
+ui <- shinyUI(fluidPage(
+  
+  includeCSS("www/style.css"),
+  
+  tags$style(type="text/css",
+             ".shiny-output-error { visibility: hidden; }",
+             ".shiny-output-error:before { visibility: hidden; }"
   ),
-  dashboardBody(
-    tabItems(
-      tabItem(tabName = "about",
-              includeMarkdown("www/pbb-about.md")
-      ),
-      tabItem(tabName = "summary",
-              includeMarkdown("www/summary.md")
-      ),
-      tabItem(tabName = "campus",
-              fluidRow(
-                column(width = 6,
-                       box(width = NULL, uiOutput("dynamicFilter")),
-                       box(width = NULL, background = "black", "Some text here.")
+  
+  # load page layout
+  dashboardPage(
+    skin = "blue",
+    dashboardHeader(title="University of Oregon Place Based Belonging", 
+                    titleWidth = 500),
+    dashboardSidebar(width = 300,
+                     sidebarMenu(
+                       tags$a(href="https://studentlife.uoregon.edu/research",
+                              tags$img(src="uo_stacked_gray.png", 
+                                       title="Example Image Link",
+                                       width="250", 
+                                       height="300")),
+                       #   img(src = "uo_stacked_gray.png", height="50%", width="50%",
+                       #       href='https://studentlife.uoregon.edu/research'),
+                       menuItem("Who is SWaSI?", tabName = "about", icon = icon("users")),
+                       menuItem("Summary", tabName = "summary", icon = icon("thumbtack")),
+                       menuItem("Where? Campus Belonging", tabName = "campus", icon = icon("table")),
+                       menuItem("Where? EMU Belonging", tabName = "emu", icon = icon("random", lib = "glyphicon")),
+                       menuItem("Where? Inclusiveness", tabName = "inclusiveness", icon = icon("stats", lib = "glyphicon")),
+                       menuItem("Why There? Wordnets & Wordclouds", tabName = "words", icon = icon("dashboard")),
+                       menuItem("Why There? Emotions", tabName = "emotions", icon = icon("dashboard")),
+                       menuItem("Where for Whom?", tabName = "whom", icon = icon("question")),
+                       menuItem("Between Here and Where?", tabName = "between", icon = icon("question")),
+                       menuItem("Supplemental Method", tabName = "method", icon = icon("question")),
+                       HTML(paste0("<br>",
+                                   "<br>",
+                                   "<script>",
+                                   "var today = new Date();",
+                                   "var yyyy = today.getFullYear();",
+                                   "</script>",
+                                   "<p style = 'text-align: center;'><small>&copy; - <a href='https://github.com/UOSLAR' target='_blank'>https://github.com/UOSLAR</a> - <script>document.write(yyyy);</script></small></p>")
+                       ))
+                     
+    ), # end dashboardSidebar
+    
+    dashboardBody( #startdashboardBody
+      
+      tabItems( #start all tabItems
+        
+        tabItem(tabName = "about",
+                
+                # about section
+                # uiOutput("aboutContent")
+                includeMarkdown("www/pbb-about.md")
+                # I am losing my mind with this section
+                
+        ),
+        
+        tabItem(tabName = "summary",
+                
+                # summary section
+                includeMarkdown("www/summary.md")
+                
+        ),
+        
+        tabItem(tabName = "campus",
+                
+                fluidRow(
+                  column(4, uiOutput("typeSelect")),
+                  column(4, uiOutput("yearSelect")),
+                  column(4, uiOutput("cohortSelect"))),
+                fluidRow(box(width = NULL, title = "Belong", solidHeader = TRUE),
+                         box(width = NULL, title = "Don't Belong", solidHeader = TRUE)) %>% 
+                  fluidRow(
+                    reactableOutput("table"))
+                
+        ),
+        
+        tabItem(tabName = "emu",
+                
+                fluidRow(
+                  column(4, uiOutput("typeSelect"), selectInput("typeSelect", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))),
+                  column(4, uiOutput("yearSelect")),
+                  column(4, uiOutput("cohortSelect")),
+                  column(4, uiOutput("floorSelect"))),
+                column(4, uiOutput("dynamicFilter")),
+                fluidRow(box(imageOutput("emuImage"))),
+                fluidRow(
+                  reactableOutput("table"))
+                
+        ),
+        
+        tabItem(tabName = "inclusiveness",
+                fluidRow(
+                  column(width = 6,
+                         box(width = 12, style = "height:400px;", title = "Campus Inclusiveness - Aggregate", solidHeader = TRUE,
+                             plotOutput("campusBar")),
+                         box(width = 12, style = "height:400px;", title = "Campus Inclusiveness - Disaggregated", solidHeader = TRUE,
+                             plotOutput("campusTree"))
+                  ),
+                  column(width = 6,
+                         box(width = 12, style = "height:400px;", title = "EMU Inclusiveness - Aggregate", solidHeader = TRUE,
+                             plotOutput("emuBar")),
+                         box(width = 12, style = "height:400px;", title = "EMU Inclusiveness - Disaggregated", solidHeader = TRUE,
+                             plotOutput("emuTree"))
+                  )
                 ),
-                column(width = 6,
-                       box(width = NULL, title = "Belong", solidHeader = TRUE),
-                       box(width = NULL, title = "Don't Belong", solidHeader = TRUE)
+                fluidRow(
+                  column(width = 4, uiOutput("typeSelect")),
+                  column(width = 4, uiOutput("yearSelect")),
+                  column(width = 4, uiOutput("cohortSelect"))
                 )
-              )
-      ),
-      tabItem(tabName = "emu",
-              fluidRow(
-                column(4, uiOutput("typeSelect")),
-                column(4, uiOutput("yearSelect")),
-                column(4, uiOutput("cohortSelect"))),
-              fluidRow(
-                column(width = 6,
-                     box(width = NULL, uiOutput("dynamicFilter")),
-                     box(width = NULL, background = "black", "Some text here.")
-              ),
-                column(width = 6,
-                       box(width = NULL, title = "Table", solidHeader = TRUE,
-                           reactableOutput("table")
-                       )
-                ),
-                column(width = 6,
-                       box(width = NULL, title = "Emu Map", solidHeader = TRUE,
-                           imageOutput("emuImage")
-                        )
-                ),
-              ),
-      ),
-      tabItem(tabName = "inclusiveness",
-              fluidRow(
-                column(width = 6,
-                       box(width = NULL, title = "Campus Inclusiveness", solidHeader = TRUE),
-                       box(width = NULL, title = "EMU Inclusiveness", solidHeader = TRUE)
-                ),
-                column(width = 6,
-                       box(width = NULL, uiOutput("dynamicFilter")),
-                       box(width = NULL, background = "black", "Some text here.")
-                )
-              )
-      ),
-      tabItem(tabName = "words",
-              fluidRow(uiOutput("dynamicFilter")),
-              fluidRow(
+        ),
+        
+        tabItem(tabName = "words",
+                
+                fluidRow(uiOutput("dynamicFilter")),
+                fluidRow(
+                  column(width = 6,
+                         box(width = NULL, title = "Campus Inclusiveness", solidHeader = FALSE),
+                         box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE))),
                 column(width = 6,
                        box(width = NULL, title = "Campus Inclusiveness", solidHeader = FALSE),
-                       box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE)
-                ),
-                column(width = 6,
-                       box(width = NULL, title = "Campus Inclusiveness", solidHeader = FALSE),
-                       box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE)
-                )
-              )
-      ),
-      tabItem(tabName = "emotions",
-              fluidRow(
-                column(width = 6,
-                       box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
-                       box(width = NULL, background = "black", "text about emo.")
-                ),
+                       box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE))
+                
+        ),
+        
+        tabItem(tabName = "emotions",
+                
+                fluidRow(
+                  column(width = 6,
+                         box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
+                         box(width = NULL, background = "black", "text about emo."))),
                 column(width = 6,
                        box(width = NULL, uiOutput("dynamicFilter")),
-                       box(width = NULL, background = "black", "Bar graphs here.")
-                )
-              )
-      ),
-      tabItem(tabName = "whom",
-              includeMarkdown("www/whom.md")
-      ),
-      tabItem(tabName = "between",
-              includeMarkdown("www/between.md")
-      ),
-      tabItem(tabName = "method",
-              includeMarkdown("www/method.md")
-      )
-    )
-  )
-)
-
+                       box(width = NULL, background = "black",
+                           "Bar graphs here."))
+                
+        ),
+        
+        tabItem(tabName = "whom",
+                
+                includeMarkdown("www/whom.md")
+                
+        ),
+        tabItem(tabName = "between",
+                
+                includeMarkdown("www/between.md")
+        ),
+        
+        tabItem(tabName = "method",
+                
+                includeMarkdown("www/method.md")
+        )
+        
+      ) #end tabItems
+      
+    ) # end dashboardBody
+    
+  )# end dashboardPage
+  
+))
 
 
 
@@ -338,38 +408,83 @@ inclusive_tree_fun <- function(dat) {
 
 server <- function(input, output, session) {
   
-  # Dynamic UI for additional filters
+  
   output$typeSelect <- renderUI({
-    selectInput("typeSelect", "Select Type:", 
+    selectInput("typeSelect", "Select Type:",
                 choices = c("Undergraduate", "International", "Graduate"))
   })
-  
   output$yearSelect <- renderUI({
     req(input$typeSelect)
     if (input$typeSelect == "Undergraduate") {
-      selectInput("yearSelect", "Select Year:", 
+      selectInput("yearSelect", "Select Year:",
                   choices = c("2018", "2019", "2020", "2022", "Overall"))
+    } else if (input$typeSelect == "International") {
+      selectInput("yearSelect", "Select Year:",
+                  choices = c("Undergrad 2020", "Overall"))
     } else if (input$typeSelect == "Graduate") {
-      selectInput("yearSelect", "Select Year:", 
-                  choices = c("2022", "Overall"))
+      selectInput("yearSelect", "Select Year:",
+                  choices = c("Overall", "2022"))
     }
   })
-  
   output$cohortSelect <- renderUI({
     req(input$typeSelect)
     if (input$typeSelect == "Undergraduate") {
-      selectInput("cohortSelect", "Select Cohort:", 
-                  choices = c("15/16", "16/17", "17/18", "18/19", "19/20", "20/21", "21/22", "All Cohorts"))
+      selectInput("cohortSelect", "Select Cohort:",
+                  choices = c("1st Year", "2nd Year", "3rd Year", "4th Year", "All Years"))
+    } else {
+      selectInput("cohortSelect", "No cohort available.")
     }
   })
   
-  output$dynamicFilter <- renderUI({
-    req(input$typeSelect, input$yearSelect)
-    
-    if(input$typeSelect == "Undergraduate" && input$yearSelect %in% c("2018", "2019")) {
-      selectInput("floorSelect", "Select Floor:", 
-                  choices = c("Full Building", "Level 1", "Level 2"))
-    }
+  # Dynamic UI for additional filters
+  # output$typeSelect <- renderUI({
+  #   print("Rendering typeSelect")
+  #   selectInput("typeSelect", "Select Type:", 
+  #               choices = c("Undergraduate", "International", "Graduate"))
+  # })
+  # 
+  # output$yearSelect <- renderUI({
+  #   req(input$typeSelect)
+  #   print(paste("Rendering yearSelect for type:", input$typeSelect))
+  #   if (input$typeSelect == "Undergraduate") {
+  #     selectInput("yearSelect", "Select Year:", 
+  #                 choices = c("2018", "2019", "2020", "2022", "Overall"))
+  #   } else if (input$typeSelect == "Graduate") {
+  #     selectInput("yearSelect", "Select Year:", 
+  #                 choices = c("2022", "Overall"))
+  #   }
+  # })
+  # 
+  # output$cohortSelect <- renderUI({
+  #   req(input$typeSelect)
+  #   print(paste("Rendering cohortSelect for type:", input$typeSelect))
+  #   if (input$typeSelect == "Undergraduate") {
+  #     selectInput("cohortSelect", "Select Cohort:", 
+  #                 choices = c("15/16", "16/17", "17/18", "18/19", "19/20", "20/21", "21/22", "All Cohorts"))
+  #   }
+  # })
+  
+  # Dynamic UI for additional filters
+  # observeEvent(input$typeSelect, {
+  #   type_selected <- input$typeSelect
+  #   if (type_selected == "Undergraduate") {
+  #     updateSelectInput(session, "yearSelect", choices = c("2018", "2019", "2020", "2022", "Overall"))
+  #     updateSelectInput(session, "cohortSelect", choices = c("15/16", "16/17", "17/18", "18/19", "19/20", "20/21", "21/22", "All Cohorts"))
+  #     updateSelectInput(session, "floorSelect", choices = c("Full Building", "Level 1", "Level 2"))
+  #   } else if (type_selected == "Graduate") {
+  #     updateSelectInput(session, "yearSelect", choices = c("2022", "Overall"))
+  #     updateSelectInput(session, "cohortSelect", choices = NULL)
+  #     updateSelectInput(session, "floorSelect", choices = NULL)
+  #   } else if (type_selected == "International") {
+  #     updateSelectInput(session, "yearSelect", choices = NULL)
+  #     updateSelectInput(session, "cohortSelect", choices = c("Overall", "Undergrad and Grad 2022", "Undergrad 2020"))
+  #     updateSelectInput(session, "floorSelect", choices = NULL)
+  #   }
+  # })
+  
+  
+  output$selectedType <- renderText({
+    paste("You have selected:", input$typeSelect)
   })
   
   # Render the correct table based on the input selection

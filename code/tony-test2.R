@@ -28,7 +28,8 @@ server <- function(input, output) {
   
   output$emuImage <- renderUI({
     tagList(
-      tags$img(src = "test.png", height = "500px")
+      tags$img(src = "maps/map_emu_db_us_ug_ay2122.png", height = "500px"),
+      tags$img(src = "maps/map_emu_b_us_ug_ay2122.png", height = "500px")
     )
   })
 }
