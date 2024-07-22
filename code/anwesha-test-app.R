@@ -1,11 +1,21 @@
 #
 
 library(shiny)
+library(shinydashboard)
 library(tidyverse)
 library(rvest)
 library(leaflet.extras)
 library(reactable)
 library(here)
+
+library(leaflet)
+library(shinydashboard)
+library(collapsibleTree)
+library(shinycssloaders)
+library(DT)
+library(tigris)
+library(reactable)
+library(markdown)
 
 path <- here::here()
 setwd(path)

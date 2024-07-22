@@ -13,6 +13,17 @@ library(tigris)
 library(reactable)
 library(markdown)
 
+#from Tony's code
+library(shiny)
+library(reactable)
+library(htmltools)
+library(treemapify)
+library(tidyverse)
+library(rvest)
+library(leaflet.extras)
+library(shinydashboard)
+library(shinycssloaders)
+
 path <- here::here()
 setwd(path)
 
