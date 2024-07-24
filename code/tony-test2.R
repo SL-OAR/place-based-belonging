@@ -168,10 +168,8 @@ ui <- shinyUI(fluidPage(
                 ),
                 fluidRow(
                   column(width = 6,
-                         box(width = NULL, title = "Belong", solidHeader = TRUE),
                          uiOutput("mapsDisplayCampus")),
                   column(width = 12,
-                         box(width = NULL, title = "Reactable Table", solidHeader = TRUE),
                          reactableOutput("tableCampus"))
                 )
         ),
@@ -183,10 +181,8 @@ ui <- shinyUI(fluidPage(
                 ),
                 fluidRow(
                   column(width = 6,
-                         box(width = NULL, title = "Belong/Don't Belong", solidHeader = TRUE),
                          uiOutput("mapsDisplayEmu")),
                   column(width = 12,
-                         box(width = NULL, title = "Reactable Table", solidHeader = TRUE),
                          reactableOutput("tableEmu"))
                 )
         ),
@@ -238,6 +234,8 @@ ui <- shinyUI(fluidPage(
     ) # end dashboardBody
   ) # end dashboardPage
 ))
+
+
 
 # Server
 server <- function(input, output, session) {
@@ -339,13 +337,13 @@ server <- function(input, output, session) {
     }
   })
   
-  # Dynamic Filter
-  output$dynamicFilter <- renderUI({
-    req(input$typeSelect, input$yearSelect)
-    if (input$typeSelect == "Undergraduate" && input$yearSelect %in% c("2018", "2019")) {
-      selectInput("floorSelect", "Select Floor:", choices = c("Full Building", "Level 1", "Level 2"))
-    }
-  })
+  # # Dynamic Filter
+  # output$dynamicFilter <- renderUI({
+  #   req(input$typeSelect, input$yearSelect)
+  #   if (input$typeSelect == "Undergraduate" && input$yearSelect %in% c("2018", "2019")) {
+  #     selectInput("floorSelect", "Select Floor:", choices = c("Full Building", "Level 1", "Level 2"))
+  #   }
+  # })
   
   # Render tree maps
   output$campusTree <- renderPlot({
@@ -365,26 +363,43 @@ server <- function(input, output, session) {
     renderEmuBar(input)
   })
   
+## Reactable Tables: 
   # Reactable Table for Campus Maps
   output$tableCampus <- renderReactable({
-    if (!check_inputs(input$typeSelectCampus, input$yearSelectCampus)) return()
+    # Ensure inputs are available
+    if (is.null(input$typeSelectCampus) || is.null(input$yearSelectCampus) || is.null(input$cohortSelectCampus)) return()
+    
+    # Initialize variables
     table_to_display <- NULL
     year <- input$yearSelectCampus
     cohort <- input$cohortSelectCampus
-    if (input$typeSelectCampus == "Undergraduate") {
+    type <- input$typeSelectCampus
+    
+    # Mapping years
+    year_map <- list("2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+    
+    # Helper function to create table name
+    create_table_name <- function(type, year, cohort) {
+      mapped_year <- year_map[[year]]
+      if (is.null(mapped_year)) return(NULL)
+      
+      if (cohort == "All Cohorts" || cohort == "No cohort available") {
+        return(paste0(type, "_ay", mapped_year))
+      } else {
+        cohort <- gsub("/", "", cohort)
+        return(paste0(type, "_ay", mapped_year, "_c", cohort))
+      }
+    }
+    
+    # Determine the table to display
+    if (type == "Undergraduate") {
       if (year == "Overall") {
         table_to_display <- reactable_fun(pbb_tables_for_rt$us_ug)
       } else {
-        mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
-        if (cohort == "All Cohorts" || cohort == "No cohort available") {
-          table_name <- paste0("us_ug_ay", mapped_year)
-        } else {
-          cohort <- gsub("/", "", cohort)
-          table_name <- paste0("us_ug_ay", mapped_year, "_c", cohort)
-        }
+        table_name <- create_table_name("us_ug", year, cohort)
         table_to_display <- tryCatch({ reactable_fun(pbb_tables_for_rt[[table_name]]) }, error = function(e) { NULL })
       }
-    } else if (input$typeSelectCampus == "International") {
+    } else if (type == "International") {
       if (year == "Overall") {
         table_to_display <- reactable_fun(pbb_tables_for_rt$i)
       } else if (year == "Undergrad 2020") {
@@ -392,9 +407,11 @@ server <- function(input, output, session) {
       } else if (year == "2022") {
         table_to_display <- reactable_fun(pbb_tables_for_rt$i_ay2122)
       }
-    } else if (input$typeSelectCampus == "Graduate" && year == "2022") {
+    } else if (type == "Graduate" && year == "2022") {
       table_to_display <- reactable_fun(pbb_tables_for_rt$gr_ay2122)
     }
+    
+    # Render the table or a message if no data is available
     if (!is.null(table_to_display)) {
       table_to_display
     } else {
@@ -402,26 +419,44 @@ server <- function(input, output, session) {
     }
   })
   
+ 
+## Reactable Tables: 
   # Reactable Tables for EMU
   output$tableEmu <- renderReactable({
-    if (!check_inputs(input$typeSelectEmu, input$yearSelectEmu)) return()
+    # Ensure inputs are available
+    if (is.null(input$typeSelectEmu) || is.null(input$yearSelectEmu) || is.null(input$cohortSelectEmu)) return()
+    
+    # Initialize variables
     table_to_display <- NULL
     year <- input$yearSelectEmu
     cohort <- input$cohortSelectEmu
-    if (input$typeSelectEmu == "Undergraduate") {
+    type <- input$typeSelectEmu
+    
+    # Mapping years
+    year_map <- list("2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+    
+    # Helper function to create table name
+    create_table_name <- function(type, year, cohort) {
+      mapped_year <- year_map[[year]]
+      if (is.null(mapped_year)) return(NULL)
+      
+      if (cohort == "All Cohorts" || cohort == "No cohort available") {
+        return(paste0(type, "_ay", mapped_year))
+      } else {
+        cohort <- gsub("/", "", cohort)
+        return(paste0(type, "_ay", mapped_year, "_c", cohort))
+      }
+    }
+    
+    # Determine the table to display
+    if (type == "Undergraduate") {
       if (year == "Overall") {
         table_to_display <- reactable_fun(pbb_tables_for_rt$us_ug)
       } else {
-        mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
-        if (cohort == "All Cohorts" || cohort == "No cohort available") {
-          table_name <- paste0("us_ug_ay", mapped_year)
-        } else {
-          cohort <- gsub("/", "", cohort)
-          table_name <- paste0("us_ug_ay", mapped_year, "_c", cohort)
-        }
+        table_name <- create_table_name("us_ug", year, cohort)
         table_to_display <- tryCatch({ reactable_fun(pbb_tables_for_rt[[table_name]]) }, error = function(e) { NULL })
       }
-    } else if (input$typeSelectEmu == "International") {
+    } else if (type == "International") {
       if (year == "Overall") {
         table_to_display <- reactable_fun(pbb_tables_for_rt$i)
       } else if (year == "Undergrad 2020") {
@@ -429,9 +464,11 @@ server <- function(input, output, session) {
       } else if (year == "2022") {
         table_to_display <- reactable_fun(pbb_tables_for_rt$i_ay2122)
       }
-    } else if (input$typeSelectEmu == "Graduate" && year == "2022") {
+    } else if (type == "Graduate" && year == "2022") {
       table_to_display <- reactable_fun(pbb_tables_for_rt$gr_ay2122)
     }
+    
+    # Render the table or a message if no data is available
     if (!is.null(table_to_display)) {
       table_to_display
     } else {
@@ -439,6 +476,7 @@ server <- function(input, output, session) {
     }
   })
   
+## Heat Maps: 
   # Heat Maps for EMU
   output$mapsDisplayEmu <- renderUI({
     req(input$typeSelectEmu, input$yearSelectEmu, input$cohortSelectEmu)
@@ -482,9 +520,9 @@ server <- function(input, output, session) {
     if (image_src_belonging %in% available_maps && image_src_not_belonging %in% available_maps) {
       tagList(
         tags$h3("Belonging Map"),
-        img(src = paste0(base_path, image_src_belonging), height = "500px", style = "margin-bottom: 20px; padding-right: 20px;"),
+        img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
         tags$h3("Not Belonging Map"),
-        img(src = paste0(base_path, image_src_not_belonging), height = "500px", style = "margin-bottom: 20px; padding-right: 20px;"),
+        img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
         tags$p(paste("Selected Type:", input$typeSelectEmu, "Year:", input$yearSelectEmu, "Cohort:", input$cohortSelectEmu))
       )
     } else {
@@ -495,61 +533,61 @@ server <- function(input, output, session) {
     }
   })
   
+  
+## Heat Maps:
   # Heat Maps for Campus
   output$mapsDisplayCampus <- renderUI({
     req(input$typeSelectCampus, input$yearSelectCampus, input$cohortSelectCampus)
     base_path <- "maps/"
     image_src_belonging <- ""
     image_src_not_belonging <- ""
+    
     print(paste("typeSelectCampus:", input$typeSelectCampus))
     print(paste("yearSelectCampus:", input$yearSelectCampus))
     print(paste("cohortSelectCampus:", input$cohortSelectCampus))
-    if (is.null(input$typeSelectCampus) || is.null(input$yearSelectCampus) || is.null(input$cohortSelectCampus)) {
-      return(list(src = "", contentType = 'image/png', alt = "No map available for the selected options."))
-    }
+    
     if (input$typeSelectCampus == "Undergraduate") {
       year <- input$yearSelectCampus
       if (year == "Overall") {
-        image_src_belonging <- paste0(base_path, "map_cam_b_us_ug.png")
-        image_src_not_belonging <- paste0(base_path, "map_cam_db_us_ug.png")
+        image_src_belonging <- "map_cam_b_us_ug.png"
+        image_src_not_belonging <- "map_cam_db_us_ug.png"
       } else {
-        mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122", "Unknown")
-        if (mapped_year == "Unknown") {
-          return(list(src = "", contentType = 'image/png', alt = "No map available for the selected year."))
-        }
+        mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
         cohort <- input$cohortSelectCampus
         if (cohort == "All Cohorts" || cohort == "No cohort available") {
-          image_src_belonging <- paste0(base_path, "map_cam_b_us_ug_ay", mapped_year, ".png")
-          image_src_not_belonging <- paste0(base_path, "map_cam_db_us_ug_ay", mapped_year, ".png")
+          image_src_belonging <- paste0("map_cam_b_us_ug_ay", mapped_year, ".png")
+          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, ".png")
         } else {
           cohort <- gsub("/", "", cohort)
-          image_src_belonging <- paste0(base_path, "map_cam_b_us_ug_ay", mapped_year, "_c", cohort, ".png")
-          image_src_not_belonging <- paste0(base_path, "map_cam_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
+          image_src_belonging <- paste0("map_cam_b_us_ug_ay", mapped_year, "_c", cohort, ".png")
+          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
         }
       }
     } else if (input$typeSelectCampus == "International") {
       if (input$yearSelectCampus == "Overall") {
-        image_src_belonging <- paste0(base_path, "map_cam_b_i.png")
-        image_src_not_belonging <- paste0(base_path, "map_cam_db_i.png")
+        image_src_belonging <- "map_cam_b_i.png"
+        image_src_not_belonging <- "map_cam_db_i.png"
       } else if (input$yearSelectCampus == "Undergrad 2020") {
-        image_src_belonging <- paste0(base_path, "map_cam_b_i_ug_ay1920.png")
-        image_src_not_belonging <- paste0(base_path, "map_cam_db_i_ug_ay1920.png")
+        image_src_belonging <- "map_cam_b_i_ug_ay1920.png"
+        image_src_not_belonging <- "map_cam_db_i_ug_ay1920.png"
       } else if (input$yearSelectCampus == "2022") {
-        image_src_belonging <- paste0(base_path, "map_cam_b_i_ay2122.png")
-        image_src_not_belonging <- paste0(base_path, "map_cam_db_i_ay2122.png")
+        image_src_belonging <- "map_cam_b_i_ay2122.png"
+        image_src_not_belonging <- "map_cam_db_i_ay2122.png"
       }
     } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
-      image_src_belonging <- paste0(base_path, "map_cam_b_gr_ay2122.png")
-      image_src_not_belonging <- paste0(base_path, "map_cam_db_gr_ay2122.png")
+      image_src_belonging <- "map_cam_b_gr_ay2122.png"
+      image_src_not_belonging <- "map_cam_db_gr_ay2122.png"
     }
+    
     print(paste("Belonging image source:", image_src_belonging))
     print(paste("Not belonging image source:", image_src_not_belonging))
+    
     if (image_src_belonging %in% available_maps && image_src_not_belonging %in% available_maps) {
       tagList(
         tags$h3("Belonging Map"),
-        img(src = paste0(base_path, image_src_belonging), height = "500px", style = "margin-bottom: 20px; padding-right: 20px;"),
+        img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
         tags$h3("Not Belonging Map"),
-        img(src = paste0(base_path, image_src_not_belonging), height = "500px", style = "margin-bottom: 20px; padding-right: 20px;"),
+        img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
         tags$p(paste("Selected Type:", input$typeSelectCampus, "Year:", input$yearSelectCampus, "Cohort:", input$cohortSelectCampus))
       )
     } else {
@@ -559,6 +597,7 @@ server <- function(input, output, session) {
       )
     }
   })
+  
 }
 
 shinyApp(ui = ui, server = server)
