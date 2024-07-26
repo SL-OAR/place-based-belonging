@@ -1,0 +1,9 @@
+name: oar_pbb
+channels:
+  - defaults
+  - conda-forge
+  - R
+dependencies:
+  - r-base=4.4.1
+
+prefix: /Users/daragon/opt/anaconda3/envs/oar_pbb
