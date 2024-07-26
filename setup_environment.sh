@@ -13,28 +13,33 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-# Function to install Miniconda
-install_miniconda() {
-  echo "Installing Miniconda..."
+# Function to check for command existence
+command_exists() {
+  command -v "$1" >/dev/null 2>&1
+}
+
+# Function to install Anaconda
+install_anaconda() {
+  echo "Installing Anaconda..."
   if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-    MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+    ANACONDA_URL="https://repo.anaconda.com/archive/Anaconda3-latest-Linux-x86_64.sh"
   elif [[ "$OSTYPE" == "darwin"* ]]; then
-    MINICONDA_URL="https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh"
+    ANACONDA_URL="https://repo.anaconda.com/archive/Anaconda3-latest-MacOSX-x86_64.sh"
   else
-    echo "Unsupported OS. Please install Miniconda manually."
+    echo "Unsupported OS. Please install Anaconda manually."
     exit 1
   fi
 
-  curl -LO $MINICONDA_URL
-  bash Miniconda3-latest-*.sh -b -p $HOME/miniconda
-  rm Miniconda3-latest-*.sh
-  export PATH="$HOME/miniconda/bin:$PATH"
+  curl -LO $ANACONDA_URL
+  bash Anaconda3-latest-*.sh -b -p $HOME/anaconda
+  rm Anaconda3-latest-*.sh
+  export PATH="$HOME/anaconda/bin:$PATH"
   conda init "$(basename $SHELL)"
 }
 
-# Install Miniconda if not already installed
+# Install Anaconda if not already installed
 if ! command_exists conda; then
-  install_miniconda
+  install_anaconda
 else
   echo "Conda is already installed."
 fi
@@ -47,11 +52,11 @@ echo "Installing Mamba..."
 conda install -y -c conda-forge mamba
 
 # Navigate to the directory containing the YAML file
-cd $YAML_DIR
+cd "$YAML_DIR"
 
 # Create the environment
 echo "Creating the environment..."
-mamba env create -f $YAML_FILE
+mamba env create -f "$YAML_FILE"
 
 # Activate the environment
 echo "Activating the environment..."
