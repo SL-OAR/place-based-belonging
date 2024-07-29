@@ -12,39 +12,54 @@
 packrat::on()
 #packrat::bundle()
 
-library(reticulate)
-library(packrat)
-library(shiny)
-library(reactable)
-library(htmltools)
-library(treemapify)
-library(tidyverse)
-library(rvest)
-library(leaflet)
-library(leaflet.extras)
-library(shinydashboard)
-library(shinycssloaders)
-library(here)
+# library(reticulate)
+# library(packrat)
+# library(shiny)
+# library(reactable)
+# library(htmltools)
+# library(treemapify)
+# library(tidyverse)
+# library(rvest)
+# library(leaflet)
+# library(leaflet.extras)
+# library(shinydashboard)
+# library(shinycssloaders)
+# library(here)
 
-# Set working directory
+
+ 
+ # Package names
+ packages <- c("reticulate",
+               "packrat",
+               "shiny",
+               "reactable",
+               "htmltools",
+               "treemapify",
+               "tidyverse",
+               "rvest",
+               "leaflet",
+               "leaflet.extras",
+               "shinydashboard",
+               "shinycssloaders",
+               "here")
+ 
+ # Install packages not yet installed
+ installed_packages <- packages %in% rownames(installed.packages())
+ if (any(installed_packages == FALSE)) {
+   install.packages(packages[!installed_packages])
+ }
+ 
+ # Packages loading
+ invisible(lapply(packages, library, character.only = TRUE))
+ 
+ 
+ # Set working directory
  path <- here::here()
  setwd(path)
  
  # Use reticulate to activate the conda environment
  use_condaenv("oar_pbb", required = TRUE)
  print("Environment successfully activated and libraries loaded.")
-
-
-library(shiny)
-library(reactable)
-library(htmltools)
-library(treemapify)
-library(tidyverse)
-library(rvest)
-library(leaflet.extras)
-library(shinydashboard)
-library(shinycssloaders)
-library(here)
 
 # Set working directory
 path <- here::here()
