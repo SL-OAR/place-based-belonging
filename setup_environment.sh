@@ -13,11 +13,6 @@ command_exists() {
   command -v "$1" >/dev/null 2>&1
 }
 
-# Function to check for command existence
-command_exists() {
-  command -v "$1" >/dev/null 2>&1
-}
-
 # Function to install Anaconda
 install_anaconda() {
   echo "Installing Anaconda..."
@@ -57,6 +52,30 @@ cd "$YAML_DIR"
 # Create the environment
 echo "Creating the environment..."
 mamba env create -f "$YAML_FILE"
+
+# Check if the environment was created successfully
+if conda env list | grep -q "oar_pbb"; then
+  echo "Environment created successfully."
+else
+  echo "Environment creation failed."
+  exit 1
+fi
+
+# Check if the Python executable exists in the created environment
+if [[ -f "$HOME/miniconda/envs/oar_pbb/bin/python" ]]; then
+  echo "Python executable found."
+else
+  echo "Specified version of python '/Users/tdaza/miniconda/envs/oar_pbb/bin/python' does not exist."
+  echo "Installing Python in the environment..."
+  conda activate oar_pbb
+  conda install -y python
+  if [[ -f "$HOME/miniconda/envs/oar_pbb/bin/python" ]]; then
+    echo "Python installation successful."
+  else
+    echo "Python installation failed."
+    exit 1
+  fi
+fi
 
 # Activate the environment
 echo "Activating the environment..."
