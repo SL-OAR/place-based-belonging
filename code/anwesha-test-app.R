@@ -7,6 +7,7 @@ library(rvest)
 library(leaflet.extras)
 library(reactable)
 library(here)
+library(bslib)
 
 library(leaflet)
 library(shinydashboard)
@@ -16,6 +17,8 @@ library(DT)
 library(tigris)
 library(reactable)
 library(markdown)
+packrat::on()
+reticulate::use_condaenv("oar_pbb", required = TRUE)
 
 path <- here::here()
 setwd(path)
@@ -29,6 +32,9 @@ for (name in pbb_tables_for_tm_names) {
 }
 
 source("code/helpers.R")
+
+
+
 
 #########################################################
 ### UI                                                ###
@@ -200,6 +206,7 @@ ui <- shinyUI(fluidPage(
 ### Server                                            ###
 #########################################################
 server <- function(input, output, session) {
+  
   
   # Dynamic UI for additional filters
   output$typeSelect <- renderUI({

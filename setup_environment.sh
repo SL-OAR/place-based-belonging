@@ -6,7 +6,7 @@
 YAML_FILE="oar_pbb_env.yml"
 
 # Define the directory where the YAML file is located
-YAML_DIR="/Users/daragon/University of Oregon Dropbox/Denicia Aragon/projects/place-based-belonging"  # Replace with the actual path
+YAML_DIR="/Users/aguha/Desktop/r_projects/oar/pbb-drafts/place-based-belonging"  # Replace with the actual path
 
 # Function to check for command existence
 command_exists() {

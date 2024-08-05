@@ -6,4 +6,4 @@ channels:
 dependencies:
   - r-base=4.4.1
 
-prefix: /Users/daragon/opt/anaconda3/envs/oar_pbb
+prefix: /Users/aguha/miniconda3/envs/oar_pbb
