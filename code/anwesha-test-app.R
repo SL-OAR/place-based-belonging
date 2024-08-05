@@ -19,6 +19,7 @@ library(reactable)
 library(markdown)
 packrat::on()
 reticulate::use_condaenv("oar_pbb", required = TRUE)
+# packrat::snapshot()
 
 path <- here::here()
 setwd(path)
