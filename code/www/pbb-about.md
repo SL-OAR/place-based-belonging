@@ -1,4 +1,6 @@
+
 # Who is SWaSI?
+
 
 The [Student Wellbeing and Success Initiative](https://uoregon-my.sharepoint.com/:u:/g/personal/clark13_uoregon_edu/EY4zzGdo3o9ImgpS89tM2wAB4CrNAqmPyAxDAZQ-mNuzJw) is:
 
@@ -7,6 +9,7 @@ The [Student Wellbeing and Success Initiative](https://uoregon-my.sharepoint.com
 - an assessment and evaluation program designed to gauge whether various programmatic activities, including but not limited to the ones internal to the Initiative itself, are meeting their stated goals
 
 Better understanding better informs us, affording opportunities to improve institutional practices that equitably support students’ learning and development and foster their achievement and persistence. Unlike many for-profit companies, which use data to sell people, this is a strategy that uses data to [empower](#) people.
+
 
 The Student Wellbeing and Success Initiative is led by Brian Clark, Assistant Director of the [Office of Assessment and Research](https://studentlife.uoregon.edu/research) in the [Division of Student Life](https://studentlife.uoregon.edu/). It is supported primarily by the Office of the Vice President for Student Life with integral support from units of the Division of Student Life -- the [Department of Physical Education and Recreation](https://rec.uoregon.edu/), the [Erb Memorial Union](https://emu.uoregon.edu/), and the [Office of the Dean of Students](https://dos.uoregon.edu/) -- and across campus from many and varied units in [Global Engagement](https://international.uoregon.edu/), the [Office of the Provost](https://provost.uoregon.edu/), [Student Services and Enrollment Management](https://ssem.uoregon.edu/), [UO Libraries](https://library.uoregon.edu/), and [Undergraduate Education and Student Success](https://uess.uoregon.edu/).
 
@@ -20,7 +23,7 @@ The purposes of this document are:
 2. to provide a general reference and resource tool for higher education professionals who do things and make decisions about things that affect students (many of those things are tied to or rooted in physical places)
 3. to describe the development of methods used to generate place-based belonging data
 
-[This document is currently under construction and is in a "good enough for now" state](#). It will be incrementally updated through Summer 2023, which will include adding Spring 2023 data. At that point, it will be considered complete, because we intend to augment methods dramatically the following year. Forthcoming sections include an overall summary, two content sections, and the supplemental method section. Forthcoming features include alternative text for plots and images and hover text for treemaps.
+[This document is currently under construction and is in a "good enough for now" state](#){style="color: #11E8FF"}. It will be incrementally updated through Summer 2023, which will include adding Spring 2023 data. At that point, it will be considered complete, because we intend to augment methods dramatically the following year. Forthcoming sections include an overall summary, two content sections, and the supplemental method section. Forthcoming features include alternative text for plots and images and hover text for treemaps.
 
 ## What is Place-Based Belonging?
 
