@@ -156,15 +156,17 @@ ui <- shinyUI(fluidPage(
         
         tabItem(tabName = "words",
                 
-                fluidRow(uiOutput("dynamicFilter")),
+                fluidRow(column(width = 12,
+                                uiOutput("dynamicFilter"))
+                         ),
                 fluidRow(
                   column(width = 6,
-                         box(width = NULL, title = "Campus Inclusiveness", solidHeader = FALSE),
-                         box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE))),
+                         box(width = NULL, style = "height:400px;", title = "Belong - Wordnet", solidHeader = FALSE),
+                         box(width = NULL, style = "height:400px;", title = "Belong - Wordcloud", solidHeader = FALSE)),
                 column(width = 6,
-                       box(width = NULL, title = "Campus Inclusiveness", solidHeader = FALSE),
-                       box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE))
-                
+                       box(width = NULL, style = "height:400px;", title = "Don't Belong - Wordnet", solidHeader = FALSE),
+                       box(width = NULL, style = "height:400px;", title = "Don't Belong - Wordcloud", solidHeader = FALSE))
+                )                
         ),
         
         tabItem(tabName = "emotions",
@@ -248,6 +250,45 @@ server <- function(input, output, session) {
     }
   })
   
+  output$placeSelect <- renderUI ({
+    req(input$typeSelect)
+    if (input$typeSelect == "Undergraduate") {
+    selectInput("placeSelect", "Select Location:",
+                choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                            "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                            "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                            "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                            "Tykeson", "University Health Services", "University Housing"))
+    } else if (input$typeSelect == "International") {
+      selectInput("placeSelect", "Select Location:", 
+                  choices = c("Erb Memorial Union (EMU)", "Knight Library", "Lokey Science Complex",
+                              "Student Rec Complex", "University Housing"))
+    } else if (input$typeSelect == "Graduate") {
+      selectInput("placeSelect", "Select Location:",
+                  choices = c("Knight Library", "Student Rec Complex"))
+    }
+  })
+  
+  output$place2Select <- renderUI ({
+    req(input$placeSelect)
+   if (input$placeSelect == "Erb Memorial Union (EMU)") {
+    selectInput("place2Select", "Select Location:",
+                choices = c("Overall","Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
+                            "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
+                            "Multicultural Center", "O Lounge", "Taylor Lounge",
+                            "Women's Center"))
+  } else if (input$placeSelect == "Lokey Science Complex") {
+    selectInput("place2Select", "Select Location:",
+                choices = c("Overall", "Columbia", "Klamath", "Lewis", "Science Commons", "Willamette"))
+  } else if (input$placeSelect == "University Housing") {
+    selectInput("place2Select", "Select Location:",
+                choices = c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
+                            "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton"))
+  }
+  }) 
+
+
+## Table  
   # Render the correct table based on the input selection
   output$table <- renderReactable({
     req(input$typeSelect)  # Ensure input$typeSelect has a value
@@ -287,7 +328,8 @@ server <- function(input, output, session) {
       HTML("<p>No data available for the selected options.</p>")
     }
   })
-  
+
+## Treemap  
   # Render treemaps
   output$campusTree <- renderPlot({
     renderCampusTree(input)
@@ -296,7 +338,8 @@ server <- function(input, output, session) {
   output$emuTree <- renderPlot({
     renderEmuTree(input)
   })  
-  
+
+## Bars  
   # Render inclusiveness bars
   output$campusBar <- renderPlot({
     renderCampusBar(input)
@@ -389,6 +432,69 @@ server <- function(input, output, session) {
       img(src = image_src_not_belonging, height = "500px")
     )
   })
+  
+  
+  
+## Word images
+  # Wordnet & wordcloud image code, adapted from Tony's Heat Maps for EMU
+  output$mapsDisplayWordnet <- renderUI({
+    req(input$typeSelectEmu, input$yearSelectEmu, input$cohortSelectEmu)
+    base_path <- "maps/"
+    image_src_belonging <- ""
+    image_src_not_belonging <- ""
+    if (input$typeSelectEmu == "Undergraduate") {
+      year <- input$yearSelectEmu
+      if (year == "Overall") {
+        image_src_belonging <- "map_emu_b_us_ug.png"
+        image_src_not_belonging <- "map_emu_db_us_ug.png"
+      } else {
+        mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+        cohort <- input$cohortSelectEmu
+        if (cohort == "All Cohorts" || cohort == "No cohort available") {
+          image_src_belonging <- paste0("map_emu_b_us_ug_ay", mapped_year, ".png")
+          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, ".png")
+        } else {
+          cohort <- gsub("/", "", cohort)
+          image_src_belonging <- paste0("map_emu_b_us_ug_ay", mapped_year, "_c", cohort, ".png")
+          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
+        }
+      }
+    } else if (input$typeSelectEmu == "International") {
+      if (input$yearSelectEmu == "Overall") {
+        image_src_belonging <- "map_emu_b_i.png"
+        image_src_not_belonging <- "map_emu_db_i.png"
+      } else if (input$yearSelectEmu == "Undergrad 2020") {
+        image_src_belonging <- "map_emu_b_i_ug_ay1920.png"
+        image_src_not_belonging <- "map_emu_db_i_ug_ay1920.png"
+      } else if (input$yearSelectEmu == "2022") {
+        image_src_belonging <- "map_emu_b_i_ay2122.png"
+        image_src_not_belonging <- "map_emu_db_i_ay2122.png"
+      }
+    } else if (input$typeSelectEmu == "Graduate" && input$yearSelectEmu == "2022") {
+      image_src_belonging <- "map_emu_b_gr_ay2122.png"
+      image_src_not_belonging <- "map_emu_db_gr_ay2122.png"
+    }
+    print(paste("Belonging image source:", image_src_belonging))
+    print(paste("Not belonging image source:", image_src_not_belonging))
+    if (image_src_belonging %in% available_maps && image_src_not_belonging %in% available_maps) {
+      tagList(
+        tags$h3("Belonging Map"),
+        img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
+        tags$h3("Not Belonging Map"),
+        img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
+        tags$p(paste("Selected Type:", input$typeSelectEmu, "Year:", input$yearSelectEmu, "Cohort:", input$cohortSelectEmu))
+      )
+    } else {
+      tagList(
+        tags$h3("No map available for the selected options."),
+        tags$p(paste("Selected Type:", input$typeSelectEmu, "Year:", input$yearSelectEmu, "Cohort:", input$cohortSelectEmu))
+      )
+    }
+  })
+  
+  
+  
+  
 }
 
 #########################################################
