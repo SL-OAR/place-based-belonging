@@ -178,7 +178,7 @@ reactable_fun<- function(dat) {
 
 ##############################################
 
-# Function for tree map
+# Function for inclusiveness tree map
 
 inclusive_tree_fun <- function(dat) {
         df <- dat
@@ -197,6 +197,51 @@ inclusive_tree_fun <- function(dat) {
                 plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")
             )
         return(plot)
+}
+
+#function for inclusiveness bar plot
+inclusive_bar_fun<- function(dat, b_cp, e_cp) {
+  plot<- dat %>%
+    ggplot(
+      .,
+      aes(
+        x = agg_place,
+        y = incl,
+        fill = agg_place
+      )
+    ) +
+    geom_bar(
+      stat = "identity",
+      position = "dodge"
+    ) +
+    xlab("") +
+    ylab("Inclusiveness") +
+    scale_y_continuous(
+      breaks = c(0, 25, 50, 75, 100),
+      limits = c(0, 125)
+    ) +
+    scale_fill_viridis_d(
+      option = "inferno",
+      begin = b_cp,
+      end = e_cp
+    ) +
+    coord_flip() +
+    geom_text(
+      aes(label = sprintf("%0.1f", incl)),
+      hjust = -0.5,
+      size = 5,
+      color = "#FCFFA4"
+    ) +
+    guides(fill = "none") +
+    theme(
+      panel.background = element_rect(fill = "#30313A"),
+      plot.background = element_rect(color = "#30313A", fill = "#30313A"),
+      panel.grid = element_blank(),
+      axis.title = element_text(size = 13, color = "#FCFFA4", hjust = 0.375),
+      axis.text = element_text(size = 12, color = "#FCFFA4"),
+      axis.ticks.y = element_blank()
+    )
+  return(plot)
 }
 
 ########################################
