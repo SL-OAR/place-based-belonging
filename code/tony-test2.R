@@ -19,22 +19,34 @@ setwd(path)
 pbb_tables_for_tm <- readRDS(here::here("data/separated/pbb_tables_for_tm.rds"))
 pbb_tables_for_tm_names <- names(pbb_tables_for_tm)
 for (name in pbb_tables_for_tm_names) {
-  assign(name, pbb_tables_for_tm[[name]])
+  assign(paste0("tm_", name), pbb_tables_for_tm[[name]])
 }
 
 # reactable tables
 pbb_tables_for_rt <- readRDS(here::here("data/separated/pbb_tables_for_rt.rds"))
 pbb_tables_for_rt_names <- names(pbb_tables_for_rt)
 for (name in pbb_tables_for_rt_names) {
-  assign(name, pbb_tables_for_rt[[name]])
+  assign(paste0("rt_", name), pbb_tables_for_rt[[name]])
 }
 
 # bar plots
 pbb_tables_for_bp <- readRDS(here::here("data/separated/pbb_tables_for_bp.rds"))
 pbb_tables_for_bp_names <- names(pbb_tables_for_bp)
 for (name in pbb_tables_for_bp_names) {
-  assign(name, pbb_tables_for_bp[[name]])
+  assign(paste0("bp_", name), pbb_tables_for_bp[[name]])
 }
+
+# bar_plot_list <- list.files(path = "code/www/bars", pattern = "ebar_.*\\.png", full.names = TRUE)
+# bar_plot_info <- lapply(strsplit(basename(bar_plot_list), "_|\\.png"), function(x) {
+#  list(building_name = x[2], belong_status = x[3], group = x[4])
+#   })
+# bar_plot_df <- do.call(rbind, lapply(bar_plot_info, as.data.frame))
+# colnames(bar_plot_df) <- c("building_name", "belong_status", "group")
+# building_names <- unique(bar_plot_df$building_name)
+# belong_statuses <- unique(bar_plot_df$belong_status)
+# groups <- unique(bar_plot_df$group)
+
+
 
 source("code/helpers.R")
 
@@ -154,7 +166,7 @@ ui <- shinyUI(fluidPage(
                                    "<p style = 'text-align: center;'><small>&copy; - <a href='https://github.com/UOSLAR' target='_blank'>https://github.com/UOSLAR</a> - <script>document.write(yyyy);</script></small></p>")
                        )
                      )
-    ), # end dashboardSidebar
+    ), # end dashboard Sidebar
     
     dashboardBody(
       tabItems(
@@ -188,22 +200,68 @@ ui <- shinyUI(fluidPage(
         ),
         tabItem(tabName = "inclusiveness",
                 fluidRow(
-                  column(4, uiOutput("typeSelectInclusiveness")),
-                  column(4, uiOutput("yearSelectInclusiveness")),
-                  column(4, uiOutput("cohortSelectInclusiveness"))
+                  column(12, 
+                         selectInput("locationSelect", "Select Campus Location:",
+                                     choices = c("Full Campus", "EMU Student Union"))
+                  )
                 ),
+                conditionalPanel(
+                  condition = "input.locationSelect == 'Full Campus'",
                 fluidRow(
-                  column(width = 6,
-                         box(width = 12, style = "height:400px;", title = "Campus Inclusiveness - Aggregate", solidHeader = TRUE,
-                             plotOutput("campusBar")),
-                         box(width = 12, style = "height:400px;", title = "Campus Inclusiveness - Disaggregated", solidHeader = TRUE,
-                             plotOutput("campusTree"))
-                  ),
-                  column(width = 6,
-                         box(width = 12, style = "height:400px;", title = "EMU Inclusiveness - Aggregate", solidHeader = TRUE,
-                             plotOutput("emuBar")),
-                         box(width = 12, style = "height:400px;", title = "EMU Inclusiveness - Disaggregated", solidHeader = TRUE,
-                             plotOutput("emuTree"))
+                  column(12, 
+                         selectInput("visualizationType", "Select Visualization Type:",
+                                     choices = c("Disaggregated - Tree Maps", "Aggregated - Bar Plot"))
+                  )
+                )
+              ),
+                fluidRow(
+                  column(4, uiOutput("typeSelectInclusiveBar")),
+                  column(4, uiOutput("yearSelectInclusiveBar")),
+                  column(4, uiOutput("cohortSelectInclusiveBar"))
+                ),
+                conditionalPanel(
+                  condition = "input.visualizationType == 'Aggregated - Bar Plot'",
+                  fluidRow(
+                    column(width = 12,
+                           box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE,
+                               uiOutput("inclusiveBar"))
+                    )
+                  )
+                ),
+                # Filters for Campus Tree Maps,
+              conditionalPanel(
+                condition = "input.visualizationType == 'Disaggregated - Tree Maps' && input.locationSelect == 'Full Campus'",
+                fluidRow(
+                  column(4, uiOutput("typeSelectCampusTreeMap")),
+                  column(4, uiOutput("yearSelectCampusTreeMap")),
+                  column(4, uiOutput("cohortSelectCampusTreeMap"))
+                )
+              ),
+                # Conditionally render the tree maps for Campus
+                conditionalPanel(
+                  condition = "input.visualizationType == 'Disaggregated - Tree Maps' && input.locationSelect == 'Full Campus'",
+                  fluidRow(
+                    column(width = 12,
+                           box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE,
+                               plotOutput("campusTree")))
+                  )
+                ),
+              # Filters for EMU tree Maps
+              conditionalPanel(
+                condition = "input.visualizationType == 'Disaggregated - Tree Maps' && input.locationSelect == 'EMU Student Union'",
+                fluidRow(
+                  column(4, uiOutput("typeSelectEmuTreeMap")),
+                  column(4, uiOutput("yearSelectEmuTreeMap")),
+                  column(4, uiOutput("cohortSelectEmuTreeMap"))
+                )
+              ),
+                # Conditionally render the tree maps for EMU
+                conditionalPanel(
+                  condition = "input.visualizationType == 'Disaggregated - Tree Maps' && input.locationSelect == 'EMU Student Union'",
+                  fluidRow(
+                    column(width = 12,
+                           box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE,
+                               plotOutput("emuTree")))
                   )
                 )
         ),
@@ -236,6 +294,8 @@ ui <- shinyUI(fluidPage(
 ))
 
 
+###################################################################
+
 
 # Server
 server <- function(input, output, session) {
@@ -247,6 +307,8 @@ server <- function(input, output, session) {
     }
     return(TRUE)
   }
+  
+
   
   # Type Select Campus
   output$typeSelectCampus <- renderUI({
@@ -310,58 +372,300 @@ server <- function(input, output, session) {
     }
   })
   
-  # Type Select Inclusiveness
-  output$typeSelectInclusiveness <- renderUI({
-    selectInput("typeSelectInclusiveness", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))
-  })
   
-  # Year Select Inclusiveness
-  output$yearSelectInclusiveness <- renderUI({
-    req(input$typeSelectInclusiveness)
-    if (input$typeSelectInclusiveness == "Undergraduate") {
-      selectInput("yearSelectInclusiveness", "Select Year:", choices = c("2018", "2019", "2020", "2022", "Overall"))
-    } else if (input$typeSelectInclusiveness == "International") {
-      selectInput("typeSelectInclusiveness", "Select Year:", choices = c("Undergrad 2020", "Overall"))
-    } else if (input$typeSelectInclusiveness == "Graduate") {
-      selectInput("typeSelectInclusiveness", "Select Year:", choices = c("Overall", "2022"))
-    }
-  })
   
-  # Cohort Select Inclusiveness
-  output$cohortSelectInclusiveness <- renderUI({
-    req(input$typeSelectInclusiveness)
-    if (input$typeSelectInclusiveness == "Undergraduate") {
-      selectInput("cohortSelectInclusiveness", "Select Cohort:", choices = c("1st Year", "2nd Year", "3rd Year", "4th Year", "All Years"))
-    } else {
-      selectInput("cohortSelectInclusiveness", "No cohort available.")
-    }
-  })
+## Inclusiveness ##
   
-  # # Dynamic Filter
-  # output$dynamicFilter <- renderUI({
-  #   req(input$typeSelect, input$yearSelect)
-  #   if (input$typeSelect == "Undergraduate" && input$yearSelect %in% c("2018", "2019")) {
-  #     selectInput("floorSelect", "Select Floor:", choices = c("Full Building", "Level 1", "Level 2"))
-  #   }
+  # Dynamically generate the building selection for bar plots (including EMU)
+  
+  
+  # This will be used for Emotion bar plots
+  
+  # output$buildingSelectBarPlot <- renderUI({
+  #   req(input$visualizationType == "Aggregated - Bar Plots")
+  #   selectInput("buildingSelectBarPlot", "Select Building:",
+  #               choices = c("EMU", "Allen", "Atrium", "Autzen", "Barnhart", "Bean", "Carson",
+  #                           "Chapman", "Columbia", "Courtyard", "Craft", "Ducknest",
+  #                           "Earl", "Fallingsky", "Fishbowl", "Frohnmayer",
+  #                           "GSH", "Hamilton", "Hayward", "Hedco", "Housing", "Jaqua",
+  #                           "Kalapuya", "Klamath", "Law", "Lawrence", "LGBTQA3", "Library",
+  #                           "Lillis", "LISB", "LLC", "Lokey", "Mattknight", "MCC", "Mckenzie",
+  #                           "Mills", "Olounge", "Oregon", "SCICOM", "SRC", "Straub",
+  #                           "Taylor", "Tykeson", "UHS", "Unthank", "Walton", "Willamette",
+  #                           "Womens"))
   # })
   
-  # Render tree maps
+ # Inclusive Bar Plots # 
+  # Type Select Inclusive Bar
+  output$typeSelectInclusiveBar <- renderUI({
+    req(input$visualizationType == "Aggregated - Bar Plot")
+    selectInput("typeSelectInclusiveBar", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))
+  })
+  
+  # Year Select Inclusive Bar
+  output$yearSelectInclusiveBar <- renderUI({
+    req(input$visualizationType == "Aggregated - Bar Plot")
+    selectInput("yearSelectInclusiveBar", "Select Year:", choices = c("Overall" , "2022", "2020", "2019", "2018"))
+  })
+  
+  # Cohort Select Inclusive Bar
+  output$cohortSelectInclusiveBar <- renderUI({
+    req(input$visualizationType == "Aggregated - Bar Plot")
+    selectInput("cohortSelectInclusiveBar", "Select Cohort:", 
+                choices = c("All Years", "1st Year", "2nd Year", "3rd Year", "4th Year"))
+  })
+  
+  # Tree Maps Inclusiveness #
+  # Campus #
+  # Type Select Campus Tree Map
+  output$typeSelectCampusTreeMap <- renderUI({
+    selectInput("typeSelectCampusTreeMap", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))
+  })
+  
+  # Year Select Campus Tree Map
+  output$yearSelectCampusTreeMap <- renderUI({
+    req(input$typeSelectCampusTreeMap)
+    if (input$typeSelectCampusTreeMap == "Undergraduate") {
+      selectInput("yearSelectCampusTreeMap", "Select Year:", choices = c("Overall", "2018", "2019", "2020", "2022"))
+    } else if (input$typeSelectCampusTreeMap == "International") {
+      selectInput("yearSelectCampusTreeMap", "Select Year:", choices = c("Overall", "2020"))
+    } else if (input$typeSelectCampusTreeMap == "Graduate") {
+      selectInput("yearSelectCampusTreeMap", "Select Year:", choices = c("2022"))
+    }
+  })
+  
+  # Cohort Select Campus Tree Map
+  output$cohortSelectCampusTreeMap <- renderUI({
+    req(input$typeSelectCampusTreeMap, input$yearSelectCampusTreeMap)
+    if (input$typeSelectCampusTreeMap == "Undergraduate") {
+      if (input$yearSelectCampusTreeMap %in% c("2022", "2020", "2019")) {
+        choices <- switch(input$yearSelectCampusTreeMap,
+                          "2022" = c("All Years", "4th Year", "3rd Year", "2nd Year", "1st Year"),
+                          "2020" = c("All Years", "4th Year", "3rd Year", "2nd Year", "1st Year"),
+                          "2019" = c("All Years", "4th Year", "3rd Year", "2nd Year", "1st Year"))
+        selectInput("cohortSelectCampusTreeMap", "Select Cohort:", choices = choices)
+      } else if (input$yearSelectCampusTreeMap == "2018") {
+        selectInput("cohortSelectCampusTreeMap", "Select Cohort:", choices = c("1st-3rd Years"))
+      } else {
+        selectInput("cohortSelectCampusTreeMap", "Select Cohort:", choices = c("No cohort available"))
+      }
+    } else {
+      selectInput("cohortSelectCampusTreeMap", "Select Cohort:", choices = c("No cohort available"))
+    }
+  })
+  
+  
+  # EMU #
+  # Type Select EMU Tree Map
+  output$typeSelectEmuTreeMap <- renderUI({
+    selectInput("typeSelectEmuTreeMap", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))
+  })
+  
+  # Year Select EMU Tree Map
+  output$yearSelectEmuTreeMap <- renderUI({
+    req(input$typeSelectEmuTreeMap)
+    if (input$typeSelectEmuTreeMap == "Undergraduate") {
+      selectInput("yearSelectEmuTreeMap", "Select Year:", choices = c("2018", "2019", "2020", "2022", "Overall"))
+    } else if (input$typeSelectEmuTreeMap == "International") {
+      selectInput("yearSelectEmuTreeMap", "Select Year:", choices = c("Overall", "2022", "Spring 2020"))
+    } else if (input$typeSelectEmuTreeMap == "Graduate") {
+      selectInput("yearSelectEmuTreeMap", "Select Year:", choices = c("Overall"))
+    }
+  })
+  
+  # Cohort Select EMU Tree Map
+  output$cohortSelectEmuTreeMap <- renderUI({
+    req(input$typeSelectEmuTreeMap, input$yearSelectEmuTreeMap)
+    if (input$typeSelectEmuTreeMap == "Undergraduate") {
+      if (input$yearSelectEmuTreeMap %in% c("2022", "2020", "2019")) {
+        choices <- switch(input$yearSelectEmuTreeMap,
+                          "2022" = c("All Years", "4th Year", "3rd Year", "2nd Year", "1st Year"),
+                          "2020" = c("All Years", "4th Year", "3rd Year", "2nd Year", "1st Year"),
+                          "2019" = c("All Years", "4th Year", "3rd Year", "2nd Year", "1st Year"))
+        selectInput("cohortSelectEmuTreeMap", "Select Cohort:", choices = choices)
+      } else if (input$yearSelectEmuTreeMap == "2018") {
+        selectInput("cohortSelectEmuTreeMap", "Select Cohort:", choices = c("1st-3rd Years"))
+      } else {
+        selectInput("cohortSelectEmuTreeMap", "Select Cohort:", choices = c("No cohort available"))
+      }
+    } else {
+      selectInput("cohortSelectEmuTreeMap", "Select Cohort:", choices = c("No cohort available"))
+    }
+  })
+  
+  
+  
+  ### RenderBarPlot Function ###
+  
+  # Render Campus Bar Plots 
+  output$inclusiveBar <- renderUI({
+    req(input$visualizationType == "Aggregated - Bar Plot")
+    
+    type <- input$typeSelectInclusiveBar
+    year <- input$yearSelectInclusiveBar
+    cohort <- input$cohortSelectInclusiveBar
+    
+    print(paste("Year value:", year))
+    print(paste("Cohort value:", cohort))
+    
+    # Ensure that type is a single valid string
+    if (length(type) != 1 || is.null(type)) {
+      return(HTML("<p>Invalid type selection.</p>"))
+    }
+    
+    # Determine the correct filename based on the selected type, year, and cohort
+    if (type == "Undergraduate") {
+      filename <- switch(year,
+                         "Overall" = "ibar_cam_us_ug.png",
+                         "2022" = switch(cohort,
+                                         "All Years" = "ibar_cam_us_ug_ay2122.png",
+                                         "4th Year" = "ibar_cam_us_ug_ay2122_c2122.png",
+                                         "3rd Year" = "ibar_cam_us_ug_ay2122_c2021.png",
+                                         "2nd Year" = "ibar_cam_us_ug_ay2122_c1920.png",
+                                         "1st Year" = "ibar_cam_us_ug_ay2122_c1819.png"),
+                         "2020" = switch(cohort,
+                                         "All Years" = "ibar_cam_us_ug_ay1920.png",
+                                         "4th Year" = "ibar_cam_us_ug_ay1920_c1920.png",
+                                         "3rd Year" = "ibar_cam_us_ug_ay1920_c1819.png",
+                                         "2nd Year" = "ibar_cam_us_ug_ay1920_c1718.png",
+                                         "1st Year" = "ibar_cam_us_ug_ay1920_c1617.png"),
+                         "2019" = switch(cohort,
+                                         "All Years" = "ibar_cam_us_ug_ay1819.png",
+                                         "4th Year" = "ibar_cam_us_ug_ay1819_c1819.png",
+                                         "3rd Year" = "ibar_cam_us_ug_ay1819_c1718.png",
+                                         "2nd Year" = "ibar_cam_us_ug_ay1819_c1617.png",
+                                         "1st Year" = "ibar_cam_us_ug_ay1819_c1516.png"),
+                         "2018" = "ibar_cam_us_ug_ay1718.png")
+    } else if (type == "International") {
+      filename <- switch(year,
+                         "Overall" = "ibar_cam_i.png",
+                         "2022" = "ibar_cam_i_ay2122.png",
+                         "2020" = "ibar_cam_i_ug_ay1920.png")
+    } else if (type == "Graduate") {
+      filename <- switch(year,
+                         "2022" = "ibar_cam_gr_ay2122.png")
+    } else {
+      return(HTML("<p>No valid data for the selected options.</p>"))
+    }
+    
+    # Construct the full path to the image file
+    full_image_path <- file.path(getwd(), "www", "ibars", filename)
+    print(paste("Checking full path:", full_image_path))
+    
+    # Check if the file exists and then adjust the image path for Shiny
+    if (file.exists(full_image_path)) {
+      print(paste("File found:", full_image_path))
+      image_path <- file.path("ibars", filename)
+      return(img(src = image_path, height = "400px"))
+    } else {
+      print(paste("File not found:", full_image_path))
+      return(HTML("<p>No image available for the selected options.</p>"))
+    }
+  })
+  
+  
+  
+  
+  
+  ### Campus Trees ###
+  
+  renderCampusTree <- function(type, year, cohort) {
+    data <- NULL
+    type <- input$typeSelectCampusTreeMap
+    year <- input$yearSelectCampusTreeMap
+    cohort <- input$cohortSelectCampusTreeMap
+    
+    
+    if (type == "Undergraduate") {
+      data <- switch(year,
+                     "Overall" = tm_cam_us_ug,
+                     "2022" = switch(cohort,
+                                     "All Years" = tm_cam_us_ug_ay2122,
+                                     "4th Year" = tm_cam_us_ug_ay2122_c2122,
+                                     "3rd Year" = tm_cam_us_ug_ay2122_c2021,
+                                     "2nd Year" = tm_cam_us_ug_ay2122_c1920,
+                                     "1st Year" = tm_cam_us_ug_ay2122_c1819),
+                     "2020" = switch(cohort,
+                                     "All Years" = tm_cam_us_ug_ay1920,
+                                     "4th Year" = tm_cam_us_ug_ay1920_c1920,
+                                     "3rd Year" = tm_cam_us_ug_ay1920_c1819,
+                                     "2nd Year" = tm_cam_us_ug_ay1920_c1718,
+                                     "1st Year" = tm_cam_us_ug_ay1920_c1617),
+                     "2019" = switch(cohort,
+                                     "All Years" = tm_cam_us_ug_ay1819,
+                                     "4th Year" = tm_cam_us_ug_ay1819_c1819,
+                                     "3rd Year" = tm_cam_us_ug_ay1819_c1718,
+                                     "2nd Year" = tm_cam_us_ug_ay1819_c1617,
+                                     "1st Year" = tm_cam_us_ug_ay1819_c1516),
+                     "2018" = tm_cam_us_ug_ay1718
+      )
+    } else if (type == "International") {
+      data <- switch(year,
+                     "Overall" = tm_cam_i,
+                     "2020" = tm_cam_i_ug_ay1920
+      )
+    } else if (type == "Graduate") {
+      data <- switch(year,
+                     "2022" = tm_cam_gr_ay2122
+      )
+    }
+    
+    if (!is.null(data) && "tot" %in% colnames(data)) {
+      inclusive_tree_fun(data)
+    } else {
+      print("Error: 'tot' column not found or data is NULL.")
+      HTML("<p>No data available or required column 'tot' is missing for the selected options.</p>")
+    }
+  }
+  
+  # Render tree maps for Campus
   output$campusTree <- renderPlot({
-    renderCampusTree(input)
+    req(input$visualizationType == "Disaggregated - Tree Maps" && input$locationSelect == "Full Campus")
+    renderCampusTree(input$typeSelectCampusTreeMap, input$yearSelectCampusTreeMap, input$cohortSelectCampusTreeMap)
   })
   
+  
+  ### EMU Trees ###
+  
+  renderEmuTree <- function(type, year, cohort) {
+    data <- NULL
+    
+    type <- input$typeSelectEmuTreeMap
+    year <- input$yearSelectEmuTreeMap
+    cohort <- input$cohortSelectEmuTreeMap
+    
+    if (type == "Undergraduate") {
+      data <- switch(year,
+                     "Overall" = tm_emu_us_ug,
+                     "2022" = switch(cohort,
+                                     "All Years" = tm_emu_us_ug_ay2122,
+                                     "1st Year" = tm_emu_us_ug_ay2122_c2122),
+                     "2020" = switch(cohort,
+                                     "All Years" = tm_emu_us_ug_ay1920,
+                                     "1st Year" = tm_emu_us_ug_ay1920_c1920,
+                                     "2nd Year" = tm_emu_us_ug_ay1920_c1819),
+                     "2019" = switch(cohort,
+                                     "All Years" = tm_emu_us_ug_ay1819,
+                                     "1st Year" = tm_emu_us_ug_ay1819_c1819),
+                     "2018" = tm_emu_us_ug_ay1718,
+                     stop("Invalid year selection")
+      )
+    }
+    
+    if (!is.null(data)) {
+      inclusive_tree_fun(data)
+    } else {
+      box(width = NULL, background = "black", "No data available for the selected options.")
+    }
+  }
+  
+  
+  # Render tree maps for EMU
   output$emuTree <- renderPlot({
-    renderEmuTree(input)
+    req(input$visualizationType == "Disaggregated - Tree Maps" && input$locationSelect == "EMU Student Union")
+    renderEmuTree(input$typeSelectEmuTreeMap, input$yearSelectEmuTreeMap, input$cohortEmuSelectTreeMap)
   })
   
-  # Render inclusiveness bars
-  output$campusBar <- renderPlot({
-    renderCampusBar(input)
-  })
-  
-  output$emuBar <- renderPlot({
-    renderEmuBar(input)
-  })
   
 ## Reactable Tables: 
   # Reactable Table for Campus Maps
@@ -384,31 +688,31 @@ server <- function(input, output, session) {
       if (is.null(mapped_year)) return(NULL)
       
       if (cohort == "All Cohorts" || cohort == "No cohort available") {
-        return(paste0(type, "_ay", mapped_year))
+        return(paste0("rt_", type, "_ay", mapped_year))
       } else {
         cohort <- gsub("/", "", cohort)
-        return(paste0(type, "_ay", mapped_year, "_c", cohort))
+        return(paste0("rt_", type, "_ay", mapped_year, "_c", cohort))
       }
     }
     
     # Determine the table to display
     if (type == "Undergraduate") {
       if (year == "Overall") {
-        table_to_display <- reactable_fun(pbb_tables_for_rt$us_ug)
+        table_to_display <- reactable_fun(rt_us_ug)
       } else {
         table_name <- create_table_name("us_ug", year, cohort)
-        table_to_display <- tryCatch({ reactable_fun(pbb_tables_for_rt[[table_name]]) }, error = function(e) { NULL })
+        table_to_display <- tryCatch({ reactable_fun(get(table_name)) }, error = function(e) { NULL })
       }
     } else if (type == "International") {
       if (year == "Overall") {
-        table_to_display <- reactable_fun(pbb_tables_for_rt$i)
+        table_to_display <- reactable_fun(rt_i)
       } else if (year == "Undergrad 2020") {
-        table_to_display <- reactable_fun(pbb_tables_for_rt$i_ug_ay1920)
+        table_to_display <- reactable_fun(rt_i_ug_ay1920)
       } else if (year == "2022") {
-        table_to_display <- reactable_fun(pbb_tables_for_rt$i_ay2122)
+        table_to_display <- reactable_fun(rt_i_ay2122)
       }
     } else if (type == "Graduate" && year == "2022") {
-      table_to_display <- reactable_fun(pbb_tables_for_rt$gr_ay2122)
+      table_to_display <- reactable_fun(rt_gr_ay2122)
     }
     
     # Render the table or a message if no data is available
@@ -441,10 +745,10 @@ server <- function(input, output, session) {
       if (is.null(mapped_year)) return(NULL)
       
       if (cohort == "All Cohorts" || cohort == "No cohort available") {
-        return(paste0(type, "_ay", mapped_year))
+        return(paste0("rt_", type, "_ay", mapped_year))
       } else {
         cohort <- gsub("/", "", cohort)
-        return(paste0(type, "_ay", mapped_year, "_c", cohort))
+        return(paste0("rt_", type, "_ay", mapped_year, "_c", cohort))
       }
     }
     
