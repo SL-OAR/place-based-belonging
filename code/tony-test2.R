@@ -198,72 +198,60 @@ ui <- shinyUI(fluidPage(
                          reactableOutput("tableEmu"))
                 )
         ),
-        tabItem(tabName = "inclusiveness",
-                fluidRow(
-                  column(12, 
-                         selectInput("locationSelect", "Select Campus Location:",
-                                     choices = c("Full Campus", "EMU Student Union"))
-                  )
-                ),
-                conditionalPanel(
-                  condition = "input.locationSelect == 'Full Campus'",
-                fluidRow(
-                  column(12, 
-                         selectInput("visualizationType", "Select Visualization Type:",
-                                     choices = c("Disaggregated - Tree Maps", "Aggregated - Bar Plot"))
-                  )
+        tabItem(
+          tabName = "inclusiveness",
+          fluidRow(
+            column(12, 
+                   selectInput("locationSelect", "Select Campus Location:", choices = c("Full Campus", "EMU Student Union"))
+            )
+          ),
+          conditionalPanel(
+            condition = "input.locationSelect == 'Full Campus'",
+            fluidRow(
+              column(12, 
+                     selectInput("visualizationType", "Select Visualization Type:", choices = c("Disaggregated - Tree Maps", "Aggregated - Bar Plot"))
+              )
+            ),
+            fluidRow(
+              column(4, uiOutput("typeSelectInclusiveBar")),
+              column(4, uiOutput("yearSelectInclusiveBar")),
+              column(4, uiOutput("cohortSelectInclusiveBar"))
+            ),
+            conditionalPanel(
+              condition = "input.visualizationType == 'Aggregated - Bar Plot'",
+              fluidRow(
+                column(width = 12,
+                       box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE, uiOutput("inclusiveBar"))
                 )
+              )
+            ),
+            conditionalPanel(
+              condition = "input.visualizationType == 'Disaggregated - Tree Maps'",
+              fluidRow(
+                column(4, uiOutput("typeSelectCampusTreeMap")),
+                column(4, uiOutput("yearSelectCampusTreeMap")),
+                column(4, uiOutput("cohortSelectCampusTreeMap"))
               ),
-                fluidRow(
-                  column(4, uiOutput("typeSelectInclusiveBar")),
-                  column(4, uiOutput("yearSelectInclusiveBar")),
-                  column(4, uiOutput("cohortSelectInclusiveBar"))
-                ),
-                conditionalPanel(
-                  condition = "input.visualizationType == 'Aggregated - Bar Plot'",
-                  fluidRow(
-                    column(width = 12,
-                           box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE,
-                               uiOutput("inclusiveBar"))
-                    )
-                  )
-                ),
-                # Filters for Campus Tree Maps,
-              conditionalPanel(
-                condition = "input.visualizationType == 'Disaggregated - Tree Maps' && input.locationSelect == 'Full Campus'",
-                fluidRow(
-                  column(4, uiOutput("typeSelectCampusTreeMap")),
-                  column(4, uiOutput("yearSelectCampusTreeMap")),
-                  column(4, uiOutput("cohortSelectCampusTreeMap"))
+              fluidRow(
+                column(width = 12,
+                       box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE, plotOutput("campusTree"))
                 )
-              ),
-                # Conditionally render the tree maps for Campus
-                conditionalPanel(
-                  condition = "input.visualizationType == 'Disaggregated - Tree Maps' && input.locationSelect == 'Full Campus'",
-                  fluidRow(
-                    column(width = 12,
-                           box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE,
-                               plotOutput("campusTree")))
-                  )
-                ),
-              # Filters for EMU tree Maps
-              conditionalPanel(
-                condition = "input.visualizationType == 'Disaggregated - Tree Maps' && input.locationSelect == 'EMU Student Union'",
-                fluidRow(
-                  column(4, uiOutput("typeSelectEmuTreeMap")),
-                  column(4, uiOutput("yearSelectEmuTreeMap")),
-                  column(4, uiOutput("cohortSelectEmuTreeMap"))
-                )
-              ),
-                # Conditionally render the tree maps for EMU
-                conditionalPanel(
-                  condition = "input.visualizationType == 'Disaggregated - Tree Maps' && input.locationSelect == 'EMU Student Union'",
-                  fluidRow(
-                    column(width = 12,
-                           box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE,
-                               plotOutput("emuTree")))
-                  )
-                )
+              )
+            )
+          ),
+          conditionalPanel(
+            condition = "input.locationSelect == 'EMU Student Union'",
+            fluidRow(
+              column(4, uiOutput("typeSelectEmuTreeMap")),
+              column(4, uiOutput("yearSelectEmuTreeMap")),
+              column(4, uiOutput("cohortSelectEmuTreeMap"))
+            ),
+            fluidRow(
+              column(width = 12,
+                     box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, plotOutput("emuTree"))
+              )
+            )
+          )
         ),
         tabItem(tabName = "words", fluidRow(uiOutput("dynamicFilter")),
                 fluidRow(
@@ -464,18 +452,23 @@ server <- function(input, output, session) {
   # Year Select EMU Tree Map
   output$yearSelectEmuTreeMap <- renderUI({
     req(input$typeSelectEmuTreeMap)
+    
     if (input$typeSelectEmuTreeMap == "Undergraduate") {
-      selectInput("yearSelectEmuTreeMap", "Select Year:", choices = c("2018", "2019", "2020", "2022", "Overall"))
+      selectInput("yearSelectEmuTreeMap", "Select Year:", 
+                  choices = c("2018", "2019", "2020", "2022", "Overall"))
     } else if (input$typeSelectEmuTreeMap == "International") {
-      selectInput("yearSelectEmuTreeMap", "Select Year:", choices = c("Overall", "2022", "Spring 2020"))
+      selectInput("yearSelectEmuTreeMap", "Select Year:", 
+                  choices = c("Overall", "2022", "Spring 2020"))
     } else if (input$typeSelectEmuTreeMap == "Graduate") {
-      selectInput("yearSelectEmuTreeMap", "Select Year:", choices = c("Overall"))
+      selectInput("yearSelectEmuTreeMap", "Select Year:", 
+                  choices = c("Overall"))
     }
   })
   
   # Cohort Select EMU Tree Map
   output$cohortSelectEmuTreeMap <- renderUI({
     req(input$typeSelectEmuTreeMap, input$yearSelectEmuTreeMap)
+    
     if (input$typeSelectEmuTreeMap == "Undergraduate") {
       if (input$yearSelectEmuTreeMap %in% c("2022", "2020", "2019")) {
         choices <- switch(input$yearSelectEmuTreeMap,
@@ -488,7 +481,9 @@ server <- function(input, output, session) {
       } else {
         selectInput("cohortSelectEmuTreeMap", "Select Cohort:", choices = c("No cohort available"))
       }
-    } else {
+    } else if (input$typeSelectEmuTreeMap == "International") {
+      selectInput("cohortSelectEmuTreeMap", "Select Cohort:", choices = c("No cohort available"))
+    } else if (input$typeSelectEmuTreeMap == "Graduate") {
       selectInput("cohortSelectEmuTreeMap", "Select Cohort:", choices = c("No cohort available"))
     }
   })
@@ -571,12 +566,28 @@ server <- function(input, output, session) {
   
   renderCampusTree <- function(type, year, cohort) {
     data <- NULL
-    type <- input$typeSelectCampusTreeMap
-    year <- input$yearSelectCampusTreeMap
-    cohort <- input$cohortSelectCampusTreeMap
     
+    # Assign input values, and make sure they are of length 1 - Chat GPT's fix for a warning I was receiving about Null values
+    type <- if (!is.null(input$typeSelectCampusTreeMap) && length(input$typeSelectCampusTreeMap) == 1) {
+      input$typeSelectCampusTreeMap
+    } else {
+      NA
+    }
     
-    if (type == "Undergraduate") {
+    year <- if (!is.null(input$yearSelectCampusTreeMap) && length(input$yearSelectCampusTreeMap) == 1) {
+      input$yearSelectCampusTreeMap
+    } else {
+      NA
+    }
+    
+    cohort <- if (!is.null(input$cohortSelectCampusTreeMap) && length(input$cohortSelectCampusTreeMap) == 1) {
+      input$cohortSelectCampusTreeMap
+    } else {
+      NA
+    }
+    
+    # Check if type is "Undergraduate" and if year is valid
+    if (!is.na(type) && type == "Undergraduate") {
       data <- switch(year,
                      "Overall" = tm_cam_us_ug,
                      "2022" = switch(cohort,
@@ -599,24 +610,26 @@ server <- function(input, output, session) {
                                      "1st Year" = tm_cam_us_ug_ay1819_c1516),
                      "2018" = tm_cam_us_ug_ay1718
       )
-    } else if (type == "International") {
+    } else if (!is.na(type) && type == "International") {
       data <- switch(year,
                      "Overall" = tm_cam_i,
                      "2020" = tm_cam_i_ug_ay1920
       )
-    } else if (type == "Graduate") {
+    } else if (!is.na(type) && type == "Graduate") {
       data <- switch(year,
                      "2022" = tm_cam_gr_ay2122
       )
     }
     
-    if (!is.null(data) && "tot" %in% colnames(data)) {
+    # Ensure data is not NULL, is a dataframe, and has the 'tot' column
+    if (!is.null(data) && is.data.frame(data) && "tot" %in% colnames(data)) {
       inclusive_tree_fun(data)
     } else {
-      print("Error: 'tot' column not found or data is NULL.")
       HTML("<p>No data available or required column 'tot' is missing for the selected options.</p>")
     }
   }
+  
+    
   
   # Render tree maps for Campus
   output$campusTree <- renderPlot({
@@ -630,41 +643,76 @@ server <- function(input, output, session) {
   renderEmuTree <- function(type, year, cohort) {
     data <- NULL
     
-    type <- input$typeSelectEmuTreeMap
-    year <- input$yearSelectEmuTreeMap
-    cohort <- input$cohortSelectEmuTreeMap
+    # Assign input values, and make sure they are of length 1 - Chat GPT's fix for a warning I was receiving about Null values
+    type <- if (!is.null(input$typeSelectEmuTreeMap) && length(input$typeSelectEmuTreeMap) == 1) {
+      input$typeSelectEmuTreeMap
+    } else {
+      NA
+    }
     
-    if (type == "Undergraduate") {
+    year <- if (!is.null(input$yearSelectEmuTreeMap) && length(input$yearSelectEmuTreeMap) == 1) {
+      input$yearSelectEmuTreeMap
+    } else {
+      NA
+    }
+    
+    cohort <- if (!is.null(input$cohortSelectEmuTreeMap) && length(input$cohortSelectEmuTreeMap) == 1) {
+      input$cohortSelectEmuTreeMap
+    } else {
+      NA
+    }
+    
+    img_path <- "www/Nothing_to_see.png"  
+    
+    # Check conditions for rendering specific tree maps
+    if (!is.null(type) && !is.na(type) && type == "Undergraduate") {
       data <- switch(year,
                      "Overall" = tm_emu_us_ug,
-                     "2022" = switch(cohort,
-                                     "All Years" = tm_emu_us_ug_ay2122,
-                                     "1st Year" = tm_emu_us_ug_ay2122_c2122),
+                     "2018" = tm_emu_us_ug_ay1718,
+                     "2019" = switch(cohort,
+                                     "All Years" = tm_emu_us_ug_ay1819,
+                                     "1st Year" = tm_emu_us_ug_ay1819_c1819),
                      "2020" = switch(cohort,
                                      "All Years" = tm_emu_us_ug_ay1920,
                                      "1st Year" = tm_emu_us_ug_ay1920_c1920,
                                      "2nd Year" = tm_emu_us_ug_ay1920_c1819),
-                     "2019" = switch(cohort,
-                                     "All Years" = tm_emu_us_ug_ay1819,
-                                     "1st Year" = tm_emu_us_ug_ay1819_c1819),
-                     "2018" = tm_emu_us_ug_ay1718,
-                     stop("Invalid year selection")
-      )
+                     "2022" = switch(cohort,
+                                     "All Years" = tm_emu_us_ug_ay2122,
+                                     "1st Year" = tm_emu_us_ug_ay2122_c2122))
+    } else if (!is.null(type) && !is.na(type) && type == "International") {
+      # International doesn't have any tree maps available
+      grid::grid.raster(png::readPNG(img_path))
+      grid::grid.text("Insufficient data for International tree map to display", 
+                      gp = grid::gpar(fontsize = 20, col = "black"), 
+                      y = 0.1, just = "bottom")
+      return(NULL)
+    } else if (!is.null(type) && !is.na(type) && type == "Graduate") {
+      # Graduate doesn't have any tree maps available
+      grid::grid.raster(png::readPNG(img_path))
+      grid::grid.text("Insufficient data for Graduate tree map to display", 
+                      gp = grid::gpar(fontsize = 20, col = "black"), 
+                      y = 0.1, just = "bottom")
+      return(NULL)
     }
     
+    # Render the tree map if data exists
     if (!is.null(data)) {
       inclusive_tree_fun(data)
     } else {
-      box(width = NULL, background = "black", "No data available for the selected options.")
+      # Fallback: No data available, show "Nothing to See" image
+      grid::grid.raster(png::readPNG(img_path))
+      grid::grid.text(paste("Insufficient data for", type, year, cohort,"to display"), 
+                      gp = grid::gpar(fontsize = 20, col = "black"), 
+                      y = 0.1, just = "bottom")
     }
   }
   
-  
   # Render tree maps for EMU
   output$emuTree <- renderPlot({
-    req(input$visualizationType == "Disaggregated - Tree Maps" && input$locationSelect == "EMU Student Union")
-    renderEmuTree(input$typeSelectEmuTreeMap, input$yearSelectEmuTreeMap, input$cohortEmuSelectTreeMap)
+    req(input$locationSelect == 'EMU Student Union')
+    renderEmuTree(input$typeSelectEmuTreeMap, input$yearSelectEmuTreeMap, input$cohortSelectEmuTreeMap)
   })
+  
   
   
 ## Reactable Tables: 
