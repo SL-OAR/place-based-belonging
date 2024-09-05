@@ -502,7 +502,8 @@ server <- function(input, output, session) {
     req(input$typeSelectWords)
     if (input$typeSelectWords == "Undergraduate") {
       selectInput("placeSelect", "Select Location:",
-                  choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                  choices = c("Allen" = "allen", 
+                              "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
                               "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
                               "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
                               "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
@@ -521,7 +522,7 @@ server <- function(input, output, session) {
     req(input$placeSelect)
     if (input$placeSelect == "Erb Memorial Union (EMU)") {
       selectInput("place2Select", "Select Location:",
-                  choices = c("Overall","Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
+                  choices = c("Overall", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
                               "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
                               "Multicultural Center", "O Lounge", "Taylor Lounge",
                               "Women's Center"))
@@ -993,6 +994,56 @@ server <- function(input, output, session) {
       tagList(
         tags$h3("No map available for the selected options."),
         tags$p(paste("Selected Type:", input$typeSelectCampus, "Year:", input$yearSelectCampus, "Cohort:", input$cohortSelectCampus))
+      )
+    }
+  })
+  
+  ## Wordnet & Wordcloud images
+  # wordnet
+  output$wordnet <- renderUI({
+    req(input$typeSelectWords, input$placeSelect)
+    base_path <- "wordnets/"
+    image_src_belonging <- ""
+    image_src_not_belonging <- ""
+    
+    print(paste("typeSelectWords:", input$typeSelectWords))
+    print(paste("placeSelect:", input$placeSelect))
+#    print(paste("place2Select:", input$place2Select))
+    
+    if (input$typeSelectWords == "Undergraduate") {
+      place <- input$placeSelect
+      print(place)
+      
+      image_src_belonging <- paste0("bg_", place, "_b_us_ug.png")
+      image_src_not_belonging <- paste0("bg_", place, "_db_us_ug.png")
+      
+    } else if (input$typeSelectCampus == "International") {
+      
+      image_src_belonging <- paste0("bg_", place, "_b_i.png")
+      image_src_not_belonging <- paste0("bg_", place, "_db_i.png")
+      
+    } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
+      image_src_belonging <- paste0("bg_", place, "_b_gr.png")
+      image_src_not_belonging <- paste0("bg_", place, "_db_gr.png")
+    }
+    
+    print(paste("Belonging image source:", image_src_belonging))
+    print(paste("Not belonging image source:", image_src_not_belonging))
+    
+    available_wordnets <- list.files(path = "code/www/wordnets")
+    
+    if (image_src_belonging %in% available_wordnets && image_src_not_belonging %in% available_wordnets) {
+      tagList(
+        tags$h3("Belonging Wordnet"),
+        img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
+        tags$h3("Not Belonging Wordnet"),
+        img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
+        tags$p(paste("Selected Type:", input$typeSelectWords, "Location:", input$placeSelect, "Disaggregated:", input$place2Select))
+      )
+    } else {
+      tagList(
+        tags$h3("No map available for the selected options."),
+        tags$p(paste("Selected Type:", input$typeSelectWords, "Location:", input$placeSelect, "Disaggregated:", input$place2Select))
       )
     }
   })
