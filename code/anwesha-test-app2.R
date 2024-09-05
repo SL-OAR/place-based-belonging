@@ -253,15 +253,18 @@ ui <- shinyUI(fluidPage(
             )
           )
         ),
-        tabItem(tabName = "words", fluidRow(uiOutput("dynamicFilter")),
+        tabItem(tabName = "words",
+                fluidRow(
+                  column(4, uiOutput("typeSelectWords")),
+                  column(4, uiOutput("placeSelect")),
+                  column(4, uiOutput("place2Select"))
+                ),
                 fluidRow(
                   column(width = 6,
-                         box(width = NULL, title = "Campus Inclusiveness", solidHeader = FALSE),
-                         box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE))
-                ),
-                column(width = 6,
-                       box(width = NULL, title = "Campus Inclusiveness", solidHeader = FALSE),
-                       box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE))
+                         uiOutput("wordNets")),
+                  column(width = 6,
+                         uiOutput("wordClouds"))
+                )
         ),
         tabItem(tabName = "emotions",
                 fluidRow(
@@ -272,7 +275,7 @@ ui <- shinyUI(fluidPage(
                   column(width = 6,
                          box(width = NULL, uiOutput("dynamicFilter")),
                          box(width = NULL, background = "black", "Bar graphs here."))
-                )
+                ) 
         ),
         tabItem(tabName = "whom", includeMarkdown("www/whom.md")),
         tabItem(tabName = "between", includeMarkdown("www/between.md")),
@@ -488,6 +491,49 @@ server <- function(input, output, session) {
       selectInput("cohortSelectEmuTreeMap", "Select Cohort:", choices = c("No cohort available"))
     }
   })
+  
+  # Wordnets & Wordclouds #
+  
+  output$typeSelectWords <- renderUI({
+    selectInput("typeSelectWords", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))
+  })
+  
+  output$placeSelect <- renderUI ({
+    req(input$typeSelectWords)
+    if (input$typeSelectWords == "Undergraduate") {
+      selectInput("placeSelect", "Select Location:",
+                  choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                              "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                              "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                              "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                              "Tykeson", "University Health Services", "University Housing"))
+    } else if (input$typeSelectWords == "International") {
+      selectInput("placeSelect", "Select Location:", 
+                  choices = c("Erb Memorial Union (EMU)", "Knight Library", "Lokey Science Complex",
+                              "Student Rec Complex", "University Housing"))
+    } else if (input$typeSelectWords == "Graduate") {
+      selectInput("placeSelect", "Select Location:",
+                  choices = c("Knight Library", "Student Rec Complex"))
+    }
+  })
+  
+  output$place2Select <- renderUI ({
+    req(input$placeSelect)
+    if (input$placeSelect == "Erb Memorial Union (EMU)") {
+      selectInput("place2Select", "Select Location:",
+                  choices = c("Overall","Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
+                              "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
+                              "Multicultural Center", "O Lounge", "Taylor Lounge",
+                              "Women's Center"))
+    } else if (input$placeSelect == "Lokey Science Complex") {
+      selectInput("place2Select", "Select Location:",
+                  choices = c("Overall", "Columbia", "Klamath", "Lewis", "Science Commons", "Willamette"))
+    } else if (input$placeSelect == "University Housing") {
+      selectInput("place2Select", "Select Location:",
+                  choices = c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
+                              "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton"))
+    }
+  }) 
   
   
   
