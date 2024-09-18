@@ -13,6 +13,12 @@ library(here)
 # Set working directory
 path <- here::here()
 setwd(path)
+packrat::on()
+
+# Use reticulate to activate the conda environment
+use_condaenv("oar_pbb", required = TRUE)
+print("Environment successfully activated and libraries loaded.")
+
 
 # Reading in data
 # tree maps
@@ -47,7 +53,7 @@ for (name in pbb_tables_for_bp_names) {
 # groups <- unique(bar_plot_df$group)
 
 
-
+packrat::on()
 source("code/helpers.R")
 
 available_maps <- c(
