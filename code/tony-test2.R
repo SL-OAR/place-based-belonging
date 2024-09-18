@@ -253,15 +253,26 @@ ui <- shinyUI(fluidPage(
             )
           )
         ),
-        tabItem(tabName = "words", fluidRow(uiOutput("dynamicFilter")),
+        tabItem(tabName = "words", 
                 fluidRow(
+                  column(width = 6, 
+                         selectInput("typeSelectWords", "Select Type:", 
+                                     choices = c("Undergraduate", "International", "Graduate"), 
+                                     selected = "Undergraduate"  # Optional default selection
+                         ),
+                         uiOutput("placeSelect"),  # Dynamically generated place select input
+                         uiOutput("place2Select"),  # Dynamically generated second place select input
+                         
+                         # New radio buttons for selecting Belong status
+                         radioButtons("belongStatus", "Select Belonging Status:", 
+                                      choices = c("Belong" = "b", "Don't Belong" = "db"), 
+                                      selected = "b"  # Default to "Belong"
+                         )
+                  ),
                   column(width = 6,
-                         box(width = NULL, title = "Campus Inclusiveness", solidHeader = FALSE),
-                         box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE))
-                ),
-                column(width = 6,
-                       box(width = NULL, title = "Campus Inclusiveness", solidHeader = FALSE),
-                       box(width = NULL, title = "EMU Inclusiveness", solidHeader = FALSE))
+                         imageOutput("wordCloudImage")  # This will display the word cloud image
+                  )
+                )
         ),
         tabItem(tabName = "emotions",
                 fluidRow(
@@ -361,27 +372,8 @@ server <- function(input, output, session) {
   })
   
   
-  
 ## Inclusiveness ##
   
-  # Dynamically generate the building selection for bar plots (including EMU)
-  
-  
-  # This will be used for Emotion bar plots
-  
-  # output$buildingSelectBarPlot <- renderUI({
-  #   req(input$visualizationType == "Aggregated - Bar Plots")
-  #   selectInput("buildingSelectBarPlot", "Select Building:",
-  #               choices = c("EMU", "Allen", "Atrium", "Autzen", "Barnhart", "Bean", "Carson",
-  #                           "Chapman", "Columbia", "Courtyard", "Craft", "Ducknest",
-  #                           "Earl", "Fallingsky", "Fishbowl", "Frohnmayer",
-  #                           "GSH", "Hamilton", "Hayward", "Hedco", "Housing", "Jaqua",
-  #                           "Kalapuya", "Klamath", "Law", "Lawrence", "LGBTQA3", "Library",
-  #                           "Lillis", "LISB", "LLC", "Lokey", "Mattknight", "MCC", "Mckenzie",
-  #                           "Mills", "Olounge", "Oregon", "SCICOM", "SRC", "Straub",
-  #                           "Taylor", "Tykeson", "UHS", "Unthank", "Walton", "Willamette",
-  #                           "Womens"))
-  # })
   
  # Inclusive Bar Plots # 
   # Type Select Inclusive Bar
@@ -715,6 +707,7 @@ server <- function(input, output, session) {
   
   
   
+  
 ## Reactable Tables: 
   # Reactable Table for Campus Maps
   output$tableCampus <- renderReactable({
@@ -949,6 +942,183 @@ server <- function(input, output, session) {
       )
     }
   })
+  
+  
+## Word Nets & Word Clouds
+  
+  # Wordnets & Wordclouds filters
+  
+  output$typeSelectWords <- renderUI({
+    selectInput("typeSelectWords", "Select Type:", 
+                choices = c("Undergraduate", "International", "Graduate"), 
+                selected = "Undergraduate"
+    )
+  })
+  
+  # Dynamically generate the main location select input based on the selected student group
+  output$placeSelect <- renderUI({
+    req(input$typeSelectWords)  # Ensure that the type is selected
+    
+    # Clear place2Select when switching between locations
+    updateSelectInput(session, "place2Select", selected = NULL)
+    
+    if (input$typeSelectWords == "Undergraduate") {
+      selectInput("placeSelect", "Select Location:",
+                  choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                              "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                              "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                              "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                              "Tykeson", "University Health Services", "University Housing"))
+    } else if (input$typeSelectWords == "International") {
+      selectInput("placeSelect", "Select Location:", 
+                  choices = c("Erb Memorial Union (EMU)", "Knight Library", "Lokey Science Complex",
+                              "Student Rec Complex", "University Housing"))
+    } else if (input$typeSelectWords == "Graduate") {
+      selectInput("placeSelect", "Select Location:",
+                  choices = c("Knight Library", "Student Rec Complex"))
+    }
+  })
+  
+  # Dynamically generate the sub-location select input when a complex like EMU, Lokey, or Housing is selected
+  output$place2Select <- renderUI({
+    req(input$placeSelect)  # Ensure that a location is selected
+    
+    if (input$placeSelect == "Erb Memorial Union (EMU)") {
+      selectInput("place2Select", "Select Location:",
+                  choices = c("Overall", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
+                              "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
+                              "Multicultural Center", "O Lounge", "Taylor Lounge", "Women's Center"))
+    } else if (input$placeSelect == "Lokey Science Complex") {
+      selectInput("place2Select", "Select Location:",
+                  choices = c("Overall", "Columbia", "Klamath", "Lewis", "Science Commons", "Willamette"))
+    } else if (input$placeSelect == "University Housing") {
+      selectInput("place2Select", "Select Location:",
+                  choices = c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
+                              "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton"))
+    }
+  })
+  
+  
+  
+  location_file_name_map <- list(
+    "Allen" = "allen",
+    "Autzen Stadium" = "autzen",
+    "Cemetery" = "cemetery",
+    "Chapman" = "chapman",
+    "Erb Memorial Union (EMU)" = "emu",
+    "Frohnmayer" = "frohnmayer",
+    "Hayward Field" = "hayward",
+    "HEDCO" = "hedco",
+    "Jaqua" = "jaqua",
+    "Knight Law" = "law",
+    "Lawrence" = "lawrence",
+    "Knight Library" = "library",
+    "Lillis Business Complex" = "lillis",
+    "Lokey Science Complex" = "lokey",
+    "Matthew Knight Arena" = "mattknight",
+    "McKenzie" = "mckenzie",
+    "Oregon" = "oregon",
+    "Straub" = "straub",
+    "Student Rec Complex" = "src",
+    "Tykeson" = "tykeson",
+    "University Health Services" = "uhs",
+    "University Housing" = "housing",
+    
+    # Secondary level options
+    "Women's Center" = "womens",
+    "Willamette" = "willamette",
+    "Walton" = "walton",
+    "Unthank" = "unthank",
+    "Taylor Lounge" = "taylor",
+    "O Lounge" = "olounge",
+    "Mills Center" = "mills",
+    "Fishbowl" = "fishbowl",
+    "Falling Sky" = "fallingsky",
+    "Fresh Market" = "freshmarket",
+    "Duck Nest" = "ducknest",
+    "Craft" = "craft",
+    "Courtyard" = "courtyard",
+    "Columbia" = "columbia",
+    "Barnhart" = "barnhart",
+    "Bean" = "bean",
+    "Carson" = "carson",
+    "Earl" = "earl",
+    "Hamilton" = "hamilton",
+    "Kalapuya Ilihi" = "kalapuya",
+    "Living Learning" = "llc",
+    "Global Scholars" = "gsh",
+    "Atrium East" = "atrium",
+    "Science Commons" = "scicom",
+    "Multicultural Center" = "mcc",
+    "LGBTQIA3" = "lgbtqa3",
+    "Lisbon" = "lisb",
+    "Klamath" = "klamath"
+  )
+  
+  
+  
+  observeEvent(input$placeSelect, {
+    # Reset the sub-location (place2Select) to "Overall" only if the previous building was EMU, Lokey, or University Housing
+    if (input$placeSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      updateSelectInput(session, "place2Select", selected = "Overall")
+    } else {
+      # For buildings without sub-locations, we can hide or disable the sub-location input if needed
+      updateSelectInput(session, "place2Select", selected = NULL)
+    }
+  })
+  
+  output$wordCloudImage <- renderImage({
+    req(input$typeSelectWords, input$placeSelect, input$belongStatus)  # Ensure all inputs are selected
+    
+    # Mapping user input to the corresponding student group code
+    student_group <- switch(input$typeSelectWords,
+                            "Undergraduate" = "us_ug",
+                            "International" = "i",
+                            "Graduate" = "gr")
+    
+    # Get the base location selected from the mapping
+    building_name <- location_file_name_map[[input$placeSelect]]  # Map to file name
+    building_name <- tolower(building_name)  # Convert to lowercase to match file name format
+    
+    # Handle sub-location only for EMU, Lokey, and University Housing
+    if (!is.null(input$place2Select) && input$place2Select != "Overall" && input$placeSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      # Check if the sub-location is mapped, otherwise replace spaces with underscores
+      sub_location_mapped <- location_file_name_map[[input$place2Select]]
+      if (!is.null(sub_location_mapped)) {
+        # If a mapped value exists, use it
+        building_name <- tolower(sub_location_mapped)
+      } else {
+        # If no mapping exists, convert the sub-location to a filename-friendly format
+        building_name <- tolower(gsub(" ", "_", input$place2Select))
+      }
+    }
+    
+    # Construct the file path based on the selected belong status (b or db)
+    file_name <- paste0("wc_", building_name, "_", input$belongStatus, "_", student_group, ".png")
+    
+    # Define the full path to the image directory (in 'www/wordclouds')
+    full_image_path <- file.path(getwd(), "www", "wordclouds", file_name)
+    
+    # Placeholder image when no word cloud is available
+    no_data_image_path <- file.path(getwd(), "www", "Nothing_to_see.png")
+    
+    # Check if the file exists for the selected belong status
+    if (file.exists(full_image_path)) {
+      return(list(
+        src = full_image_path, 
+        alt = paste("Word cloud for", input$placeSelect, input$typeSelectWords, input$belongStatus),
+        height = "400px"
+      ))
+    } else {
+      # Render the placeholder image if the file does not exist
+      return(list(
+        src = no_data_image_path, 
+        alt = "No data available for the selected options",
+        height = "400px"
+      ))
+    }
+  }, deleteFile = FALSE)
+  
   
 }
 
