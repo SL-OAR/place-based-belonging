@@ -260,17 +260,18 @@ ui <- shinyUI(fluidPage(
                                      choices = c("Undergraduate", "International", "Graduate"), 
                                      selected = "Undergraduate"  # Optional default selection
                          ),
-                         uiOutput("placeSelect"),  # Dynamically generated place select input
-                         uiOutput("place2Select"),  # Dynamically generated second place select input
+                         uiOutput("placeSelect"),  # Dynamically generated place select input for both word clouds and word nets
+                         uiOutput("place2Select"),  # Dynamically generated second place select input for both word clouds and word nets
                          
-                         # New radio buttons for selecting Belong status
+                         # Radio buttons for selecting Belong status for both word clouds and word nets
                          radioButtons("belongStatus", "Select Belonging Status:", 
                                       choices = c("Belong" = "b", "Don't Belong" = "db"), 
                                       selected = "b"  # Default to "Belong"
                          )
                   ),
                   column(width = 6,
-                         imageOutput("wordCloudImage")  # This will display the word cloud image
+                         imageOutput("wordCloudImage"),  # This will display the word cloud image
+                         imageOutput("wordNetImage")  # This will display the word net image
                   )
                 )
         ),
@@ -946,7 +947,9 @@ server <- function(input, output, session) {
   
 ## Word Nets & Word Clouds
   
-  # Wordnets & Wordclouds filters
+  
+  
+  # Wordclouds filters
   
   output$typeSelectWords <- renderUI({
     selectInput("typeSelectWords", "Select Type:", 
@@ -1119,6 +1122,50 @@ server <- function(input, output, session) {
     }
   }, deleteFile = FALSE)
   
+  output$wordNetImage <- renderImage({
+    req(input$typeSelectWords, input$placeSelect, input$belongStatus)  # Ensure all inputs are selected
+    
+    # Use the same filtering logic as for word clouds
+    student_group <- switch(input$typeSelectWords,
+                            "Undergraduate" = "us_ug",
+                            "International" = "i",
+                            "Graduate" = "gr")
+    
+    # Get the base location selected from the mapping
+    building_name <- location_file_name_map[[input$placeSelect]]
+    building_name <- tolower(building_name)
+    
+    # Handle sub-location for word nets in the same way
+    if (!is.null(input$place2Select) && input$place2Select != "Overall" && input$placeSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      sub_location_mapped <- location_file_name_map[[input$place2Select]]
+      if (!is.null(sub_location_mapped)) {
+        building_name <- tolower(sub_location_mapped)
+      } else {
+        building_name <- tolower(gsub(" ", "_", input$place2Select))
+      }
+    }
+    
+    # Construct the file path for word nets
+    file_name_net <- paste0("bg_", building_name, "_", input$belongStatus, "_", student_group, ".png")
+    full_image_path_net <- file.path(getwd(), "www", "wordnets", file_name_net)
+    # Placeholder image when no word cloud is available
+    no_data_image_path <- file.path(getwd(), "www", "Nothing_to_see.png")
+    
+    # Check if the file exists for the word net
+    if (file.exists(full_image_path_net)) {
+      return(list(
+        src = full_image_path_net, 
+        alt = paste("Word net for", input$placeSelect, input$typeSelectWords, input$belongStatus),
+        height = "400px"
+      ))
+    } else {
+      return(list(
+        src = no_data_image_path, 
+        alt = "No data available for the selected options",
+        height = "400px"
+      ))
+    }
+  }, deleteFile = FALSE)
   
 }
 
