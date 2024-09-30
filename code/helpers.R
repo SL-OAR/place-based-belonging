@@ -145,6 +145,8 @@ inclusive_tree_fun <- function(dat) {
   return(plot)
 }
 
+
+
 ### Break down inclusiveness functions so server is not crowded
 
 ### EMU Trees
