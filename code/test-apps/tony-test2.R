@@ -9,6 +9,10 @@ library(leaflet.extras)
 library(shinydashboard)
 library(shinycssloaders)
 library(here)
+library(reticulate)
+library(markdown)
+library(bslib)
+library(fastmap)
 
 # Set working directory
 path <- here::here()

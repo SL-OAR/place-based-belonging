@@ -1,0 +1,46 @@
+/* Set the background and text color for dark mode */
+body, .content-wrapper, .main-sidebar {
+  background-color: #1e1e1e;
+  color: #dcdcdc;
+}
+
+/* Custom style for hyperlinks */
+a {
+  color: hotpink;
+}
+
+/* Custom class for blue text */
+.blue-text {
+  color: blue !important;
+}
+
+/* Style for code blocks in dark mode */
+pre, code {
+  background-color: #2d2d2d;
+  color: #dcdcdc;
+}
+
+/* Override box header colors */
+.box {
+  background-color: #2d2d2d;
+  color: #dcdcdc;
+}
+
+.box-header {
+  background-color: #333333;
+  color: #dcdcdc;
+}
+
+/* Override navbar colors */
+.skin-blue .main-header .navbar {
+  background-color: #333333;
+}
+
+.skin-blue .main-header .logo {
+  background-color: #333333;
+  color: #dcdcdc;
+}
+
+.skin-blue .main-sidebar {
+  background-color: #333333;
+}
