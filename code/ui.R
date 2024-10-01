@@ -42,6 +42,7 @@ setwd(path)
 # use_condaenv("oar_pbb", required = TRUE)
 # print("Environment successfully activated and libraries loaded.")
 
+
 # UI
 ui <- shinyUI(fluidPage(
   includeCSS("www/style.css"),
@@ -107,7 +108,7 @@ ui <- shinyUI(fluidPage(
                          reactableOutput("tableEmu"))
                 )
         ),
-        tabItem(
+        tabItem( 
           tabName = "inclusiveness",
           fluidRow(
             column(12, 
@@ -167,20 +168,19 @@ ui <- shinyUI(fluidPage(
                   column(width = 6, 
                          selectInput("typeSelectWords", "Select Type:", 
                                      choices = c("Undergraduate", "International", "Graduate"), 
-                                     selected = "Undergraduate"  # Optional default selection
+                                     selected = "Undergraduate" # Default to "Undergrad"
                          ),
-                         uiOutput("placeSelect"),  # Dynamically generated place select input for both word clouds and word nets
-                         uiOutput("place2Select"),  # Dynamically generated second place select input for both word clouds and word nets
-                         
-                         # Radio buttons for selecting Belong status for both word clouds and word nets
+                         uiOutput("placeSelect"),  # place select input for both word clouds and word nets
+                         uiOutput("place2Select"),  # second place select input for word clouds and word nets i.e. Buildings within complexes
+                         # Can I add radio buttons to the inclusiveness page??
                          radioButtons("belongStatus", "Select Belonging Status:", 
                                       choices = c("Belong" = "b", "Don't Belong" = "db"), 
                                       selected = "b"  # Default to "Belong"
                          )
                   ),
                   column(width = 6,
-                         imageOutput("wordCloudImage"),  # This will display the word cloud image
-                         imageOutput("wordNetImage")  # This will display the word net image
+                         imageOutput("wordCloudImage"),  
+                         imageOutput("wordNetImage")  
                   )
                 )
         ),
