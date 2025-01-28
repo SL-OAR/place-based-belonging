@@ -19,7 +19,39 @@ library(reticulate)
 library(markdown)
 library(bslib)
 library(fastmap)
+## New Addition for Shiny features
+library(bslib)
+library(shinyalert)
+library(shinyBS)
+## Had to add due to error on "No package with ____ found"
+library(farver)
+library(labeling)
+library(crayon)
+library(cli)
+library(viridisLite)
 
+# Do we need a CSS styl sheet?
+
+#########
+# Code for shinyBS Popover
+# bsPopover(id=" ", title = " ", content = " ", trigger = "hover", 
+# placement = "right", options = list(container = "body"))
+## Most of these are self explanatory: 
+### id is the name of the object to use as a trigger
+### title is the title of the popover box
+### content is the text content of the popover box
+### trigger is the trigger mechanism (hover, click, )
+### placement determines where the popover appears (right, left, auto)
+### options 
+## The code goes in the dashboardBody in the desired section
+
+#popify? To wrap UI element in popify to add popover to wrapped element
+
+## Can also potentially use tooltip 
+# bsTooltip("Text", "Tooltip info", placement = "bottom", trigger = "hover", options = NULL)
+## Primarily for input to describe the function
+
+#####
 
 library(conflicted)
 conflicts_prefer(
@@ -67,20 +99,24 @@ server <- function(input, output, session) {
     return(TRUE)
   }
   
-  
+
+#########################################    
   ## Filters ## 
   
   ## Campus Belonging
+  # Heat Maps
+  
   # Type Select Campus
   output$typeSelectCampus <- renderUI({
-    selectInput("typeSelectCampus", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))
+    selectInput("typeSelectCampus", "Select Type:", choices = c("Undergraduate", "International", "Graduate"),
+                selected = "Undergraduate")
   })
   
   # Year Select Campus
   output$yearSelectCampus <- renderUI({
     req(input$typeSelectCampus)
     if (input$typeSelectCampus == "Undergraduate") {
-      selectInput("yearSelectCampus", "Select Year:", choices = c("2018", "2019", "2020", "2022", "Overall"))
+      selectInput("yearSelectCampus", "Select Year:", choices = c("2017", "2018", "2019", "2020", "2022", "Overall"))
     } else if (input$typeSelectCampus == "International") {
       selectInput("yearSelectCampus", "Select Year:", choices = c("Undergrad 2020", "Overall"))
     } else if (input$typeSelectCampus == "Graduate") {
@@ -104,10 +140,12 @@ server <- function(input, output, session) {
   
   
   ## EMU Belonging 
+  # Heat Maps
   
   # Type Select EMU
   output$typeSelectEmu <- renderUI({
-    selectInput("typeSelectEmu", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))
+    selectInput("typeSelectEmu", "Select Type:", choices = c("Undergraduate", "International", "Graduate"), 
+                selected = "Undergraduate")
   })
   
   # Year Select EMU
@@ -165,7 +203,8 @@ server <- function(input, output, session) {
   
   # Type Select Campus Tree Map
   output$typeSelectCampusTreeMap <- renderUI({
-    selectInput("typeSelectCampusTreeMap", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))
+    selectInput("typeSelectCampusTreeMap", "Select Type:", choices = c("Undergraduate", "International", "Graduate"),
+                selected = "Undergraduate")
   })
   
   # Year Select Campus Tree Map
@@ -205,7 +244,8 @@ server <- function(input, output, session) {
   # EMU #
   # Type Select EMU Tree Map
   output$typeSelectEmuTreeMap <- renderUI({
-    selectInput("typeSelectEmuTreeMap", "Select Type:", choices = c("Undergraduate", "International", "Graduate"))
+    selectInput("typeSelectEmuTreeMap", "Select Type:", choices = c("Undergraduate", "International", "Graduate"),
+                selected = "Undergraduate")
   })
   
   # Year Select EMU Tree Map
@@ -357,7 +397,7 @@ server <- function(input, output, session) {
   )  
   
   
-
+#################################
   
   ## Inclusiveness ##
   ### RenderBarPlot Function ###
@@ -436,20 +476,24 @@ server <- function(input, output, session) {
   renderCampusTree <- function(type, year, cohort) {
     data <- NULL
     
-    # Assign input values, and make sure they are of length 1 - Chat GPT's fix for a warning I was receiving about Null values
-    type <- if (!is.null(input$typeSelectCampusTreeMap) && length(input$typeSelectCampusTreeMap) == 1) {
+    # Assign input values, and make sure they are of length 1 
+    # Chat GPT's fix for a warning I was receiving about Null values
+    type <- if (!is.null(input$typeSelectCampusTreeMap) && 
+                length(input$typeSelectCampusTreeMap) == 1) {
       input$typeSelectCampusTreeMap
     } else {
       NA
     }
     
-    year <- if (!is.null(input$yearSelectCampusTreeMap) && length(input$yearSelectCampusTreeMap) == 1) {
+    year <- if (!is.null(input$yearSelectCampusTreeMap) && 
+                length(input$yearSelectCampusTreeMap) == 1) {
       input$yearSelectCampusTreeMap
     } else {
       NA
     }
     
-    cohort <- if (!is.null(input$cohortSelectCampusTreeMap) && length(input$cohortSelectCampusTreeMap) == 1) {
+    cohort <- if (!is.null(input$cohortSelectCampusTreeMap) && 
+                  length(input$cohortSelectCampusTreeMap) == 1) {
       input$cohortSelectCampusTreeMap
     } else {
       NA
@@ -512,20 +556,24 @@ server <- function(input, output, session) {
   renderEmuTree <- function(type, year, cohort) {
     data <- NULL
     
-    # Assign input values, and make sure they are of length 1 - Chat GPT's fix for a warning I was receiving about Null values
-    type <- if (!is.null(input$typeSelectEmuTreeMap) && length(input$typeSelectEmuTreeMap) == 1) {
+    # Assign input values, and make sure they are of length 1 
+    # Chat GPT's fix for a warning I was receiving about Null values
+    type <- if (!is.null(input$typeSelectEmuTreeMap) && 
+                length(input$typeSelectEmuTreeMap) == 1) {
       input$typeSelectEmuTreeMap
     } else {
       NA
     }
     
-    year <- if (!is.null(input$yearSelectEmuTreeMap) && length(input$yearSelectEmuTreeMap) == 1) {
+    year <- if (!is.null(input$yearSelectEmuTreeMap) && 
+                length(input$yearSelectEmuTreeMap) == 1) {
       input$yearSelectEmuTreeMap
     } else {
       NA
     }
     
-    cohort <- if (!is.null(input$cohortSelectEmuTreeMap) && length(input$cohortSelectEmuTreeMap) == 1) {
+    cohort <- if (!is.null(input$cohortSelectEmuTreeMap) && 
+                  length(input$cohortSelectEmuTreeMap) == 1) {
       input$cohortSelectEmuTreeMap
     } else {
       NA
@@ -549,6 +597,7 @@ server <- function(input, output, session) {
                                      "All Years" = tm_emu_us_ug_ay2122,
                                      "1st Year" = tm_emu_us_ug_ay2122_c2122))
     } else if (!is.null(type) && !is.na(type) && type == "International") {
+      
       # International doesn't have any tree maps available
       grid::grid.raster(png::readPNG(img_path))
       grid::grid.text("Insufficient data for International tree map to display", 
@@ -556,6 +605,7 @@ server <- function(input, output, session) {
                       y = 0.1, just = "bottom")
       return(NULL)
     } else if (!is.null(type) && !is.na(type) && type == "Graduate") {
+      
       # Graduate doesn't have any tree maps available
       grid::grid.raster(png::readPNG(img_path))
       grid::grid.text("Insufficient data for Graduate tree map to display", 
@@ -568,6 +618,7 @@ server <- function(input, output, session) {
     if (!is.null(data)) {
       inclusive_tree_fun(data)
     } else {
+      
       # Fallback: No data available, show "Nothing to See" image
       grid::grid.raster(png::readPNG(img_path))
       grid::grid.text(paste("Insufficient data for", type, year, cohort,"to display"), 
@@ -583,12 +634,11 @@ server <- function(input, output, session) {
   })
   
   
-  
-  
   ## Reactable Tables: 
   # Reactable Table for Campus Maps
   output$tableCampus <- renderReactable({
-    # Ensure inputs are available
+    
+    # Ensure inputs are available (A chhatGPT fix to handle null inputs)
     if (is.null(input$typeSelectCampus) || is.null(input$yearSelectCampus) || is.null(input$cohortSelectCampus)) return()
     
     # Initialize variables
@@ -723,14 +773,14 @@ server <- function(input, output, session) {
           image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
         }
       }
-    } else if (input$typeSelectEmu == "International") {
+    } else if (input$typeSelectEmu == "International") { # EMU International students
       if (input$yearSelectEmu == "Overall") {
-        image_src_belonging <- "map_emu_b_i.png"
+        image_src_belonging <- "map_emu_b_i.png" 
         image_src_not_belonging <- "map_emu_db_i.png"
       } else if (input$yearSelectEmu == "Undergrad 2020") {
         image_src_belonging <- "map_emu_b_i_ug_ay1920.png"
         image_src_not_belonging <- "map_emu_db_i_ug_ay1920.png"
-      } else if (input$yearSelectEmu == "2022") {
+      } else if (input$yearSelectEmu == "2022") { # EMU 2022 school year 
         image_src_belonging <- "map_emu_b_i_ay2122.png"
         image_src_not_belonging <- "map_emu_db_i_ay2122.png"
       }
@@ -775,7 +825,7 @@ server <- function(input, output, session) {
         image_src_belonging <- "map_cam_b_us_ug.png"
         image_src_not_belonging <- "map_cam_db_us_ug.png"
       } else {
-        mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+        mapped_year <- switch(year,"2017" = "1617", "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
         cohort <- input$cohortSelectCampus
         if (cohort == "All Cohorts" || cohort == "No cohort available") {
           image_src_belonging <- paste0("map_cam_b_us_ug_ay", mapped_year, ".png")
