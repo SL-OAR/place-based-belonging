@@ -93,6 +93,9 @@ ui <- shinyUI(fluidPage(
                          uiOutput("mapsDisplayCampus")),
                   column(width = 12,
                          reactableOutput("tableCampus"))
+                ),
+                fluidRow(
+                  column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
                 )
         ),
         tabItem(tabName = "emu",
@@ -106,6 +109,9 @@ ui <- shinyUI(fluidPage(
                          uiOutput("mapsDisplayEmu")),
                   column(width = 12,
                          reactableOutput("tableEmu"))
+                ),
+                fluidRow(
+                  column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
                 )
         ),
         tabItem( 
@@ -161,6 +167,9 @@ ui <- shinyUI(fluidPage(
                      box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, plotOutput("emuTree"))
               )
             )
+          ),
+          fluidRow(
+            column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
           )
         ),
         tabItem(tabName = "words", 
@@ -182,6 +191,9 @@ ui <- shinyUI(fluidPage(
                          imageOutput("wordCloudImage"),  
                          imageOutput("wordNetImage")  
                   )
+                ),
+                fluidRow(
+                  column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
                 )
         ),
         tabItem(tabName = "emotions",
@@ -192,6 +204,9 @@ ui <- shinyUI(fluidPage(
                   column(width = 6,
                          box(width = NULL, uiOutput("dynamicFilter")),
                          box(width = NULL, background = "black", "Bar graphs here."))
+                ),
+                fluidRow(
+                  column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
                 )
         ),
         tabItem(tabName = "whom", includeMarkdown("www/whom.md")),
