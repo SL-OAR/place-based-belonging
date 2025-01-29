@@ -21,7 +21,7 @@ library(bslib)
 library(fastmap)
 ## New Addition for Shiny features
 library(bslib)
-library(shinyalert)
+#library(shinyalert)
 library(shinyBS)
 ## Had to add due to error on "No package with ____ found"
 library(farver)
@@ -118,9 +118,9 @@ server <- function(input, output, session) {
     if (input$typeSelectCampus == "Undergraduate") {
       selectInput("yearSelectCampus", "Select Year:", choices = c("2017", "2018", "2019", "2020", "2022", "Overall"))
     } else if (input$typeSelectCampus == "International") {
-      selectInput("yearSelectCampus", "Select Year:", choices = c("Undergrad 2020", "Overall"))
+      selectInput("yearSelectCampus", "Select Year:", choices = c("Undergrad 2020", "Undergrad & Grad 2022"))
     } else if (input$typeSelectCampus == "Graduate") {
-      selectInput("yearSelectCampus", "Select Year:", choices = c("Overall", "2022"))
+      selectInput("yearSelectCampus", "Select Year:", choices = c("2022"))
     }
   })
   
@@ -154,9 +154,9 @@ server <- function(input, output, session) {
     if (input$typeSelectEmu == "Undergraduate") {
       selectInput("yearSelectEmu", "Select Year:", choices = c("2018", "2019", "2020", "2022", "Overall"))
     } else if (input$typeSelectEmu == "International") {
-      selectInput("yearSelectEmu", "Select Year:", choices = c("Undergrad 2020", "Overall"))
+      selectInput("yearSelectEmu", "Select Year:", choices = c("Undergrad 2020", "Undergrad & Grad 2022"))
     } else if (input$typeSelectEmu == "Graduate") {
-      selectInput("yearSelectEmu", "Select Year:", choices = c("Overall", "2022"))
+      selectInput("yearSelectEmu", "Select Year:", choices = c("2022"))
     }
   })
   
@@ -289,7 +289,7 @@ server <- function(input, output, session) {
   
   
   
-  # Wordclouds filters
+  # Wordcloud & Wordnet filters
   
   output$typeSelectWords <- renderUI({
     selectInput("typeSelectWords", "Select Type:", 
@@ -324,10 +324,11 @@ server <- function(input, output, session) {
   
   # Generate the sub-location select input when a complex like EMU, Lokey, or Housing is selected
   output$place2Select <- renderUI({
-    req(input$placeSelect)  
+    req(input$placeSelect)  # Ensure a place is selected
     
-    if (input$placeSelect == "Erb Memorial Union (EMU)") {
-      selectInput("place2Select", "Select Location:",
+    if (input$typeSelectWords == "Undergraduate") {
+      if (input$placeSelect == "Erb Memorial Union (EMU)") {
+        selectInput("place2Select", "Select Location:",
                   choices = c("Overall", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
                               "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
                               "Multicultural Center", "O Lounge", "Taylor Lounge", "Women's Center"))
@@ -338,8 +339,29 @@ server <- function(input, output, session) {
       selectInput("place2Select", "Select Location:",
                   choices = c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
                               "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton"))
+      }
+    }
+    else if (input$typeSelectWords == "International" && input$placeSelect == "Erb Memorial Union (EMU)") {
+      # Special case: International students only get "Overall" and "Mills Center" for EMU
+      selectInput("place2Select", "Select Location:", 
+                  choices = c("Overall", "Mills Center"))
     }
   })
+  
+  observe({
+    req(input$typeSelectWords, input$placeSelect)  # Ensure both inputs are available
+    
+    if (input$typeSelectWords == "International" && input$placeSelect == "Erb Memorial Union (EMU)") {
+      # If International selects EMU, ensure place2Select defaults to "Overall" if not set
+      if (is.null(input$place2Select)) {
+        updateSelectInput(session, "place2Select", selected = "Overall")
+      }
+    } else if (input$typeSelectWords %in% c("International", "Graduate")) {
+      # Ensure "Overall" is assigned but place2Select is NOT visible for Graduate students
+      updateSelectInput(session, "place2Select", selected = "Overall")
+        }
+      })
+  
   
   location_file_name_map <- list(
     "Allen" = "allen",
@@ -453,7 +475,7 @@ server <- function(input, output, session) {
     }
     
     # Construct the full path to the image file
-    full_image_path <- file.path(getwd(), "www", "ibars", filename)
+    full_image_path <- file.path(getwd(), "code", "www", "ibars", filename)
     print(paste("Checking full path:", full_image_path))
     
     # Check if the file exists and then adjust the image path for Shiny
@@ -780,7 +802,7 @@ server <- function(input, output, session) {
       } else if (input$yearSelectEmu == "Undergrad 2020") {
         image_src_belonging <- "map_emu_b_i_ug_ay1920.png"
         image_src_not_belonging <- "map_emu_db_i_ug_ay1920.png"
-      } else if (input$yearSelectEmu == "2022") { # EMU 2022 school year 
+      } else if (input$yearSelectEmu == "Undergrad & Grad 2022") { # EMU 2022 school year 
         image_src_belonging <- "map_emu_b_i_ay2122.png"
         image_src_not_belonging <- "map_emu_db_i_ay2122.png"
       }
@@ -843,7 +865,7 @@ server <- function(input, output, session) {
       } else if (input$yearSelectCampus == "Undergrad 2020") {
         image_src_belonging <- "map_cam_b_i_ug_ay1920.png"
         image_src_not_belonging <- "map_cam_db_i_ug_ay1920.png"
-      } else if (input$yearSelectCampus == "2022") {
+      } else if (input$yearSelectCampus == "Undergrad & Grad 2022") {
         image_src_belonging <- "map_cam_b_i_ay2122.png"
         image_src_not_belonging <- "map_cam_db_i_ay2122.png"
       }

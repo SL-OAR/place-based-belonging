@@ -19,6 +19,10 @@ library(reticulate)
 library(markdown)
 library(bslib)
 library(fastmap)
+## New Addition for Shiny features
+library(bslib)
+#library(shinyalert)
+library(shinyBS)
 
 
 library(conflicted)
