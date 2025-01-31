@@ -135,7 +135,8 @@ ui <- shinyUI(fluidPage(
               condition = "input.visualizationType == 'Aggregated - Bar Plot'",
               fluidRow(
                 column(width = 12,
-                       box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE, uiOutput("inclusiveBar"))
+                       box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE, 
+                           uiOutput("inclusiveBar"))
                 )
               )
             ),
@@ -148,7 +149,8 @@ ui <- shinyUI(fluidPage(
               ),
               fluidRow(
                 column(width = 12,
-                       box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE, plotOutput("campusTree"))
+                       box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE, 
+                           plotOutput("campusTree"))
                 )
               )
             )
@@ -162,7 +164,8 @@ ui <- shinyUI(fluidPage(
             ),
             fluidRow(
               column(width = 12,
-                     box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, plotOutput("emuTree"))
+                     box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, 
+                         plotOutput("emuTree"))
               )
             )
           )
@@ -183,22 +186,37 @@ ui <- shinyUI(fluidPage(
                          )
                   ),
                   column(width = 6,
-                         imageOutput("wordCloudImage"),  
-                         imageOutput("wordNetImage")  
+                         imageOutput("wordCloudImage", width = "100%", height = "auto"),  
+                         imageOutput("wordNetImage", width = "100%", height = "auto")  
                   )
                 )
         ),
         tabItem(tabName = "emotions",
                 fluidRow(
-                  column(width = 6,
-                         box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
-                         box(width = NULL, background = "black", "text about emo.")),
-                  column(width = 6,
-                         box(width = NULL, uiOutput("dynamicFilter")),
-                         box(width = NULL, background = "black", "Bar graphs here."))
+                  column(width = 4,
+                          selectInput("typeSelectEmotion", "Select Type",
+                                      choices = c("Undergraduate", "International", "Graduate"),
+                                      selected = "Undergraduate" # default selection
+                                      ),
+                         uiOutput("buildingSelect"),
+                         uiOutput("building2Select"),
+                         radioButtons("belongStatus", "Select Belonging Status",
+                                      choices = c("Belong" = "b", "Don't Belong" = "db"),
+                                      selected = "b")
+                  ),
+                  column(width = 8,
+                         div(style = "max-width: 800px; margin: 0 auto;",  # Limit width and center it
+                         imageOutput("emotionImage", width = "100%", height = "auto")
                 )
-        ),
-        tabItem(tabName = "whom", includeMarkdown("www/whom.md")),
+                  )
+        )),
+        tabItem(tabName = "whom", 
+                includeMarkdown("www/whom.md"),
+                fluidRow(
+                  box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
+                  box(width = NULL, background = "black", "text about emo.")
+                  )
+                ),
         tabItem(tabName = "between", includeMarkdown("www/between.md")),
         tabItem(tabName = "method", includeMarkdown("www/method.md"))
       ) # end tabItems

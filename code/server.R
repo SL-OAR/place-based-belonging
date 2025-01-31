@@ -419,6 +419,92 @@ server <- function(input, output, session) {
   )  
   
   
+  
+  
+## Emotions Bar Graph ##
+  
+  output$typeSelectEmotion <- renderUI({
+    selectInput("typeSelectEmotion", "Select Type:", 
+                choices = c("Undergraduate", "International", "Graduate"), 
+                selected = "Undergraduate"
+    )
+  })
+  
+  # Generate the main location select input based on the selected student group
+  output$buildingSelect <- renderUI({
+    req(input$typeSelectEmotion)  
+    
+    # Clear place2Select when switching between locations
+    updateSelectInput(session, "building2Select", selected = NULL)
+    
+    if (input$typeSelectEmotion == "Undergraduate") {
+      selectInput("buildingSelect", "Select Location:",
+                  choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                              "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                              "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                              "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                              "Tykeson", "University Health Services", "University Housing"))
+    } else if (input$typeSelectEmotion == "International") {
+      selectInput("buildingSelect", "Select Location:", 
+                  choices = c("Erb Memorial Union (EMU)", "Knight Library", "Lokey Science Complex",
+                              "Student Rec Complex", "University Housing"))
+    } else if (input$typeSelectEmotion == "Graduate") {
+      selectInput("buildingSelect", "Select Location:",
+                  choices = c("Knight Library", "Student Rec Complex"))
+    }
+  })
+  
+  # Generate the sub-location select input when a complex like EMU, Lokey, or Housing is selected
+  output$building2Select <- renderUI({
+    req(input$buildingSelect)  # Ensure a place is selected
+    
+    if (input$typeSelectEmotion == "Undergraduate") {
+      if (input$buildingSelect == "Erb Memorial Union (EMU)") {
+        selectInput("building2Select", "Select Location:",
+                    choices = c("Overall", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
+                                "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
+                                "Multicultural Center", "O Lounge", "Taylor Lounge", "Women's Center"))
+      } else if (input$buildingSelect == "Lokey Science Complex") {
+        selectInput("building2Select", "Select Location:",
+                    choices = c("Overall", "Columbia", "Klamath", "Lewis", "Science Commons", "Willamette"))
+      } else if (input$buildingSelect == "University Housing") {
+        selectInput("building2Select", "Select Location:",
+                    choices = c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
+                                "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton"))
+      }
+    }
+    else if (input$typeSelectEmotion == "International" && input$buildingSelect == "Erb Memorial Union (EMU)") {
+      # Special case: International students only get "Overall" and "Mills Center" for EMU
+      selectInput("building2Select", "Select Location:", 
+                  choices = c("Overall", "Mills Center"))
+    }
+      else if (input$typeSelectEmotion == "International" && input$buildingSelect == "Lokey Science Complex") {
+        # Special case: International students only get "Overall" for Lokey Science
+        selectInput("building2Select", "Select Location:", 
+                    choices = c("Overall"))
+      }
+      
+      else if (input$typeSelectEmotion == "International" && input$buildingSelect == "University Housing") {
+        # Special case: International students only get "Overall" for Housing
+        selectInput("building2Select", "Select Location:", 
+                    choices = c("Overall"))
+      }
+  })
+  
+  observe({
+    req(input$typeSelectEmotion, input$buildingSelect)  # Ensure both inputs are available
+    
+    if (input$typeSelectEmotion == "International" && input$buildingSelect == "Erb Memorial Union (EMU)") {
+      # If International selects EMU, ensure place2Select defaults to "Overall" if not set
+      if (is.null(input$building2Select)) {
+        updateSelectInput(session, "building2Select", selected = "Overall")
+      }
+    } else if (input$typeSelectEmotion %in% c("International", "Graduate")) {
+      # Ensure "Overall" is assigned but place2Select is NOT visible for Graduate students
+      updateSelectInput(session, "building2Select", selected = "Overall")
+    }
+  })
+  
 #################################
   
   ## Inclusiveness ##
@@ -939,7 +1025,7 @@ server <- function(input, output, session) {
     if (file.exists(full_image_path)) {
       return(list(
         src = full_image_path, 
-        alt = paste("Word cloud for", input$placeSelect, input$typeSelectWords, input$belongStatus),
+        alt = paste("Word cloud for", input$place2Select, input$placeSelect, input$typeSelectWords, input$belongStatus),
         height = "400px"
       ))
     } else {
@@ -981,10 +1067,70 @@ server <- function(input, output, session) {
     if (file.exists(full_image_path_net)) {
       return(list(
         src = full_image_path_net, 
-        alt = paste("Word net for", input$placeSelect, input$typeSelectWords, input$belongStatus),
+        alt = paste("Word net for", input$place2Select, input$placeSelect, input$typeSelectWords, input$belongStatus),
         height = "400px"
       ))
     } else {
+      return(list(
+        src = no_data_image_path, 
+        alt = "No data available for the selected options",
+        height = "400px"
+      ))
+    }
+  }, deleteFile = FALSE)
+  
+  
+  
+  ## Emotions Bar Plots ##
+  
+  observeEvent(input$buildingSelect, {
+    # Reset the sub-location (building2Select) to "Overall" only if the previous building was EMU, Lokey, or University Housing
+    if (input$buildingSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      updateSelectInput(session, "building2Select", selected = "Overall")
+    } else {
+      # For buildings without sub-locations, we can hide or disable the sub-location input if needed
+      updateSelectInput(session, "building2Select", selected = NULL)
+    }
+  })
+  
+  output$emotionImage <- renderImage({
+    req(input$typeSelectEmotion, input$buildingSelect, input$belongStatus)  
+    
+    student_group <- switch(input$typeSelectEmotion,
+                            "Undergraduate" = "us_ug",
+                            "International" = "i",
+                            "Graduate" = "gr")
+    
+    building_name <- location_file_name_map[[input$buildingSelect]] 
+    building_name <- tolower(building_name)  
+    
+    if (!is.null(input$building2Select) && input$building2Select != "Overall" && input$buildingSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      sub_location_mapped <- location_file_name_map[[input$building2Select]]
+      if (!is.null(sub_location_mapped)) {
+        building_name <- tolower(sub_location_mapped)
+      } else {
+        building_name <- tolower(gsub(" ", "_", input$building2Select))
+      }
+    }
+    
+    # Construct the file path
+    file_name <- paste0("ebar_", building_name, "_", input$belongStatus, "_", student_group, ".png")
+    
+    # Define the full path to the image directory (in 'www/wordclouds')
+    full_image_path <- file.path(getwd(), "code", "www", "ebars", file_name)
+    
+    # Placeholder image when no word cloud is available
+    no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
+    
+    # Check if the file exists for the selected belong status
+    if (file.exists(full_image_path)) {
+      return(list(
+        src = full_image_path, 
+        alt = paste("Emotion Bar Plot for", input$building2Select, input$buildingSelect, input$typeSelectEmotion, input$belongStatus),
+        height = "400px"
+      ))
+    } else {
+      # Render the placeholder image if the file does not exist
       return(list(
         src = no_data_image_path, 
         alt = "No data available for the selected options",
