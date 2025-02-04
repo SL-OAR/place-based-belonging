@@ -856,128 +856,186 @@ server <- function(input, output, session) {
     }
   })
   
+######################
   
   ## Heat Maps: 
   # Heat Maps for EMU
-  output$mapsDisplayEmu <- renderUI({
+  output$belongingMapEmu <- renderUI({
     req(input$typeSelectEmu, input$yearSelectEmu, input$cohortSelectEmu)
     base_path <- "maps/"
     image_src_belonging <- ""
-    image_src_not_belonging <- ""
+    
     if (input$typeSelectEmu == "Undergraduate") {
       year <- input$yearSelectEmu
       if (year == "Overall") {
         image_src_belonging <- "map_emu_b_us_ug.png"
-        image_src_not_belonging <- "map_emu_db_us_ug.png"
       } else {
         mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
         cohort <- input$cohortSelectEmu
         if (cohort == "All Cohorts" || cohort == "No cohort available") {
           image_src_belonging <- paste0("map_emu_b_us_ug_ay", mapped_year, ".png")
-          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, ".png")
         } else {
           cohort <- gsub("/", "", cohort)
           image_src_belonging <- paste0("map_emu_b_us_ug_ay", mapped_year, "_c", cohort, ".png")
-          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
         }
       }
-    } else if (input$typeSelectEmu == "International") { # EMU International students
+    } else if (input$typeSelectEmu == "International") {
       if (input$yearSelectEmu == "Overall") {
-        image_src_belonging <- "map_emu_b_i.png" 
-        image_src_not_belonging <- "map_emu_db_i.png"
+        image_src_belonging <- "map_emu_b_i.png"
       } else if (input$yearSelectEmu == "Undergrad 2020") {
         image_src_belonging <- "map_emu_b_i_ug_ay1920.png"
-        image_src_not_belonging <- "map_emu_db_i_ug_ay1920.png"
-      } else if (input$yearSelectEmu == "Undergrad & Grad 2022") { # EMU 2022 school year 
+      } else if (input$yearSelectEmu == "Undergrad & Grad 2022") {
         image_src_belonging <- "map_emu_b_i_ay2122.png"
-        image_src_not_belonging <- "map_emu_db_i_ay2122.png"
       }
     } else if (input$typeSelectEmu == "Graduate" && input$yearSelectEmu == "2022") {
       image_src_belonging <- "map_emu_b_gr_ay2122.png"
-      image_src_not_belonging <- "map_emu_db_gr_ay2122.png"
     }
-    print(paste("Belonging image source:", image_src_belonging))
-    print(paste("Not belonging image source:", image_src_not_belonging))
-    if (image_src_belonging %in% available_maps && image_src_not_belonging %in% available_maps) {
-      tagList(
-        tags$h3("Belonging Map"),
-        img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
-        tags$h3("Not Belonging Map"),
-        img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
-        tags$p(paste("Selected Type:", input$typeSelectEmu, "Year:", input$yearSelectEmu, "Cohort:", input$cohortSelectEmu))
-      )
+    
+    if (image_src_belonging %in% available_maps) {
+      img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
     } else {
-      tagList(
-        tags$h3("No map available for the selected options."),
-        tags$p(paste("Selected Type:", input$typeSelectEmu, "Year:", input$yearSelectEmu, "Cohort:", input$cohortSelectEmu))
-      )
+      tags$p("No belonging map available for the selected options.")
     }
   })
+  
+  addPopover(session, id = "belongingMapEmu", title = "EMU Belonging Map", 
+             content = "Number equals the number of clicks. Color equals density of clicks.", 
+             trigger = "hover", placement = "right", options = list(container = "body"))
+  
+  
+  ## Not Belonging Map for EMU
+  output$notBelongingMapEmu <- renderUI({
+    req(input$typeSelectEmu, input$yearSelectEmu, input$cohortSelectEmu)
+    base_path <- "maps/"
+    image_src_not_belonging <- ""
+    
+    if (input$typeSelectEmu == "Undergraduate") {
+      year <- input$yearSelectEmu
+      if (year == "Overall") {
+        image_src_not_belonging <- "map_emu_db_us_ug.png"
+      } else {
+        mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+        cohort <- input$cohortSelectEmu
+        if (cohort == "All Cohorts" || cohort == "No cohort available") {
+          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, ".png")
+        } else {
+          cohort <- gsub("/", "", cohort)
+          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
+        }
+      }
+    } else if (input$typeSelectEmu == "International") {
+      if (input$yearSelectEmu == "Overall") {
+        image_src_not_belonging <- "map_emu_db_i.png"
+      } else if (input$yearSelectEmu == "Undergrad 2020") {
+        image_src_not_belonging <- "map_emu_db_i_ug_ay1920.png"
+      } else if (input$yearSelectEmu == "Undergrad & Grad 2022") {
+        image_src_not_belonging <- "map_emu_db_i_ay2122.png"
+      }
+    } else if (input$typeSelectEmu == "Graduate" && input$yearSelectEmu == "2022") {
+      image_src_not_belonging <- "map_emu_db_gr_ay2122.png"
+    }
+    
+    if (image_src_not_belonging %in% available_maps) {
+      img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
+    } else {
+      tags$p("No 'Don't Belong' map available for the selected options.")
+    }
+  })
+  
+  addPopover(session, id = "notBelongingMapEmu", title = "EMU Don't Belong Map", 
+             content = "Number equals the number of clicks. Color equals density of clicks.", 
+             trigger = "hover", placement = "right", options = list(container = "body"))
   
   
   ## Heat Maps:
   # Heat Maps for Campus
-  output$mapsDisplayCampus <- renderUI({
+  # Belonging Map
+  output$belongingMapCampus <- renderUI({
     req(input$typeSelectCampus, input$yearSelectCampus, input$cohortSelectCampus)
     base_path <- "maps/"
     image_src_belonging <- ""
-    image_src_not_belonging <- ""
-    
-    print(paste("typeSelectCampus:", input$typeSelectCampus))
-    print(paste("yearSelectCampus:", input$yearSelectCampus))
-    print(paste("cohortSelectCampus:", input$cohortSelectCampus))
     
     if (input$typeSelectCampus == "Undergraduate") {
       year <- input$yearSelectCampus
       if (year == "Overall") {
         image_src_belonging <- "map_cam_b_us_ug.png"
-        image_src_not_belonging <- "map_cam_db_us_ug.png"
       } else {
-        mapped_year <- switch(year,"2017" = "1617", "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+        mapped_year <- switch(year, "2017" = "1617", "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
         cohort <- input$cohortSelectCampus
         if (cohort == "All Cohorts" || cohort == "No cohort available") {
           image_src_belonging <- paste0("map_cam_b_us_ug_ay", mapped_year, ".png")
-          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, ".png")
         } else {
           cohort <- gsub("/", "", cohort)
           image_src_belonging <- paste0("map_cam_b_us_ug_ay", mapped_year, "_c", cohort, ".png")
-          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
         }
       }
     } else if (input$typeSelectCampus == "International") {
       if (input$yearSelectCampus == "Overall") {
         image_src_belonging <- "map_cam_b_i.png"
-        image_src_not_belonging <- "map_cam_db_i.png"
       } else if (input$yearSelectCampus == "Undergrad 2020") {
         image_src_belonging <- "map_cam_b_i_ug_ay1920.png"
-        image_src_not_belonging <- "map_cam_db_i_ug_ay1920.png"
       } else if (input$yearSelectCampus == "Undergrad & Grad 2022") {
         image_src_belonging <- "map_cam_b_i_ay2122.png"
-        image_src_not_belonging <- "map_cam_db_i_ay2122.png"
       }
     } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
       image_src_belonging <- "map_cam_b_gr_ay2122.png"
+    }
+    
+    if (image_src_belonging %in% available_maps) {
+      img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
+    } else {
+      tags$p("No belonging map available for the selected options.")
+    }
+  })
+  
+  addPopover(session, id = "belongingMapCampus", title = "Campus Belonging Map", 
+            content = "Number equals the number of clicks. Color equals density of clicks.", 
+            trigger = "hover", placement = "right", options = list(container = "body"))
+  
+  # Not Belonging Map
+  output$notBelongingMapCampus <- renderUI({
+    req(input$typeSelectCampus, input$yearSelectCampus, input$cohortSelectCampus)
+    base_path <- "maps/"
+    image_src_not_belonging <- ""
+    
+    if (input$typeSelectCampus == "Undergraduate") {
+      year <- input$yearSelectCampus
+      if (year == "Overall") {
+        image_src_not_belonging <- "map_cam_db_us_ug.png"
+      } else {
+        mapped_year <- switch(year, "2017" = "1617", "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+        cohort <- input$cohortSelectCampus
+        if (cohort == "All Cohorts" || cohort == "No cohort available") {
+          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, ".png")
+        } else {
+          cohort <- gsub("/", "", cohort)
+          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
+        }
+      }
+    } else if (input$typeSelectCampus == "International") {
+      if (input$yearSelectCampus == "Overall") {
+        image_src_not_belonging <- "map_cam_db_i.png"
+      } else if (input$yearSelectCampus == "Undergrad 2020") {
+        image_src_not_belonging <- "map_cam_db_i_ug_ay1920.png"
+      } else if (input$yearSelectCampus == "Undergrad & Grad 2022") {
+        image_src_not_belonging <- "map_cam_db_i_ay2122.png"
+      }
+    } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
       image_src_not_belonging <- "map_cam_db_gr_ay2122.png"
     }
     
-    print(paste("Belonging image source:", image_src_belonging))
-    print(paste("Not belonging image source:", image_src_not_belonging))
-    
-    if (image_src_belonging %in% available_maps && image_src_not_belonging %in% available_maps) {
-      tagList(
-        tags$h3("Belonging Map"),
-        img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
-        tags$h3("Not Belonging Map"),
-        img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
-        tags$p(paste("Selected Type:", input$typeSelectCampus, "Year:", input$yearSelectCampus, "Cohort:", input$cohortSelectCampus))
-      )
+    if (image_src_not_belonging %in% available_maps) {
+      img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
     } else {
-      tagList(
-        tags$h3("No map available for the selected options."),
-        tags$p(paste("Selected Type:", input$typeSelectCampus, "Year:", input$yearSelectCampus, "Cohort:", input$cohortSelectCampus))
-      )
+      tags$p("No 'Don't Belong' map available for the selected options.")
     }
-  })
+  }
+  )
+  
+  addPopover(session, id = "notBelongingMapCampus", title = "Campus Don't Belong Map", 
+            content = "Number equals the number of clicks. Color equals density of clicks.", 
+            trigger = "hover", placement = "right", options = list(container = "body"))
+  
   
   
   ## Word Nets & Word Clouds

@@ -46,6 +46,18 @@ setwd(path)
 # use_condaenv("oar_pbb", required = TRUE)
 # print("Environment successfully activated and libraries loaded.")
 
+# Code for shinyBS Popover
+# bsPopover(id=" ", title = " ", content = " ", trigger = "hover", 
+# placement = "right", options = list(container = "body"))
+## Most of these are self explanatory: 
+### id is the name of the object to use as a trigger
+### title is the title of the popover box
+### content is the text content of the popover box
+### trigger is the trigger mechanism (hover, click, )
+### placement determines where the popover appears (right, left, auto)
+### options 
+## The code goes in the dashboardBody in the desired section
+
 
 # UI
 ui <- shinyUI(fluidPage(
@@ -93,10 +105,25 @@ ui <- shinyUI(fluidPage(
                   column(4, uiOutput("cohortSelectCampus"))
                 ),
                 fluidRow(
-                  column(width = 6,
-                         uiOutput("mapsDisplayCampus")),
-                  column(width = 12,
-                         reactableOutput("tableCampus"))
+                  column(6, 
+                         tags$h3("Belonging Map"),
+                             uiOutput("belongingMapCampus"),
+                         bsPopover(id = "belongingMapCampus", title = "Campus Belonging Map", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                  )
+                ),
+                fluidRow(
+                  column(6, 
+                         tags$h3("Not Belonging Map"),
+                             uiOutput("notBelongingMapCampus"),
+                         bsPopover(id = "notBelongingMapCampus", title = "Campus Don't Belong Map", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                  )
+                ),
+                fluidRow(
+                  column(6, reactableOutput("tableCampus"))
                 )
         ),
         tabItem(tabName = "emu",
@@ -107,11 +134,25 @@ ui <- shinyUI(fluidPage(
                 ),
                 fluidRow(
                   column(width = 6,
-                         uiOutput("mapsDisplayEmu")),
+                         tags$h3("Belonging Map"),
+                         uiOutput("belongingMapEmu"),
+                         bsPopover(id = "belongingMapEmu", title = "Emu Belonging Map", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                  )
+                ),
+                fluidRow(
+                  column(width = 6,
+                         tags$h3("Not Belonging Map"),
+                         uiOutput("notBelongingMapEmu"),
+                         bsPopover(id = "notBelongingMapEmu", title = "Emu Don't Belong Map", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                  )
+                ),
                   column(width = 12,
                          reactableOutput("tableEmu"))
-                )
-        ),
+                ),
         tabItem( 
           tabName = "inclusiveness",
           fluidRow(
