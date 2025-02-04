@@ -33,7 +33,7 @@ for (name in pbb_tables_for_bp_names) {
 # groups <- unique(bar_plot_df$group)
 
 
-packrat::on()
+
 source("code/helpers.R")
 
 available_maps <- c(

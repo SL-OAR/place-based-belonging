@@ -4,44 +4,66 @@
 # ui.R file                      #
 ##################################
 
-
-library(shiny)
-library(reactable)
-library(htmltools)
-library(treemapify)
-library(tidyverse)
-library(rvest)
-library(leaflet.extras)
-library(shinydashboard)
-library(shinycssloaders)
-library(here)
-library(reticulate)
-library(markdown)
-library(bslib)
-library(fastmap)
-
-
-library(conflicted)
-conflicts_prefer(
-  shinydashboard::box(),
-  dplyr::filter(),
-  rvest::guess_encoding(),
-  dplyr::lag(),
-  bslib::page(),
-  markdown::rpubsUpload(),
-  rsconnect::serverInfo()
+# renv::restore() # run this if updated 
+# List of package names
+packages <- c("shiny", "reactable", "htmltools", 
+              "treemapify", "tidyverse", "rvest",
+              "leaflet.extras", "shinydashboard", 
+              "shinycssloaders", "here", "reticulate",
+              "markdown", "fastmap", "bslib", 
+              "shinyalert", "shinyBS", "farver", 
+              "labeling", "crayon", "cli", "viridisLite",
+              "remotes", "fastmap", "conflicted", 
+              "rsconnect"
 )
 
+# Function to handle errors
+handle_error <- function(step, err) {
+  cat(paste0("ERROR during ", step, ": ", conditionMessage(err), "\n"))
+  stop("Script execution halted due to an error.")
+}
+
+# Install missing packages with error handling
+tryCatch({
+  installed_packages <- packages %in% rownames(installed.packages())
+  if (any(!installed_packages)) {
+    install.packages(packages[!installed_packages])
+  }
+}, error = function(e) handle_error("package installation", e))
+
+# Load packages with error handling
+tryCatch({
+  invisible(lapply(packages, function(pkg) {
+    library(pkg, character.only = TRUE)
+  }))
+}, error = function(e) handle_error("package loading", e))
+
+# Set package conflicts preference
+tryCatch({
+  conflicts_prefer(
+    shinydashboard::box(),
+    dplyr::filter(),
+    rvest::guess_encoding(),
+    dplyr::lag(),
+    bslib::page(),
+    markdown::rpubsUpload(),
+    rsconnect::serverInfo()
+  )
+}, error = function(e) handle_error("conflict resolution", e))
 
 # Set working directory
-path <- here::here()
-setwd(path)
-# packrat::on()
+tryCatch({
+  path <- here::here()
+  setwd(path)
+}, error = function(e) handle_error("setting working directory", e))
 
-# Use reticulate to activate the conda environment
-# use_condaenv("oar_pbb", required = TRUE)
-# print("Environment successfully activated and libraries loaded.")
+# Activate the Conda environment using reticulate
+tryCatch({
+  use_condaenv("oar_pbb", required = TRUE)
+}, error = function(e) handle_error("Conda environment activation", e))
 
+# If everything runs successfully
+cat("✅ Environment successfully activated and libraries loaded\n")
 
 # UI
 ui <- shinyUI(fluidPage(
