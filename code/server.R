@@ -5,94 +5,30 @@
 ##################################
 
 
-# renv::init(force = TRUE)
-
-# renv::restore()
-
-# Package names
-packages <- c("shiny", "reactable", "htmltools", 
-              "treemapify", "tidyverse", "rvest",
-              "leaflet.extras", "shinydashboard", 
-              "shinycssloaders", "here", "reticulate",
-              "markdown", "fastmap", "bslib", 
-              "shinyalert", "shinyBS", "farver", 
-              "labeling", "crayon", "cli", "viridisLite",
-              "remotes", "fastmap", "conflicted", 
-              "rsconnect"
-)
-
-# Function to handle errors
-handle_error <- function(step, err) {
-  cat(paste0("ERROR during ", step, ": ", conditionMessage(err), "\n"))
-  stop("Script execution halted due to an error.")
-}
-
-# Install missing packages with error handling
-tryCatch({
-  installed_packages <- packages %in% rownames(installed.packages())
-  if (any(!installed_packages)) {
-    install.packages(packages[!installed_packages])
-  }
-}, error = function(e) handle_error("package installation", e))
-
-# Load packages with error handling
-tryCatch({
-  invisible(lapply(packages, function(pkg) {
-    library(pkg, character.only = TRUE)
-  }))
-}, error = function(e) handle_error("package loading", e))
-
-# Set package conflicts preference
-tryCatch({
-  conflicts_prefer(
-    shinydashboard::box(),
-    dplyr::filter(),
-    rvest::guess_encoding(),
-    dplyr::lag(),
-    bslib::page(),
-    markdown::rpubsUpload(),
-    rsconnect::serverInfo()
-  )
-}, error = function(e) handle_error("conflict resolution", e))
-
-# Set working directory
-tryCatch({
-  path <- here::here()
-  setwd(path)
-}, error = function(e) handle_error("setting working directory", e))
-
-# Activate the Conda environment using reticulate
-tryCatch({
-  use_condaenv("oar_pbb", required = TRUE)
-}, error = function(e) handle_error("Conda environment activation", e))
-
-# If everything runs successfully
-cat("✅ Environment successfully activated and libraries loaded\n")
-
-# list of packages loaded manually
-# library(shiny)
-# library(reactable)
-# library(htmltools)
-# library(treemapify)
-# library(tidyverse)
-# library(rvest)
-# library(leaflet.extras)
-# library(shinydashboard)
-# library(shinycssloaders)
-# library(here)
-# library(reticulate)
-# library(markdown)
-# library(fastmap)
-# ## New Addition for Shiny features
-# library(bslib)
-# library(shinyalert)
-# library(shinyBS)
-# ## Had to add due to error on "No package with ____ found"
-# library(farver)
-# library(labeling)
-# library(crayon)
-# library(cli)
-# library(viridisLite)
+library(shiny)
+library(reactable)
+library(htmltools)
+library(treemapify)
+library(tidyverse)
+library(rvest)
+library(leaflet.extras)
+library(shinydashboard)
+library(shinycssloaders)
+library(here)
+library(reticulate)
+library(markdown)
+library(bslib)
+library(fastmap)
+## New Addition for Shiny features
+library(bslib)
+#library(shinyalert)
+library(shinyBS)
+## Had to add due to error on "No package with ____ found"
+library(farver)
+library(labeling)
+library(crayon)
+library(cli)
+library(viridisLite)
 
 # Do we need a CSS styl sheet?
 
@@ -128,9 +64,15 @@ conflicts_prefer(
   rsconnect::serverInfo()
 )
 
+
 # Set working directory
 path <- here::here()
 setwd(path)
+# packrat::on()
+
+# Use reticulate to activate the conda environment
+# use_condaenv("oar_pbb", required = TRUE)
+# print("Environment successfully activated and libraries loaded.")
 
 
 #####################
@@ -176,9 +118,9 @@ server <- function(input, output, session) {
     if (input$typeSelectCampus == "Undergraduate") {
       selectInput("yearSelectCampus", "Select Year:", choices = c("2017", "2018", "2019", "2020", "2022", "Overall"))
     } else if (input$typeSelectCampus == "International") {
-      selectInput("yearSelectCampus", "Select Year:", choices = c("Undergrad 2020", "Overall"))
+      selectInput("yearSelectCampus", "Select Year:", choices = c("Undergrad 2020", "Undergrad & Grad 2022"))
     } else if (input$typeSelectCampus == "Graduate") {
-      selectInput("yearSelectCampus", "Select Year:", choices = c("Overall", "2022"))
+      selectInput("yearSelectCampus", "Select Year:", choices = c("2022"))
     }
   })
   
@@ -212,9 +154,9 @@ server <- function(input, output, session) {
     if (input$typeSelectEmu == "Undergraduate") {
       selectInput("yearSelectEmu", "Select Year:", choices = c("2018", "2019", "2020", "2022", "Overall"))
     } else if (input$typeSelectEmu == "International") {
-      selectInput("yearSelectEmu", "Select Year:", choices = c("Undergrad 2020", "Overall"))
+      selectInput("yearSelectEmu", "Select Year:", choices = c("Undergrad 2020", "Undergrad & Grad 2022"))
     } else if (input$typeSelectEmu == "Graduate") {
-      selectInput("yearSelectEmu", "Select Year:", choices = c("Overall", "2022"))
+      selectInput("yearSelectEmu", "Select Year:", choices = c("2022"))
     }
   })
   
@@ -347,7 +289,7 @@ server <- function(input, output, session) {
   
   
   
-  # Wordclouds filters
+  # Wordcloud & Wordnet filters
   
   output$typeSelectWords <- renderUI({
     selectInput("typeSelectWords", "Select Type:", 
@@ -382,10 +324,11 @@ server <- function(input, output, session) {
   
   # Generate the sub-location select input when a complex like EMU, Lokey, or Housing is selected
   output$place2Select <- renderUI({
-    req(input$placeSelect)  
+    req(input$placeSelect)  # Ensure a place is selected
     
-    if (input$placeSelect == "Erb Memorial Union (EMU)") {
-      selectInput("place2Select", "Select Location:",
+    if (input$typeSelectWords == "Undergraduate") {
+      if (input$placeSelect == "Erb Memorial Union (EMU)") {
+        selectInput("place2Select", "Select Location:",
                   choices = c("Overall", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
                               "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
                               "Multicultural Center", "O Lounge", "Taylor Lounge", "Women's Center"))
@@ -396,8 +339,29 @@ server <- function(input, output, session) {
       selectInput("place2Select", "Select Location:",
                   choices = c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
                               "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton"))
+      }
+    }
+    else if (input$typeSelectWords == "International" && input$placeSelect == "Erb Memorial Union (EMU)") {
+      # Special case: International students only get "Overall" and "Mills Center" for EMU
+      selectInput("place2Select", "Select Location:", 
+                  choices = c("Overall", "Mills Center"))
     }
   })
+  
+  observe({
+    req(input$typeSelectWords, input$placeSelect)  # Ensure both inputs are available
+    
+    if (input$typeSelectWords == "International" && input$placeSelect == "Erb Memorial Union (EMU)") {
+      # If International selects EMU, ensure place2Select defaults to "Overall" if not set
+      if (is.null(input$place2Select)) {
+        updateSelectInput(session, "place2Select", selected = "Overall")
+      }
+    } else if (input$typeSelectWords %in% c("International", "Graduate")) {
+      # Ensure "Overall" is assigned but place2Select is NOT visible for Graduate students
+      updateSelectInput(session, "place2Select", selected = "Overall")
+        }
+      })
+  
   
   location_file_name_map <- list(
     "Allen" = "allen",
@@ -455,6 +419,92 @@ server <- function(input, output, session) {
   )  
   
   
+  
+  
+## Emotions Bar Graph ##
+  
+  output$typeSelectEmotion <- renderUI({
+    selectInput("typeSelectEmotion", "Select Type:", 
+                choices = c("Undergraduate", "International", "Graduate"), 
+                selected = "Undergraduate"
+    )
+  })
+  
+  # Generate the main location select input based on the selected student group
+  output$buildingSelect <- renderUI({
+    req(input$typeSelectEmotion)  
+    
+    # Clear place2Select when switching between locations
+    updateSelectInput(session, "building2Select", selected = NULL)
+    
+    if (input$typeSelectEmotion == "Undergraduate") {
+      selectInput("buildingSelect", "Select Location:",
+                  choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                              "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                              "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                              "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                              "Tykeson", "University Health Services", "University Housing"))
+    } else if (input$typeSelectEmotion == "International") {
+      selectInput("buildingSelect", "Select Location:", 
+                  choices = c("Erb Memorial Union (EMU)", "Knight Library", "Lokey Science Complex",
+                              "Student Rec Complex", "University Housing"))
+    } else if (input$typeSelectEmotion == "Graduate") {
+      selectInput("buildingSelect", "Select Location:",
+                  choices = c("Knight Library", "Student Rec Complex"))
+    }
+  })
+  
+  # Generate the sub-location select input when a complex like EMU, Lokey, or Housing is selected
+  output$building2Select <- renderUI({
+    req(input$buildingSelect)  # Ensure a place is selected
+    
+    if (input$typeSelectEmotion == "Undergraduate") {
+      if (input$buildingSelect == "Erb Memorial Union (EMU)") {
+        selectInput("building2Select", "Select Location:",
+                    choices = c("Overall", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
+                                "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
+                                "Multicultural Center", "O Lounge", "Taylor Lounge", "Women's Center"))
+      } else if (input$buildingSelect == "Lokey Science Complex") {
+        selectInput("building2Select", "Select Location:",
+                    choices = c("Overall", "Columbia", "Klamath", "Lewis", "Science Commons", "Willamette"))
+      } else if (input$buildingSelect == "University Housing") {
+        selectInput("building2Select", "Select Location:",
+                    choices = c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
+                                "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton"))
+      }
+    }
+    else if (input$typeSelectEmotion == "International" && input$buildingSelect == "Erb Memorial Union (EMU)") {
+      # Special case: International students only get "Overall" and "Mills Center" for EMU
+      selectInput("building2Select", "Select Location:", 
+                  choices = c("Overall", "Mills Center"))
+    }
+      else if (input$typeSelectEmotion == "International" && input$buildingSelect == "Lokey Science Complex") {
+        # Special case: International students only get "Overall" for Lokey Science
+        selectInput("building2Select", "Select Location:", 
+                    choices = c("Overall"))
+      }
+      
+      else if (input$typeSelectEmotion == "International" && input$buildingSelect == "University Housing") {
+        # Special case: International students only get "Overall" for Housing
+        selectInput("building2Select", "Select Location:", 
+                    choices = c("Overall"))
+      }
+  })
+  
+  observe({
+    req(input$typeSelectEmotion, input$buildingSelect)  # Ensure both inputs are available
+    
+    if (input$typeSelectEmotion == "International" && input$buildingSelect == "Erb Memorial Union (EMU)") {
+      # If International selects EMU, ensure place2Select defaults to "Overall" if not set
+      if (is.null(input$building2Select)) {
+        updateSelectInput(session, "building2Select", selected = "Overall")
+      }
+    } else if (input$typeSelectEmotion %in% c("International", "Graduate")) {
+      # Ensure "Overall" is assigned but place2Select is NOT visible for Graduate students
+      updateSelectInput(session, "building2Select", selected = "Overall")
+    }
+  })
+  
 #################################
   
   ## Inclusiveness ##
@@ -511,7 +561,7 @@ server <- function(input, output, session) {
     }
     
     # Construct the full path to the image file
-    full_image_path <- file.path(getwd(), "www", "ibars", filename)
+    full_image_path <- file.path(getwd(), "code", "www", "ibars", filename)
     print(paste("Checking full path:", full_image_path))
     
     # Check if the file exists and then adjust the image path for Shiny
@@ -806,128 +856,186 @@ server <- function(input, output, session) {
     }
   })
   
+######################
   
   ## Heat Maps: 
   # Heat Maps for EMU
-  output$mapsDisplayEmu <- renderUI({
+  output$belongingMapEmu <- renderUI({
     req(input$typeSelectEmu, input$yearSelectEmu, input$cohortSelectEmu)
     base_path <- "maps/"
     image_src_belonging <- ""
-    image_src_not_belonging <- ""
+    
     if (input$typeSelectEmu == "Undergraduate") {
       year <- input$yearSelectEmu
       if (year == "Overall") {
         image_src_belonging <- "map_emu_b_us_ug.png"
-        image_src_not_belonging <- "map_emu_db_us_ug.png"
       } else {
         mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
         cohort <- input$cohortSelectEmu
         if (cohort == "All Cohorts" || cohort == "No cohort available") {
           image_src_belonging <- paste0("map_emu_b_us_ug_ay", mapped_year, ".png")
-          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, ".png")
         } else {
           cohort <- gsub("/", "", cohort)
           image_src_belonging <- paste0("map_emu_b_us_ug_ay", mapped_year, "_c", cohort, ".png")
-          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
         }
       }
-    } else if (input$typeSelectEmu == "International") { # EMU International students
+    } else if (input$typeSelectEmu == "International") {
       if (input$yearSelectEmu == "Overall") {
-        image_src_belonging <- "map_emu_b_i.png" 
-        image_src_not_belonging <- "map_emu_db_i.png"
+        image_src_belonging <- "map_emu_b_i.png"
       } else if (input$yearSelectEmu == "Undergrad 2020") {
         image_src_belonging <- "map_emu_b_i_ug_ay1920.png"
-        image_src_not_belonging <- "map_emu_db_i_ug_ay1920.png"
-      } else if (input$yearSelectEmu == "2022") { # EMU 2022 school year 
+      } else if (input$yearSelectEmu == "Undergrad & Grad 2022") {
         image_src_belonging <- "map_emu_b_i_ay2122.png"
-        image_src_not_belonging <- "map_emu_db_i_ay2122.png"
       }
     } else if (input$typeSelectEmu == "Graduate" && input$yearSelectEmu == "2022") {
       image_src_belonging <- "map_emu_b_gr_ay2122.png"
-      image_src_not_belonging <- "map_emu_db_gr_ay2122.png"
     }
-    print(paste("Belonging image source:", image_src_belonging))
-    print(paste("Not belonging image source:", image_src_not_belonging))
-    if (image_src_belonging %in% available_maps && image_src_not_belonging %in% available_maps) {
-      tagList(
-        tags$h3("Belonging Map"),
-        img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
-        tags$h3("Not Belonging Map"),
-        img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
-        tags$p(paste("Selected Type:", input$typeSelectEmu, "Year:", input$yearSelectEmu, "Cohort:", input$cohortSelectEmu))
-      )
+    
+    if (image_src_belonging %in% available_maps) {
+      img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
     } else {
-      tagList(
-        tags$h3("No map available for the selected options."),
-        tags$p(paste("Selected Type:", input$typeSelectEmu, "Year:", input$yearSelectEmu, "Cohort:", input$cohortSelectEmu))
-      )
+      tags$p("No belonging map available for the selected options.")
     }
   })
+  
+  addPopover(session, id = "belongingMapEmu", title = "EMU Belonging Map", 
+             content = "Number equals the number of clicks. Color equals density of clicks.", 
+             trigger = "hover", placement = "right", options = list(container = "body"))
+  
+  
+  ## Not Belonging Map for EMU
+  output$notBelongingMapEmu <- renderUI({
+    req(input$typeSelectEmu, input$yearSelectEmu, input$cohortSelectEmu)
+    base_path <- "maps/"
+    image_src_not_belonging <- ""
+    
+    if (input$typeSelectEmu == "Undergraduate") {
+      year <- input$yearSelectEmu
+      if (year == "Overall") {
+        image_src_not_belonging <- "map_emu_db_us_ug.png"
+      } else {
+        mapped_year <- switch(year, "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+        cohort <- input$cohortSelectEmu
+        if (cohort == "All Cohorts" || cohort == "No cohort available") {
+          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, ".png")
+        } else {
+          cohort <- gsub("/", "", cohort)
+          image_src_not_belonging <- paste0("map_emu_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
+        }
+      }
+    } else if (input$typeSelectEmu == "International") {
+      if (input$yearSelectEmu == "Overall") {
+        image_src_not_belonging <- "map_emu_db_i.png"
+      } else if (input$yearSelectEmu == "Undergrad 2020") {
+        image_src_not_belonging <- "map_emu_db_i_ug_ay1920.png"
+      } else if (input$yearSelectEmu == "Undergrad & Grad 2022") {
+        image_src_not_belonging <- "map_emu_db_i_ay2122.png"
+      }
+    } else if (input$typeSelectEmu == "Graduate" && input$yearSelectEmu == "2022") {
+      image_src_not_belonging <- "map_emu_db_gr_ay2122.png"
+    }
+    
+    if (image_src_not_belonging %in% available_maps) {
+      img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
+    } else {
+      tags$p("No 'Don't Belong' map available for the selected options.")
+    }
+  })
+  
+  addPopover(session, id = "notBelongingMapEmu", title = "EMU Don't Belong Map", 
+             content = "Number equals the number of clicks. Color equals density of clicks.", 
+             trigger = "hover", placement = "right", options = list(container = "body"))
   
   
   ## Heat Maps:
   # Heat Maps for Campus
-  output$mapsDisplayCampus <- renderUI({
+  # Belonging Map
+  output$belongingMapCampus <- renderUI({
     req(input$typeSelectCampus, input$yearSelectCampus, input$cohortSelectCampus)
     base_path <- "maps/"
     image_src_belonging <- ""
-    image_src_not_belonging <- ""
-    
-    print(paste("typeSelectCampus:", input$typeSelectCampus))
-    print(paste("yearSelectCampus:", input$yearSelectCampus))
-    print(paste("cohortSelectCampus:", input$cohortSelectCampus))
     
     if (input$typeSelectCampus == "Undergraduate") {
       year <- input$yearSelectCampus
       if (year == "Overall") {
         image_src_belonging <- "map_cam_b_us_ug.png"
-        image_src_not_belonging <- "map_cam_db_us_ug.png"
       } else {
-        mapped_year <- switch(year,"2017" = "1617", "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+        mapped_year <- switch(year, "2017" = "1617", "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
         cohort <- input$cohortSelectCampus
         if (cohort == "All Cohorts" || cohort == "No cohort available") {
           image_src_belonging <- paste0("map_cam_b_us_ug_ay", mapped_year, ".png")
-          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, ".png")
         } else {
           cohort <- gsub("/", "", cohort)
           image_src_belonging <- paste0("map_cam_b_us_ug_ay", mapped_year, "_c", cohort, ".png")
-          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
         }
       }
     } else if (input$typeSelectCampus == "International") {
       if (input$yearSelectCampus == "Overall") {
         image_src_belonging <- "map_cam_b_i.png"
-        image_src_not_belonging <- "map_cam_db_i.png"
       } else if (input$yearSelectCampus == "Undergrad 2020") {
         image_src_belonging <- "map_cam_b_i_ug_ay1920.png"
-        image_src_not_belonging <- "map_cam_db_i_ug_ay1920.png"
-      } else if (input$yearSelectCampus == "2022") {
+      } else if (input$yearSelectCampus == "Undergrad & Grad 2022") {
         image_src_belonging <- "map_cam_b_i_ay2122.png"
-        image_src_not_belonging <- "map_cam_db_i_ay2122.png"
       }
     } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
       image_src_belonging <- "map_cam_b_gr_ay2122.png"
+    }
+    
+    if (image_src_belonging %in% available_maps) {
+      img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
+    } else {
+      tags$p("No belonging map available for the selected options.")
+    }
+  })
+  
+  addPopover(session, id = "belongingMapCampus", title = "Campus Belonging Map", 
+            content = "Number equals the number of clicks. Color equals density of clicks.", 
+            trigger = "hover", placement = "right", options = list(container = "body"))
+  
+  # Not Belonging Map
+  output$notBelongingMapCampus <- renderUI({
+    req(input$typeSelectCampus, input$yearSelectCampus, input$cohortSelectCampus)
+    base_path <- "maps/"
+    image_src_not_belonging <- ""
+    
+    if (input$typeSelectCampus == "Undergraduate") {
+      year <- input$yearSelectCampus
+      if (year == "Overall") {
+        image_src_not_belonging <- "map_cam_db_us_ug.png"
+      } else {
+        mapped_year <- switch(year, "2017" = "1617", "2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
+        cohort <- input$cohortSelectCampus
+        if (cohort == "All Cohorts" || cohort == "No cohort available") {
+          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, ".png")
+        } else {
+          cohort <- gsub("/", "", cohort)
+          image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
+        }
+      }
+    } else if (input$typeSelectCampus == "International") {
+      if (input$yearSelectCampus == "Overall") {
+        image_src_not_belonging <- "map_cam_db_i.png"
+      } else if (input$yearSelectCampus == "Undergrad 2020") {
+        image_src_not_belonging <- "map_cam_db_i_ug_ay1920.png"
+      } else if (input$yearSelectCampus == "Undergrad & Grad 2022") {
+        image_src_not_belonging <- "map_cam_db_i_ay2122.png"
+      }
+    } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
       image_src_not_belonging <- "map_cam_db_gr_ay2122.png"
     }
     
-    print(paste("Belonging image source:", image_src_belonging))
-    print(paste("Not belonging image source:", image_src_not_belonging))
-    
-    if (image_src_belonging %in% available_maps && image_src_not_belonging %in% available_maps) {
-      tagList(
-        tags$h3("Belonging Map"),
-        img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
-        tags$h3("Not Belonging Map"),
-        img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;"),
-        tags$p(paste("Selected Type:", input$typeSelectCampus, "Year:", input$yearSelectCampus, "Cohort:", input$cohortSelectCampus))
-      )
+    if (image_src_not_belonging %in% available_maps) {
+      img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
     } else {
-      tagList(
-        tags$h3("No map available for the selected options."),
-        tags$p(paste("Selected Type:", input$typeSelectCampus, "Year:", input$yearSelectCampus, "Cohort:", input$cohortSelectCampus))
-      )
+      tags$p("No 'Don't Belong' map available for the selected options.")
     }
-  })
+  }
+  )
+  
+  addPopover(session, id = "notBelongingMapCampus", title = "Campus Don't Belong Map", 
+            content = "Number equals the number of clicks. Color equals density of clicks.", 
+            trigger = "hover", placement = "right", options = list(container = "body"))
+  
   
   
   ## Word Nets & Word Clouds
@@ -975,7 +1083,7 @@ server <- function(input, output, session) {
     if (file.exists(full_image_path)) {
       return(list(
         src = full_image_path, 
-        alt = paste("Word cloud for", input$placeSelect, input$typeSelectWords, input$belongStatus),
+        alt = paste("Word cloud for", input$place2Select, input$placeSelect, input$typeSelectWords, input$belongStatus),
         height = "400px"
       ))
     } else {
@@ -1017,10 +1125,70 @@ server <- function(input, output, session) {
     if (file.exists(full_image_path_net)) {
       return(list(
         src = full_image_path_net, 
-        alt = paste("Word net for", input$placeSelect, input$typeSelectWords, input$belongStatus),
+        alt = paste("Word net for", input$place2Select, input$placeSelect, input$typeSelectWords, input$belongStatus),
         height = "400px"
       ))
     } else {
+      return(list(
+        src = no_data_image_path, 
+        alt = "No data available for the selected options",
+        height = "400px"
+      ))
+    }
+  }, deleteFile = FALSE)
+  
+  
+  
+  ## Emotions Bar Plots ##
+  
+  observeEvent(input$buildingSelect, {
+    # Reset the sub-location (building2Select) to "Overall" only if the previous building was EMU, Lokey, or University Housing
+    if (input$buildingSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      updateSelectInput(session, "building2Select", selected = "Overall")
+    } else {
+      # For buildings without sub-locations, we can hide or disable the sub-location input if needed
+      updateSelectInput(session, "building2Select", selected = NULL)
+    }
+  })
+  
+  output$emotionImage <- renderImage({
+    req(input$typeSelectEmotion, input$buildingSelect, input$belongStatus)  
+    
+    student_group <- switch(input$typeSelectEmotion,
+                            "Undergraduate" = "us_ug",
+                            "International" = "i",
+                            "Graduate" = "gr")
+    
+    building_name <- location_file_name_map[[input$buildingSelect]] 
+    building_name <- tolower(building_name)  
+    
+    if (!is.null(input$building2Select) && input$building2Select != "Overall" && input$buildingSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      sub_location_mapped <- location_file_name_map[[input$building2Select]]
+      if (!is.null(sub_location_mapped)) {
+        building_name <- tolower(sub_location_mapped)
+      } else {
+        building_name <- tolower(gsub(" ", "_", input$building2Select))
+      }
+    }
+    
+    # Construct the file path
+    file_name <- paste0("ebar_", building_name, "_", input$belongStatus, "_", student_group, ".png")
+    
+    # Define the full path to the image directory (in 'www/wordclouds')
+    full_image_path <- file.path(getwd(), "code", "www", "ebars", file_name)
+    
+    # Placeholder image when no word cloud is available
+    no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
+    
+    # Check if the file exists for the selected belong status
+    if (file.exists(full_image_path)) {
+      return(list(
+        src = full_image_path, 
+        alt = paste("Emotion Bar Plot for", input$building2Select, input$buildingSelect, input$typeSelectEmotion, input$belongStatus),
+        height = "400px"
+      ))
+    } else {
+      # Render the placeholder image if the file does not exist
       return(list(
         src = no_data_image_path, 
         alt = "No data available for the selected options",

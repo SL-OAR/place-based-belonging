@@ -4,66 +4,60 @@
 # ui.R file                      #
 ##################################
 
-# renv::restore() # run this if updated 
-# List of package names
-packages <- c("shiny", "reactable", "htmltools", 
-              "treemapify", "tidyverse", "rvest",
-              "leaflet.extras", "shinydashboard", 
-              "shinycssloaders", "here", "reticulate",
-              "markdown", "fastmap", "bslib", 
-              "shinyalert", "shinyBS", "farver", 
-              "labeling", "crayon", "cli", "viridisLite",
-              "remotes", "fastmap", "conflicted", 
-              "rsconnect"
+
+library(shiny)
+library(reactable)
+library(htmltools)
+library(treemapify)
+library(tidyverse)
+library(rvest)
+library(leaflet.extras)
+library(shinydashboard)
+library(shinycssloaders)
+library(here)
+library(reticulate)
+library(markdown)
+library(bslib)
+library(fastmap)
+## New Addition for Shiny features
+library(bslib)
+#library(shinyalert)
+library(shinyBS)
+
+
+library(conflicted)
+conflicts_prefer(
+  shinydashboard::box(),
+  dplyr::filter(),
+  rvest::guess_encoding(),
+  dplyr::lag(),
+  bslib::page(),
+  markdown::rpubsUpload(),
+  rsconnect::serverInfo()
 )
 
-# Function to handle errors
-handle_error <- function(step, err) {
-  cat(paste0("ERROR during ", step, ": ", conditionMessage(err), "\n"))
-  stop("Script execution halted due to an error.")
-}
-
-# Install missing packages with error handling
-tryCatch({
-  installed_packages <- packages %in% rownames(installed.packages())
-  if (any(!installed_packages)) {
-    install.packages(packages[!installed_packages])
-  }
-}, error = function(e) handle_error("package installation", e))
-
-# Load packages with error handling
-tryCatch({
-  invisible(lapply(packages, function(pkg) {
-    library(pkg, character.only = TRUE)
-  }))
-}, error = function(e) handle_error("package loading", e))
-
-# Set package conflicts preference
-tryCatch({
-  conflicts_prefer(
-    shinydashboard::box(),
-    dplyr::filter(),
-    rvest::guess_encoding(),
-    dplyr::lag(),
-    bslib::page(),
-    markdown::rpubsUpload(),
-    rsconnect::serverInfo()
-  )
-}, error = function(e) handle_error("conflict resolution", e))
 
 # Set working directory
-tryCatch({
-  path <- here::here()
-  setwd(path)
-}, error = function(e) handle_error("setting working directory", e))
+path <- here::here()
+setwd(path)
+# packrat::on()
 
-# Activate the Conda environment using reticulate
-tryCatch({
-  use_condaenv("oar_pbb", required = TRUE)
-}, error = function(e) handle_error("Conda environment activation", e))
+# Use reticulate to activate the conda environment
+# use_condaenv("oar_pbb", required = TRUE)
+# print("Environment successfully activated and libraries loaded.")
 
-# If everything runs successfully
-cat("✅ Environment successfully activated and libraries loaded\n")
+# Code for shinyBS Popover
+# bsPopover(id=" ", title = " ", content = " ", trigger = "hover", 
+# placement = "right", options = list(container = "body"))
+## Most of these are self explanatory: 
+### id is the name of the object to use as a trigger
+### title is the title of the popover box
+### content is the text content of the popover box
+### trigger is the trigger mechanism (hover, click, )
+### placement determines where the popover appears (right, left, auto)
+### options 
+## The code goes in the dashboardBody in the desired section
+
 
 # UI
 ui <- shinyUI(fluidPage(
@@ -111,13 +105,25 @@ ui <- shinyUI(fluidPage(
                   column(4, uiOutput("cohortSelectCampus"))
                 ),
                 fluidRow(
-                  column(width = 6,
-                         uiOutput("mapsDisplayCampus")),
-                  column(width = 12,
-                         reactableOutput("tableCampus"))
+                  column(6, 
+                         tags$h3("Belonging Map"),
+                             uiOutput("belongingMapCampus"),
+                         bsPopover(id = "belongingMapCampus", title = "Campus Belonging Map", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                  )
                 ),
                 fluidRow(
-                  column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
+                  column(6, 
+                         tags$h3("Not Belonging Map"),
+                             uiOutput("notBelongingMapCampus"),
+                         bsPopover(id = "notBelongingMapCampus", title = "Campus Don't Belong Map", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                  )
+                ),
+                fluidRow(
+                  column(6, reactableOutput("tableCampus"))
                 )
         ),
         tabItem(tabName = "emu",
@@ -128,14 +134,25 @@ ui <- shinyUI(fluidPage(
                 ),
                 fluidRow(
                   column(width = 6,
-                         uiOutput("mapsDisplayEmu")),
+                         tags$h3("Belonging Map"),
+                         uiOutput("belongingMapEmu"),
+                         bsPopover(id = "belongingMapEmu", title = "Emu Belonging Map", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                  )
+                ),
+                fluidRow(
+                  column(width = 6,
+                         tags$h3("Not Belonging Map"),
+                         uiOutput("notBelongingMapEmu"),
+                         bsPopover(id = "notBelongingMapEmu", title = "Emu Don't Belong Map", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                  )
+                ),
                   column(width = 12,
                          reactableOutput("tableEmu"))
                 ),
-                fluidRow(
-                  column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
-                )
-        ),
         tabItem( 
           tabName = "inclusiveness",
           fluidRow(
@@ -159,7 +176,8 @@ ui <- shinyUI(fluidPage(
               condition = "input.visualizationType == 'Aggregated - Bar Plot'",
               fluidRow(
                 column(width = 12,
-                       box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE, uiOutput("inclusiveBar"))
+                       box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE, 
+                           uiOutput("inclusiveBar"))
                 )
               )
             ),
@@ -172,7 +190,8 @@ ui <- shinyUI(fluidPage(
               ),
               fluidRow(
                 column(width = 12,
-                       box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE, plotOutput("campusTree"))
+                       box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE, 
+                           plotOutput("campusTree"))
                 )
               )
             )
@@ -186,12 +205,10 @@ ui <- shinyUI(fluidPage(
             ),
             fluidRow(
               column(width = 12,
-                     box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, plotOutput("emuTree"))
+                     box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, 
+                         plotOutput("emuTree"))
               )
             )
-          ),
-          fluidRow(
-            column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
           )
         ),
         tabItem(tabName = "words", 
@@ -210,28 +227,37 @@ ui <- shinyUI(fluidPage(
                          )
                   ),
                   column(width = 6,
-                         imageOutput("wordCloudImage"),  
-                         imageOutput("wordNetImage")  
+                         imageOutput("wordCloudImage", width = "100%", height = "auto"),  
+                         imageOutput("wordNetImage", width = "100%", height = "auto")  
                   )
-                ),
-                fluidRow(
-                  column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
                 )
         ),
         tabItem(tabName = "emotions",
                 fluidRow(
-                  column(width = 6,
-                         box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
-                         box(width = NULL, background = "black", "text about emo.")),
-                  column(width = 6,
-                         box(width = NULL, uiOutput("dynamicFilter")),
-                         box(width = NULL, background = "black", "Bar graphs here."))
-                ),
-                fluidRow(
-                  column(12, includeMarkdown("www/summary.md")) # change "summary" to new md
+                  column(width = 4,
+                          selectInput("typeSelectEmotion", "Select Type",
+                                      choices = c("Undergraduate", "International", "Graduate"),
+                                      selected = "Undergraduate" # default selection
+                                      ),
+                         uiOutput("buildingSelect"),
+                         uiOutput("building2Select"),
+                         radioButtons("belongStatus", "Select Belonging Status",
+                                      choices = c("Belong" = "b", "Don't Belong" = "db"),
+                                      selected = "b")
+                  ),
+                  column(width = 8,
+                         div(style = "max-width: 800px; margin: 0 auto;",  # Limit width and center it
+                         imageOutput("emotionImage", width = "100%", height = "auto")
                 )
-        ),
-        tabItem(tabName = "whom", includeMarkdown("www/whom.md")),
+                  )
+        )),
+        tabItem(tabName = "whom", 
+                includeMarkdown("www/whom.md"),
+                fluidRow(
+                  box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
+                  box(width = NULL, background = "black", "text about emo.")
+                  )
+                ),
         tabItem(tabName = "between", includeMarkdown("www/between.md")),
         tabItem(tabName = "method", includeMarkdown("www/method.md"))
       ) # end tabItems
