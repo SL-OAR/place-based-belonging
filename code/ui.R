@@ -1,6 +1,6 @@
 ##################################
 # Place Based Belonging App.     #
-# by OAR Extern team             #
+# by OAR Intern team             #
 # ui.R file                      #
 ##################################
 # renv::snapshot() # use to update packages
@@ -142,8 +142,6 @@ ui <- shinyUI(fluidPage(
                        menuItem("Where? Inclusiveness", tabName = "inclusiveness", icon = icon("stats", lib = "glyphicon")),
                        menuItem("Why There? Wordnets & Wordclouds", tabName = "words", icon = icon("dashboard")),
                        menuItem("Why There? Emotions", tabName = "emotions", icon = icon("dashboard")),
-                       menuItem("Where for Whom?", tabName = "whom", icon = icon("question")),
-                       menuItem("Between Here and Where?", tabName = "between", icon = icon("question")),
                        menuItem("Supplemental Method", tabName = "method", icon = icon("question")),
                        HTML(paste0("<br>",
                                    "<br>",
@@ -159,13 +157,19 @@ ui <- shinyUI(fluidPage(
     dashboardBody(
       tabItems(
         tabItem(tabName = "about", includeMarkdown("www/pbb-about.md")),
+        
+        
         tabItem(tabName = "summary", includeMarkdown("www/summary.md")),
+        
+        
         tabItem(tabName = "campus",
+                
                 fluidRow(
                   column(4, uiOutput("typeSelectCampus")),
                   column(4, uiOutput("yearSelectCampus")),
                   column(4, uiOutput("cohortSelectCampus"))
                 ),
+                
                 fluidRow(
                   column(6, 
                          tags$h3("Belonging Map"),
@@ -175,6 +179,7 @@ ui <- shinyUI(fluidPage(
                                    trigger = "hover", placement = "right", options = list(container = "body"))
                   )
                 ),
+                
                 fluidRow(
                   column(6, 
                          tags$h3("Not Belonging Map"),
@@ -184,98 +189,136 @@ ui <- shinyUI(fluidPage(
                                    trigger = "hover", placement = "right", options = list(container = "body"))
                   )
                 ),
+                
+                fluidRow(
+                  column(width = 12, uiOutput("CampusMapCaption"))
+                ),
+                
                 fluidRow(
                   column(6, reactableOutput("tableCampus"))
                 )
         ),
+        
+        
         tabItem(tabName = "emu",
                 fluidRow(
                   column(4, uiOutput("typeSelectEmu")),
                   column(4, uiOutput("yearSelectEmu")),
                   column(4, uiOutput("cohortSelectEmu"))
                 ),
+                
                 fluidRow(
                   column(width = 6,
                          tags$h3("Belonging Map"),
                          uiOutput("belongingMapEmu"),
                          bsPopover(id = "belongingMapEmu", title = "Emu Belonging Map", 
-                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks. Full information below.", 
                                    trigger = "hover", placement = "right", options = list(container = "body"))
                   )
                 ),
+                
                 fluidRow(
                   column(width = 6,
                          tags$h3("Not Belonging Map"),
                          uiOutput("notBelongingMapEmu"),
                          bsPopover(id = "notBelongingMapEmu", title = "Emu Don't Belong Map", 
-                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   content = "Number equals the number of clicks. Color equals density of clicks. Full information below.", 
                                    trigger = "hover", placement = "right", options = list(container = "body"))
                   )
                 ),
+                
+                fluidRow(
+                  column(width = 12, uiOutput("EmuMapCaption"))
+                ),
+                
+            fluidRow(
                   column(width = 12,
                          reactableOutput("tableEmu"))
+                 )
+            ),
+        
+        
+        tabItem(tabName = "inclusiveness",
+                fluidRow(
+                  column(12, 
+                         selectInput("locationSelect", "Select Campus Location:", 
+                                     choices = c("Full Campus", "EMU Student Union"))
+                  )
                 ),
-        tabItem( 
-          tabName = "inclusiveness",
-          fluidRow(
-            column(12, 
-                   selectInput("locationSelect", "Select Campus Location:", choices = c("Full Campus", "EMU Student Union"))
-            )
-          ),
-          conditionalPanel(
-            condition = "input.locationSelect == 'Full Campus'",
-            fluidRow(
-              column(12, 
-                     selectInput("visualizationType", "Select Visualization Type:", choices = c("Disaggregated - Tree Maps", "Aggregated - Bar Plot"))
-              )
-            ),
-            fluidRow(
-              column(4, uiOutput("typeSelectInclusiveBar")),
-              column(4, uiOutput("yearSelectInclusiveBar")),
-              column(4, uiOutput("cohortSelectInclusiveBar"))
-            ),
-            conditionalPanel(
-              condition = "input.visualizationType == 'Aggregated - Bar Plot'",
-              fluidRow(
-                column(width = 12,
-                       box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE, 
-                           uiOutput("inclusiveBar"))
-                )
-              )
-            ),
-            conditionalPanel(
-              condition = "input.visualizationType == 'Disaggregated - Tree Maps'",
-              fluidRow(
-                column(4, uiOutput("typeSelectCampusTreeMap")),
-                column(4, uiOutput("yearSelectCampusTreeMap")),
-                column(4, uiOutput("cohortSelectCampusTreeMap"))
-              ),
-              fluidRow(
-                column(width = 12,
-                       box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE, 
-                           plotOutput("campusTree"))
-                )
-              )
-            )
-          ),
-          conditionalPanel(
-            condition = "input.locationSelect == 'EMU Student Union'",
-            fluidRow(
-              column(4, uiOutput("typeSelectEmuTreeMap")),
-              column(4, uiOutput("yearSelectEmuTreeMap")),
-              column(4, uiOutput("cohortSelectEmuTreeMap"))
-            ),
-            fluidRow(
-              column(width = 12,
-                     box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, 
-                         plotOutput("emuTree"))
-              )
-            )
-          )
-        ),
+                
+                conditionalPanel(
+                  condition = "input.locationSelect == 'Full Campus'",
+                  fluidRow(
+                    column(12, 
+                           selectInput("visualizationType", "Select Visualization Type:", 
+                                       choices = c("Disaggregated - Tree Maps", "Aggregated - Bar Plot"))
+                    )
+                  ),
+                  
+                  
+                  conditionalPanel(
+                    condition = "input.visualizationType == 'Aggregated - Bar Plot'",
+                    fluidRow(
+                      column(4, uiOutput("typeSelectInclusiveBar")),
+                      column(4, uiOutput("yearSelectInclusiveBar")),
+                      column(4, uiOutput("cohortSelectInclusiveBar"))
+                    ),
+                    
+                    fluidRow(
+                      column(width = 12,
+                             box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE, 
+                                 uiOutput("inclusiveBar"))
+                      )
+                    ),
+                    fluidRow(
+                      column(width = 12, uiOutput("AggBarCaption"))
+                    )
+                  ),
+                  
+                  conditionalPanel(
+                    condition = "input.visualizationType == 'Disaggregated - Tree Maps'",
+                    fluidRow(
+                      column(4, uiOutput("typeSelectCampusTreeMap")),
+                      column(4, uiOutput("yearSelectCampusTreeMap")),
+                      column(4, uiOutput("cohortSelectCampusTreeMap"))
+                    ),
+                    
+                    fluidRow(
+                      column(width = 12,
+                             box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE, 
+                                 plotOutput("campusTree"))
+                      )
+                    ), 
+                    fluidRow(
+                      column(width = 12, uiOutput("DisaggTreeCaption"))
+                    )
+                   ) # Disaggregate Tree Maps Condition
+                ), #End Full Campus
+                
+                conditionalPanel(
+                  condition = "input.locationSelect == 'EMU Student Union'",
+                  fluidRow(
+                    column(4, uiOutput("typeSelectEmuTreeMap")),
+                    column(4, uiOutput("yearSelectEmuTreeMap")),
+                    column(4, uiOutput("cohortSelectEmuTreeMap"))
+                  ),
+                  
+                  fluidRow(
+                    column(width = 12,
+                           box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, 
+                               plotOutput("emuTree")) # Fix Nothing_to_see.png 
+                    )
+                  ), 
+                  fluidRow(
+                    column(width = 12, uiOutput("EmuTreeCaption"))
+                  )
+                ) #EMU conditional panel
+        ), #End of Inclusive tab
+        
+        
         tabItem(tabName = "words", 
                 fluidRow(
-                  column(width = 6, 
+                  column(width = 12, 
                          selectInput("typeSelectWords", "Select Type:", 
                                      choices = c("Undergraduate", "International", "Graduate"), 
                                      selected = "Undergraduate" # Default to "Undergrad"
@@ -288,12 +331,22 @@ ui <- shinyUI(fluidPage(
                                       selected = "b"  # Default to "Belong"
                          )
                   ),
+                  fluidRow(
                   column(width = 6,
-                         imageOutput("wordCloudImage", width = "100%", height = "auto"),  
-                         imageOutput("wordNetImage", width = "100%", height = "auto")  
+                         imageOutput("wordCloudImage", width = "100%", height = "auto")),
+                  
+                    column(width = 12, uiOutput("CloudCaption"))
+                  ),  
+                  
+                  fluidRow(
+                    column(width = 6,
+                         imageOutput("wordNetImage", width = "100%", height = "auto")),
+                    column(width = 12, uiOutput("NetCaption"))
                   )
                 )
-        ),
+        ), # End words tab
+      
+      
         tabItem(tabName = "emotions",
                 fluidRow(
                   column(width = 4,
@@ -311,8 +364,12 @@ ui <- shinyUI(fluidPage(
                          div(style = "max-width: 800px; margin: 0 auto;",  # Limit width and center it
                          imageOutput("emotionImage", width = "100%", height = "auto")
                 )
-                  )
-        )),
+              ),
+              column(width = 12, uiOutput("EmotionCaption"))
+          )
+        ), # End emotions tab
+      
+      
         tabItem(tabName = "whom", 
                 includeMarkdown("www/whom.md"),
                 fluidRow(
@@ -320,7 +377,8 @@ ui <- shinyUI(fluidPage(
                   box(width = NULL, background = "black", "text about emo.")
                   )
                 ),
-        tabItem(tabName = "between", includeMarkdown("www/between.md")),
+      
+      
         tabItem(tabName = "method", includeMarkdown("www/method.md"))
       ) # end tabItems
     ) # end dashboardBody
