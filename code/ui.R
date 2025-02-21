@@ -135,8 +135,7 @@ ui <- shinyUI(fluidPage(
                      sidebarMenu(
                        tags$a(href = "https://studentlife.uoregon.edu/research",
                               tags$img(src = "uo_stacked_gray.png", title = "Example Image Link", width = 250, height = 300)),
-                       menuItem("Who is SWaSI?", tabName = "about", icon = icon("users")),
-                       menuItem("Summary", tabName = "summary", icon = icon("thumbtack")),
+                       menuItem("Summary", tabName = "about", icon = icon("users")),
                        menuItem("Where? Campus Belonging", tabName = "campus", icon = icon("table")),
                        menuItem("Where? EMU Belonging", tabName = "emu", icon = icon("random", lib = "glyphicon")),
                        menuItem("Where? Inclusiveness", tabName = "inclusiveness", icon = icon("stats", lib = "glyphicon")),
@@ -157,9 +156,6 @@ ui <- shinyUI(fluidPage(
     dashboardBody(
       tabItems(
         tabItem(tabName = "about", includeMarkdown("www/pbb-about.md")),
-        
-        
-        tabItem(tabName = "summary", includeMarkdown("www/summary.md")),
         
         
         tabItem(tabName = "campus",

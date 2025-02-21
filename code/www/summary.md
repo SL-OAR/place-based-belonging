@@ -1,3 +1,1 @@
-# Summary
-
-Forthcoming: the take-home.
+## Summary
