@@ -4,7 +4,7 @@
 # ui.R file                      #
 ##################################
 # renv::snapshot() # use to update packages
-# renv::restore() # if your project code isn't working. This probably implies that you have the wrong package versions installed and you need to restore from known good state in the lockfile.
+renv::restore() # if your project code isn't working. This probably implies that you have the wrong package versions installed and you need to restore from known good state in the lockfile.
 
 packages <- c("shiny", "reactable", "htmltools", 
               "treemapify", "tidyverse", "rvest",
