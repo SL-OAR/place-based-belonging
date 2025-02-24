@@ -4,17 +4,17 @@
 # server.R file                  #
 ##################################
 
-# renv::snapshot() # use to update packages
+renv::snapshot() # use to update packages
 renv::restore() # if your project code isn't working. This probably implies that you have the wrong package versions installed and you need to restore from known good state in the lockfile.
 
-packages <- c("shiny", "reactable", "htmltools", 
+packages <- c("shiny", "reactable", "htmltools",
               "treemapify", "tidyverse", "rvest",
-              "leaflet.extras", "shinydashboard", 
+              "leaflet.extras", "shinydashboard",
               "shinycssloaders", "here", "reticulate",
-              "markdown", "fastmap", "bslib", 
-              "shinyalert", "shinyBS", "farver", 
+              "markdown", "fastmap", "bslib",
+              "shinyalert", "shinyBS", "farver",
               "labeling", "crayon", "cli", "viridisLite",
-              "remotes", "fastmap", "conflicted", 
+              "remotes", "fastmap", "conflicted",
               "rsconnect"
 )
 
@@ -86,7 +86,7 @@ cat("✅ Environment successfully activated and libraries loaded\n")
 # library(bslib)
 # #library(shinyalert)
 # library(shinyBS)
-## Had to add due to error on "No package with ____ found"
+# Had to add due to error on "No package with ____ found"
 # library(farver)
 # library(labeling)
 # library(crayon)
