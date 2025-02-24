@@ -1138,7 +1138,7 @@ server <- function(input, output, session) {
       NA
     }
     
-    img_path <- "www/Nothing_to_see.png"  
+    img_path <- "code/www/Nothing_to_see.png"  
     
     # Check conditions for rendering specific tree maps
     if (!is.null(type) && !is.na(type) && type == "Undergraduate") {
@@ -1155,34 +1155,21 @@ server <- function(input, output, session) {
                      "2022" = switch(cohort,
                                      "All Years" = tm_emu_us_ug_ay2122,
                                      "1st Year" = tm_emu_us_ug_ay2122_c2122))
-    } else if (!is.null(type) && !is.na(type) && type == "International") {
-      
-      # International doesn't have any tree maps available
+    } else if (!is.na(type) && type == "International") {
+      # International doesn't have any tree maps available: display the png file only.
       grid::grid.raster(png::readPNG(img_path))
-      grid::grid.text("Insufficient data for International tree map to display", 
-                      gp = grid::gpar(fontsize = 20, col = "black"), 
-                      y = 0.1, just = "bottom")
       return(NULL)
-    } else if (!is.null(type) && !is.na(type) && type == "Graduate") {
-      
-      # Graduate doesn't have any tree maps available
+    } else if (!is.na(type) && type == "Graduate") {
+      # Graduate doesn't have any tree maps available: display the png file only.
       grid::grid.raster(png::readPNG(img_path))
-      grid::grid.text("Insufficient data for Graduate tree map to display", 
-                      gp = grid::gpar(fontsize = 20, col = "black"), 
-                      y = 0.1, just = "bottom")
       return(NULL)
     }
     
-    # Render the tree map if data exists
+    # If data exists, render the tree map. Otherwise, show the fallback image.
     if (!is.null(data)) {
       inclusive_tree_fun(data)
     } else {
-      
-      # Fallback: No data available, show "Nothing to See" image
       grid::grid.raster(png::readPNG(img_path))
-      grid::grid.text(paste("Insufficient data for", type, year, cohort,"to display"), 
-                      gp = grid::gpar(fontsize = 20, col = "black"), 
-                      y = 0.1, just = "bottom")
     }
   }
   
