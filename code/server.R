@@ -190,8 +190,8 @@ server <- function(input, output, session) {
 
   <p>See <a href='#supmeth' style='color: #DF63A4;'>Supplemental Method</a> for more details.</p>
 
-  <p>Heat map was produced in Qualtrics (30px radius, 35px blur). Click counts were overlaid on the heat map image 
-  using the <code>magick</code> package.</p>")
+  <p>Heat map were originally produced in Qualtrics (30px radius, 35px blur) the click counts were overlaid on the heat map image 
+  using the <code>magick</code> package. These are images of the maps created.</p>")
   })
   
   output$CampusTableCaption <- renderUI({
@@ -281,8 +281,8 @@ server <- function(input, output, session) {
   For quantification of maps and other analyses, the first three recorded responses from these few students were used and the rest were discarded.<br><br>
       
   See <a href='#supmeth' style='color: #DF63A4'>Supplemental Method</a> for more details.
-  Heat map was produced in Qualtrics (30px radius, 35px blur).
-  Click counts were overlaid on the heat map image using the <code>magick</code> package.</p>")
+  Heat map was originally produced in Qualtrics (30px radius, 35px blur) then click counts were overlaid on the heat map image using the <code>magick</code> package.
+         These are images of the maps produced.</p>")
   })
   
   output$AggBarCaption <- renderUI({
@@ -469,8 +469,7 @@ server <- function(input, output, session) {
 
   <p>The criterion for inclusion of a keyword in the wordcloud was occurrence &gt; 1.</p>
 
-  <p>If a word seems negatively valenced, it was very likely negated 
-  (e.g., preceded by the word \"not\").</p>
+  <p>If a word seems negatively valenced, it was very likely negated (e.g., preceded by the word \"not\").</p>
 
   <p>Because analyses combine data from multiple academic years, some students contributed data more than once.</p>
 
@@ -499,8 +498,7 @@ server <- function(input, output, session) {
   <p>Line <span style='color: #11E8FF; font-weight: bold;'>thickness</span> represents 
   <span style='color: #11E8FF; font-weight: bold;'>frequency</span> of co-occurrence.</p>
 
-  <p>If a word seems negatively valenced, it was very likely negated 
-  (e.g., preceded by the word \"not\").</p>
+  <p>If a word seems negatively valenced, it was very likely negated (e.g., preceded by the word \"not\").</p>
 
   <p><span style='color: #11E8FF; font-weight: bold;'>Generally</span>, 
   US undergraduates of all years/cohorts (mostly 1st-through-4th-year and predominantly first-year) 
