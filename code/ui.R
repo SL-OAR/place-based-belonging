@@ -155,7 +155,7 @@ ui <- shinyUI(fluidPage(
     
     dashboardBody(
       tabItems(
-        tabItem(tabName = "about", includeMarkdown("www/pbb-about.md")),
+        tabItem(tabName = "about", includeMarkdown("www/pbb_about.md")),
         
         
         tabItem(tabName = "campus",
@@ -375,7 +375,7 @@ ui <- shinyUI(fluidPage(
                 ),
       
       
-        tabItem(tabName = "method", includeMarkdown("www/method.md"))
+        tabItem(tabName = "method", includeMarkdown("www/pbb_method.md"))
       ) # end tabItems
     ) # end dashboardBody
   ) # end dashboardPage

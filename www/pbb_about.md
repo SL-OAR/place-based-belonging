@@ -22,7 +22,8 @@ The purposes of this document are:
 2. to provide a general reference and resource tool for higher education professionals who do things and make decisions about things that affect students (many of those things are tied to or rooted in physical places)
 3. to describe the development of methods used to generate place-based belonging data
 
-<span class="blue-text">This document is currently under construction and is in a "good enough for now" state.</span> It will be incrementally updated through Summer 2023, which will include adding Spring 2023 data. At that point, it will be considered complete, because we intend to augment methods dramatically the following year. Forthcoming sections include an overall summary, two content sections, and the supplemental method section. Forthcoming features include alternative text for plots and images and hover text for treemaps.
+[This document is currently under construction and is in a "good enough for now" state](#). It will be incrementally updated with subsequent data collection. 
+
 
 ## What is Place-Based Belonging?
 
@@ -42,4 +43,12 @@ Application Notes:
 
 - The application is created using the [**periscope**](https://github.com/neuhausi/periscope) package. Periscope was originally developed as the core Shiny component for bioinformatics and systems biology analysis applications. It provides a predefined but flexible template for new Shiny applications with a default dashboard layout, three locations for user alerts, a nice busy indicator and logging features. One of the most important features of the shiny applications created with this framework is the separation by file of functionality that exists in one of the three shiny scopes: global, server-global, and server-local. The framework forces application developers to consciously consider scoping in Shiny applications by making scoping distinctions very clear without interfering with normal application development. Scoping consideration is important for performance and scaling, which is critical when working with large datasets and/or across many users. In addition to providing a template application, the framework also contains a number of convenient modules: a (multi)file download button module and a downloadable table module for example.
 
-*This application is developed and maintained by the externs at the Office of Assessment and Research at the University of Oregon. This is a work in progress.*
+<br>
+
+To cite, please use the following.
+
+Much of the content of this dashboard, including the summary written above, was built on the foundation laid by Dr. Brian Clark. This dashboard was completed by the interns at the Office of Assessment and Research just before his passing. 
+
+His devotion and support to supporting students at the university is immeasurable. We dedicate this dashboard to him.
+
+Guha, A., Daza, T., Aragon, D., & Clark, B.A.M. (2025). University of Oregon Place-Based Belonging Dashboard. Office of Assessment and Research, Division of Student Life. University of Oregon.
