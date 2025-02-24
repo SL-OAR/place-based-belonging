@@ -370,6 +370,7 @@ ui <- shinyUI(fluidPage(
                 includeMarkdown("www/whom.md"),
                 fluidRow(
                   box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
+                  imageOutput("code/www/wheel.png"),
                   box(width = NULL, background = "black", "text about emo.")
                   )
                 ),
