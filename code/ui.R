@@ -3,7 +3,6 @@
 # by OAR Intern team             #
 # ui.R file                      #
 ##################################
-# renv::snapshot() # use to update packages
 renv::restore() # if your project code isn't working. This probably implies that you have the wrong package versions installed and you need to restore from known good state in the lockfile.
 
 packages <- c("shiny", "reactable", "htmltools", 
@@ -153,6 +152,31 @@ ui <- shinyUI(fluidPage(
     ), # end dashboard Sidebar
     
     dashboardBody(
+      tags$head(
+        tags$style(HTML("
+      .map-container {
+      width: 100%;
+      max-width: 1400px; /* Adjust max width as needed */
+      margin: auto; /* Center it */
+        }
+
+      .responsive-map {
+      width: 100%;
+      max-width: 1400px;
+      height: auto;
+      display: block;
+      }"))
+        ),
+  
+  # # JavaScript Fix for Resizing
+  tags$script(HTML("
+      $(document).on('shiny:value', function(event) {
+      setTimeout(function() {
+        $(window).trigger('resize');
+      }, 500);
+    });
+  "
+                        )),
       tabItems(
         tabItem(tabName = "intro", includeMarkdown("www/intro.md")),
         
@@ -172,7 +196,8 @@ ui <- shinyUI(fluidPage(
                 fluidRow(
                   column(6, 
                          tags$h3("Belonging Map"),
-                             uiOutput("belongingMapCampus"),
+                         div(class = "map-container",
+                             uiOutput("belongingMapCampus")),
                          bsPopover(id = "belongingMapCampus", title = "Campus Belonging Map", 
                                    content = "Number equals the number of clicks. Color equals density of clicks.", 
                                    trigger = "hover", placement = "right", options = list(container = "body"))
@@ -182,7 +207,8 @@ ui <- shinyUI(fluidPage(
                 fluidRow(
                   column(6, 
                          tags$h3("Not Belonging Map"),
-                             uiOutput("notBelongingMapCampus"),
+                         div(class = "map-container",
+                             uiOutput("notBelongingMapCampus")),
                          bsPopover(id = "notBelongingMapCampus", title = "Campus Don't Belong Map", 
                                    content = "Number equals the number of clicks. Color equals density of clicks.", 
                                    trigger = "hover", placement = "right", options = list(container = "body"))
@@ -211,7 +237,8 @@ ui <- shinyUI(fluidPage(
                 fluidRow(
                   column(width = 6,
                          tags$h3("Belonging Map"),
-                         uiOutput("belongingMapEmu"),
+                         div(class = "map-container",
+                         uiOutput("belongingMapEmu")),
                          bsPopover(id = "belongingMapEmu", title = "Emu Belonging Map", 
                                    content = "Number equals the number of clicks. Color equals density of clicks. Full information below.", 
                                    trigger = "hover", placement = "right", options = list(container = "body"))
@@ -221,7 +248,8 @@ ui <- shinyUI(fluidPage(
                 fluidRow(
                   column(width = 6,
                          tags$h3("Not Belonging Map"),
-                         uiOutput("notBelongingMapEmu"),
+                         div(class = "map-container",
+                         uiOutput("notBelongingMapEmu")),
                          bsPopover(id = "notBelongingMapEmu", title = "Emu Don't Belong Map", 
                                    content = "Number equals the number of clicks. Color equals density of clicks. Full information below.", 
                                    trigger = "hover", placement = "right", options = list(container = "body"))
@@ -411,8 +439,8 @@ ui <- shinyUI(fluidPage(
               )
       )),
     tabItem(tabName = "method",
-            includeMarkdown("www/pbb_method.md")
     ),
+            includeMarkdown("www/pbb_method.md"),
     tabItem(tabName = "brian",
             includeMarkdown("www/pbb_brian.md")
     ) # end tabItems

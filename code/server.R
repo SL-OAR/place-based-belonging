@@ -1330,7 +1330,7 @@ server <- function(input, output, session) {
     }
     
     if (image_src_belonging %in% available_maps) {
-      img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
+      img(src = paste0(base_path, image_src_belonging), class = "responsive-map", alt = "EMU Belonging Map")
     } else {
       tags$p("No belonging map available for the selected options.")
     }
@@ -1374,7 +1374,7 @@ server <- function(input, output, session) {
     }
     
     if (image_src_not_belonging %in% available_maps) {
-      img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
+      img(src = paste0(base_path, image_src_not_belonging), class = "responsive-map", alt = "EMU Don't Belong Map")
     } else {
       tags$p("No 'Don't Belong' map available for the selected options.")
     }
@@ -1416,11 +1416,11 @@ server <- function(input, output, session) {
         image_src_belonging <- "map_cam_b_i_ay2122.png"
       }
     } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
-      image_src_belonging <- "map_cam_b_gr_ay2122.png"
+      image_src_belonging <- "map_cam_b_gr_ay2122.svg"
     }
     
     if (image_src_belonging %in% available_maps) {
-      img(src = paste0(base_path, image_src_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
+      img(src = paste0(base_path, image_src_belonging), class = "responsive-map", alt = "Campus Belonging Map")
     } else {
       tags$p("No belonging map available for the selected options.")
     }
@@ -1459,11 +1459,11 @@ server <- function(input, output, session) {
         image_src_not_belonging <- "map_cam_db_i_ay2122.png"
       }
     } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
-      image_src_not_belonging <- "map_cam_db_gr_ay2122.png"
+      image_src_not_belonging <- "map_cam_db_gr_ay2122.svg"
     }
     
     if (image_src_not_belonging %in% available_maps) {
-      img(src = paste0(base_path, image_src_not_belonging), height = "600px", style = "margin-bottom: 20px; padding-right: 20px;")
+      img(src = paste0(base_path, image_src_not_belonging), class = "responsive-map", alt = "Campus Don't Belong Map")
     } else {
       tags$p("No 'Don't Belong' map available for the selected options.")
     }
