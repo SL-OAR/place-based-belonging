@@ -9,9 +9,9 @@ a {
   color: hotpink;
 }
 
-/* Custom class for blue text */
-.blue-text {
-  color: blue !important;
+/* Custom class for green text */
+.green-text {
+  color: #66FF00 !important;
 }
 
 /* Style for code blocks in dark mode */
