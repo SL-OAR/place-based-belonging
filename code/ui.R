@@ -87,20 +87,20 @@ cat("✅ Environment successfully activated and libraries loaded\n")
 
 
 #library(conflicted)
-conflicts_prefer(
-  shinydashboard::box(),
-  dplyr::filter(),
-  rvest::guess_encoding(),
-  dplyr::lag(),
-  bslib::page(),
-  markdown::rpubsUpload(),
-  rsconnect::serverInfo()
-)
-
-
-# Set working directory
-path <- here::here()
-setwd(path)
+# conflicts_prefer(
+#   shinydashboard::box(),
+#   dplyr::filter(),
+#   rvest::guess_encoding(),
+#   dplyr::lag(),
+#   bslib::page(),
+#   markdown::rpubsUpload(),
+#   rsconnect::serverInfo()
+# )
+# 
+# 
+# # Set working directory
+# path <- here::here()
+# setwd(path)
 
 # Code for shinyBS Popover
 # bsPopover(id=" ", title = " ", content = " ", trigger = "hover", 
@@ -429,18 +429,17 @@ ui <- shinyUI(fluidPage(
           )
         ), # End emotions tab
       
-    tabItems(
-      tabItem(tabName = "whom",
-              includeMarkdown("www/whom.md"),
-              fluidRow(
-                box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
-                imageOutput("code/www/wheel.png"),
-                box(width = NULL, background = "black", "text about emo.")
-              )
-      )),
-    tabItem(tabName = "method",
-    ),
-            includeMarkdown("www/pbb_method.md"),
+        tabItem(tabName = "whom",
+                includeMarkdown("www/whom.md"),
+                fluidRow(
+                  box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
+                  tags$img(src = "www/wheel.png", width = "100%"),
+                  box(width = NULL, background = "black", "text about emo.")
+                )
+        ),
+        tabItem(tabName = "method",
+                includeMarkdown("www/pbb_method.md")
+        ),
     tabItem(tabName = "brian",
             includeMarkdown("www/pbb_brian.md")
     ) # end tabItems
