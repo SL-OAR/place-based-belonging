@@ -32,24 +32,24 @@ tryCatch({
 }, error = function(e) handle_error("package installation", e))
 
 # Load packages with error handling
-tryCatch({
-  invisible(lapply(packages, function(pkg) {
-    library(pkg, character.only = TRUE)
-  }))
-}, error = function(e) handle_error("package loading", e))
+# tryCatch({
+#   invisible(lapply(packages, function(pkg) {
+#     library(pkg, character.only = TRUE)
+#   }))
+# }, error = function(e) handle_error("package loading", e))
 
 # Set package conflicts preference
-tryCatch({
-  conflicts_prefer(
-    shinydashboard::box(),
-    dplyr::filter(),
-    rvest::guess_encoding(),
-    dplyr::lag(),
-    bslib::page(),
-    markdown::rpubsUpload(),
-    rsconnect::serverInfo()
-  )
-}, error = function(e) handle_error("conflict resolution", e))
+# tryCatch({
+#   conflicts_prefer(
+#     shinydashboard::box(),
+#     dplyr::filter(),
+#     rvest::guess_encoding(),
+#     dplyr::lag(),
+#     bslib::page(),
+#     markdown::rpubsUpload(),
+#     rsconnect::serverInfo()
+#   )
+# }, error = function(e) handle_error("conflict resolution", e))
 
 # Set working directory
 tryCatch({
@@ -102,11 +102,6 @@ conflicts_prefer(
 # Set working directory
 path <- here::here()
 setwd(path)
-# packrat::on()
-
-# Use reticulate to activate the conda environment
-# use_condaenv("oar_pbb", required = TRUE)
-# print("Environment successfully activated and libraries loaded.")
 
 # Code for shinyBS Popover
 # bsPopover(id=" ", title = " ", content = " ", trigger = "hover", 
@@ -135,13 +130,17 @@ ui <- shinyUI(fluidPage(
                      sidebarMenu(
                        tags$a(href = "https://studentlife.uoregon.edu/research",
                               tags$img(src = "uo_stacked_gray.png", title = "Example Image Link", width = 250, height = 300)),
-                       menuItem("Summary", tabName = "about", icon = icon("users")),
+                       menuItem("Introduction", tabName = "intro", icon = icon("compass")),
+                       menuItem("Further Project Details", tabName = "about", icon = icon("info-circle")),
+                       menuItem("Summary of Findings", tabName = "findings", icon = icon("lightbulb")),
                        menuItem("Where? Campus Belonging", tabName = "campus", icon = icon("table")),
                        menuItem("Where? EMU Belonging", tabName = "emu", icon = icon("random", lib = "glyphicon")),
                        menuItem("Where? Inclusiveness", tabName = "inclusiveness", icon = icon("stats", lib = "glyphicon")),
-                       menuItem("Why There? Wordnets & Wordclouds", tabName = "words", icon = icon("dashboard")),
-                       menuItem("Why There? Emotions", tabName = "emotions", icon = icon("dashboard")),
-                       menuItem("Supplemental Method", tabName = "method", icon = icon("question")),
+                       menuItem("Why There? Wordnets & Wordclouds", tabName = "words", icon = icon("comment")),
+                       menuItem("Why There? Emotions", tabName = "emotions", icon = icon("face-smile")),
+                       menuItem("For Whom?", tabName = "whom", icon = icon("person")), # I am unsure if we need this
+                       menuItem("Supplemental Method", tabName = "method", icon = icon("book")),
+                       menuItem("In Rememberance of Brian", tabName = "brian", icon = icon("dove")),
                        HTML(paste0("<br>",
                                    "<br>",
                                    "<script>",
@@ -155,10 +154,14 @@ ui <- shinyUI(fluidPage(
     
     dashboardBody(
       tabItems(
+        tabItem(tabName = "intro", includeMarkdown("www/intro.md")),
+        
         tabItem(tabName = "about", includeMarkdown("www/pbb_about.md")),
         
+        tabItem(tabName = "findings", includeMarkdown("www/findings.md")),
         
         tabItem(tabName = "campus",
+                includeMarkdown("www/campus_summary.md"), # change to correct file
                 
                 fluidRow(
                   column(4, uiOutput("typeSelectCampus")),
@@ -187,7 +190,8 @@ ui <- shinyUI(fluidPage(
                 ),
                 
                 fluidRow(
-                  column(width = 12, uiOutput("CampusMapCaption"))
+                  column(width = 12, uiOutput("CampusMapCaption")) # change to markdown
+                  #includeMarkdown("www/campusmap_caption.md")) # need to create markdown
                 ),
                 
                 fluidRow(
@@ -197,6 +201,7 @@ ui <- shinyUI(fluidPage(
         
         
         tabItem(tabName = "emu",
+                includeMarkdown("www/emu_summary.md"), 
                 fluidRow(
                   column(4, uiOutput("typeSelectEmu")),
                   column(4, uiOutput("yearSelectEmu")),
@@ -225,6 +230,7 @@ ui <- shinyUI(fluidPage(
                 
                 fluidRow(
                   column(width = 12, uiOutput("EmuMapCaption"))
+                  #includeMarkdown("www/emumap_caption.md")) # need to create still
                 ),
                 
             fluidRow(
@@ -235,6 +241,7 @@ ui <- shinyUI(fluidPage(
         
         
         tabItem(tabName = "inclusiveness",
+                includeMarkdown("www/test.md"), # change to correct file
                 fluidRow(
                   column(12, 
                          selectInput("locationSelect", "Select Campus Location:", 
@@ -250,7 +257,6 @@ ui <- shinyUI(fluidPage(
                                        choices = c("Disaggregated - Tree Maps", "Aggregated - Bar Plot"))
                     )
                   ),
-                  
                   
                   conditionalPanel(
                     condition = "input.visualizationType == 'Aggregated - Bar Plot'",
@@ -268,8 +274,9 @@ ui <- shinyUI(fluidPage(
                     ),
                     fluidRow(
                       column(width = 12, uiOutput("AggBarCaption"))
+                      #includeMarkdown("www/aggbar_caption.md"))
                     )
-                  ),
+                  ), # End of Aggregated - Bar Plot Conditional
                   
                   conditionalPanel(
                     condition = "input.visualizationType == 'Disaggregated - Tree Maps'",
@@ -287,9 +294,30 @@ ui <- shinyUI(fluidPage(
                     ), 
                     fluidRow(
                       column(width = 12, uiOutput("DisaggTreeCaption"))
+                      #includeMarkdown("www/disaggtree_caption.md")) 
+                  ) # End of Full Campus Conditional
+                  
+                ), # End of Full Campus Condition Panel
+                
+                conditionalPanel(
+                  condition = "input.locationSelect == 'EMU Student Union'",
+                  fluidRow(
+                    column(4, uiOutput("typeSelectEmuTreeMap")),
+                    column(4, uiOutput("yearSelectEmuTreeMap")),
+                    column(4, uiOutput("cohortSelectEmuTreeMap"))
+                  ),
+                  
+                  fluidRow(
+                    column(width = 12,
+                           box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, 
+                               plotOutput("emuTree"))
                     )
-                   ) # Disaggregate Tree Maps Condition
-                ), #End Full Campus
+                  ), 
+                  fluidRow(
+                       column(width = 12, uiOutput("EmuTreeCaption"))
+                       #includeMarkdown("www/emutree_caption.md")
+                  ) # End of EMU Student Union Conditional Panel
+                ), # End of EMU Conditional Panel, #End Full Campus
                 
                 conditionalPanel(
                   condition = "input.locationSelect == 'EMU Student Union'",
@@ -306,6 +334,7 @@ ui <- shinyUI(fluidPage(
                     )
                   ), 
                   fluidRow(
+                    #includeMarkdown("www/emutree_caption.md"))
                     column(width = 12, uiOutput("EmuTreeCaption"))
                   )
                 ) #EMU conditional panel
@@ -313,6 +342,7 @@ ui <- shinyUI(fluidPage(
         
         
         tabItem(tabName = "words", 
+                includeMarkdown("www/words_summary.md"), # change to correct file
                 fluidRow(
                   column(width = 12, 
                          selectInput("typeSelectWords", "Select Type:", 
@@ -330,20 +360,25 @@ ui <- shinyUI(fluidPage(
                   fluidRow(
                   column(width = 6,
                          imageOutput("wordCloudImage", width = "100%", height = "auto")),
-                  
-                    column(width = 12, uiOutput("CloudCaption"))
+                     column(width = 12, uiOutput("CloudCaption"))
+                    #includeMarkdown("www/cloud_caption.md")
+                   )
                   ),  
                   
                   fluidRow(
                     column(width = 6,
                          imageOutput("wordNetImage", width = "100%", height = "auto")),
-                    column(width = 12, uiOutput("NetCaption"))
+                    column(
+                    #  includeMarkdown("www/net_caption.md")
+                      width = 12, uiOutput("NetCaption")
+                      )
                   )
                 )
         ), # End words tab
       
       
         tabItem(tabName = "emotions",
+                includeMarkdown("www/emotion_summary.md"), # change to correct file
                 fluidRow(
                   column(width = 4,
                           selectInput("typeSelectEmotion", "Select Type",
@@ -362,22 +397,27 @@ ui <- shinyUI(fluidPage(
                 )
               ),
               column(width = 12, uiOutput("EmotionCaption"))
+              #includeMarkdown("www/emotion_caption.md"))
           )
         ), # End emotions tab
       
-      
-        tabItem(tabName = "whom", 
-                includeMarkdown("www/whom.md"),
-                fluidRow(
-                  box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
-                  imageOutput("code/www/wheel.png"),
-                  box(width = NULL, background = "black", "text about emo.")
-                  )
-                ),
-      
-      
-        tabItem(tabName = "method", includeMarkdown("www/pbb_method.md"))
-      ) # end tabItems
-    ) # end dashboardBody
+    tabItems(
+      tabItem(tabName = "whom",
+              includeMarkdown("www/whom.md"),
+              fluidRow(
+                box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
+                imageOutput("code/www/wheel.png"),
+                box(width = NULL, background = "black", "text about emo.")
+              )
+      )),
+    tabItem(tabName = "method",
+            includeMarkdown("www/pbb_method.md")
+    ),
+    tabItem(tabName = "brian",
+            includeMarkdown("www/pbb_brian.md")
+    ) # end tabItems
+    )# end dashboardBody
   ) # end dashboardPage
-))
+) # end shiny
+)
+)# end ui 
