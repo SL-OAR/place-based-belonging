@@ -4,67 +4,67 @@
 # server.R file                  #
 ##################################
 
-renv::snapshot() # use to update packages
-renv::restore() # if your project code isn't working. This probably implies that you have the wrong package versions installed and you need to restore from known good state in the lockfile.
-
-packages <- c("shiny", "reactable", "htmltools",
-              "treemapify", "tidyverse", "rvest",
-              "leaflet.extras", "shinydashboard",
-              "shinycssloaders", "here", "reticulate",
-              "markdown", "fastmap", "bslib",
-              "shinyalert", "shinyBS", "farver",
-              "labeling", "crayon", "cli", "viridisLite",
-              "remotes", "fastmap", "conflicted",
-              "rsconnect"
-)
-
-# Function to handle errors
-handle_error <- function(step, err) {
-  cat(paste0("ERROR during ", step, ": ", conditionMessage(err), "\n"))
-  stop("Script execution halted due to an error.")
-}
-
-# Install missing packages with error handling
-tryCatch({
-  installed_packages <- packages %in% rownames(installed.packages())
-  if (any(!installed_packages)) {
-    install.packages(packages[!installed_packages])
-  }
-}, error = function(e) handle_error("package installation", e))
-
-# Load packages with error handling
-tryCatch({
-  invisible(lapply(packages, function(pkg) {
-    library(pkg, character.only = TRUE)
-  }))
-}, error = function(e) handle_error("package loading", e))
-
-# Set package conflicts preference
-tryCatch({
-  conflicts_prefer(
-    shinydashboard::box(),
-    dplyr::filter(),
-    rvest::guess_encoding(),
-    dplyr::lag(),
-    bslib::page(),
-    markdown::rpubsUpload(),
-    rsconnect::serverInfo()
-  )
-}, error = function(e) handle_error("conflict resolution", e))
-
-# Set working directory
-tryCatch({
-  path <- here::here()
-  setwd(path)
-}, error = function(e) handle_error("setting working directory", e))
-
-# Activate the Conda environment using reticulate
-tryCatch({
-  use_condaenv("oar_pbb", required = TRUE)
-}, error = function(e) handle_error("Conda environment activation", e))
-
-# If everything runs successfully
-cat("✅ Environment successfully activated and libraries loaded\n")
+# renv::snapshot() # use to update packages
+# renv::restore() # if your project code isn't working. This probably implies that you have the wrong package versions installed and you need to restore from known good state in the lockfile.
+# 
+# packages <- c("shiny", "reactable", "htmltools",
+#               "treemapify", "tidyverse", "rvest",
+#               "leaflet.extras", "shinydashboard",
+#               "shinycssloaders", "here", "reticulate",
+#               "markdown", "fastmap", "bslib",
+#               "shinyalert", "shinyBS", "farver",
+#               "labeling", "crayon", "cli", "viridisLite",
+#               "remotes", "fastmap", "conflicted",
+#               "rsconnect"
+# )
+# 
+# # Function to handle errors
+# handle_error <- function(step, err) {
+#   cat(paste0("ERROR during ", step, ": ", conditionMessage(err), "\n"))
+#   stop("Script execution halted due to an error.")
+# }
+# 
+# # Install missing packages with error handling
+# tryCatch({
+#   installed_packages <- packages %in% rownames(installed.packages())
+#   if (any(!installed_packages)) {
+#     install.packages(packages[!installed_packages])
+#   }
+# }, error = function(e) handle_error("package installation", e))
+# 
+# # Load packages with error handling
+# tryCatch({
+#   invisible(lapply(packages, function(pkg) {
+#     library(pkg, character.only = TRUE)
+#   }))
+# }, error = function(e) handle_error("package loading", e))
+# 
+# # Set package conflicts preference
+# tryCatch({
+#   conflicts_prefer(
+#     shinydashboard::box(),
+#     dplyr::filter(),
+#     rvest::guess_encoding(),
+#     dplyr::lag(),
+#     bslib::page(),
+#     markdown::rpubsUpload(),
+#     rsconnect::serverInfo()
+#   )
+# }, error = function(e) handle_error("conflict resolution", e))
+# 
+# # Set working directory
+# tryCatch({
+#   path <- here::here()
+#   setwd(path)
+# }, error = function(e) handle_error("setting working directory", e))
+# 
+# # Activate the Conda environment using reticulate
+# tryCatch({
+#   use_condaenv("oar_pbb", required = TRUE)
+# }, error = function(e) handle_error("Conda environment activation", e))
+# 
+# # If everything runs successfully
+# cat("✅ Environment successfully activated and libraries loaded\n")
 
 
 
@@ -116,16 +116,16 @@ cat("✅ Environment successfully activated and libraries loaded\n")
 
 #####
 
-library(conflicted)
-conflicts_prefer(
-  shinydashboard::box(),
-  dplyr::filter(),
-  rvest::guess_encoding(),
-  dplyr::lag(),
-  bslib::page(),
-  markdown::rpubsUpload(),
-  rsconnect::serverInfo()
-)
+# library(conflicted)
+# conflicts_prefer(
+#   shinydashboard::box(),
+#   dplyr::filter(),
+#   rvest::guess_encoding(),
+#   dplyr::lag(),
+#   bslib::page(),
+#   markdown::rpubsUpload(),
+#   rsconnect::serverInfo()
+# )
 
 
 # Set working directory
@@ -520,36 +520,36 @@ server <- function(input, output, session) {
   <p>Colors were produced using the <code>rocket</code> palette of the <code>viridis</code> package.</p>")
   })
   
-  # output$EmotionCaption <- renderUI({
-  #   HTML("<p><b>Note:</b> Emotions are presented in rank order from most to least prevalent.</p>
-  # 
-  # <p><b>Percentage</b> = the percentage of all eligible words classified as being representative of one of eight emotions 
-  # (anger, anticipation, disgust, fear, joy, sadness, surprise, trust), based on 
-  # <a href='https://doi.org/10.1177/053901882021004003' target='_blank' style='color: #DF63A4;'>Plutchik's psychoevolutionary theory of emotion</a> 
-  # (<a href='#f1' style='color: #DF63A4;'>Figure 1</a>).</p>
-  # 
-  # <p>The threshold for the minimum number of responses was 20.</p>
-  # 
-  # <p>Because analyses combine data from multiple academic years, some students contributed data more than once.</p>
-  # 
-  # <p><span style='color: #11E8FF; font-weight: bold;'>Across all places that were not subsequently aggregated into superordinate places 
-  # and then disaggregated by subordinate places</span> (i.e., not Erb Memorial Union, Lokey Science Complex, or University Housing) 
-  # <span style='color: #11E8FF; font-weight: bold;'>as well as across sentiments</span> (i.e., \"belong\" and \"don't belong\"), 
-  # most students contributed to only one wave of data collection, relatively few students contributed to two waves, 
-  # and no one contributed to three waves.</p>
-  # 
-  # <p>See <a href='#supmeth' style='color: #DF63A4;'>Supplemental Method</a> for more details.</p>
-  # 
-  # <p>Text was annotated using the <code>tidytext</code> package.</p>
-  # 
-  # <p>The <code>nrc</code> lexicon 
-  # (<a href='https://arxiv.org/pdf/1308.6297.pdf' target='_blank' style='color: #DF63A4;'>Mohammad & Turney, 2013</a>) 
-  # was used to classify emotional content.</p>
-  # 
-  # <p>Bar plot was generated using the <code>ggplot2</code> package.</p>
-  # 
-  # <p>Colors were produced using the <code>rocket</code> palette of the <code>viridis</code> package.</p>")
-  # })
+  output$EmotionCaption <- renderUI({
+    HTML("<p><b>Note:</b> Emotions are presented in rank order from most to least prevalent.</p>
+
+  <p><b>Percentage</b> = the percentage of all eligible words classified as being representative of one of eight emotions
+  (anger, anticipation, disgust, fear, joy, sadness, surprise, trust), based on
+  <a href='https://doi.org/10.1177/053901882021004003' target='_blank' style='color: #DF63A4;'>Plutchik's psychoevolutionary theory of emotion</a>
+  (<a href='#f1' style='color: #DF63A4;'>Figure 1</a>).</p>
+
+  <p>The threshold for the minimum number of responses was 20.</p>
+
+  <p>Because analyses combine data from multiple academic years, some students contributed data more than once.</p>
+
+  <p><span style='color: #11E8FF; font-weight: bold;'>Across all places that were not subsequently aggregated into superordinate places
+  and then disaggregated by subordinate places</span> (i.e., not Erb Memorial Union, Lokey Science Complex, or University Housing)
+  <span style='color: #11E8FF; font-weight: bold;'>as well as across sentiments</span> (i.e., \"belong\" and \"don't belong\"),
+  most students contributed to only one wave of data collection, relatively few students contributed to two waves,
+  and no one contributed to three waves.</p>
+
+  <p>See <a href='#supmeth' style='color: #DF63A4;'>Supplemental Method</a> for more details.</p>
+
+  <p>Text was annotated using the <code>tidytext</code> package.</p>
+
+  <p>The <code>nrc</code> lexicon
+  (<a href='https://arxiv.org/pdf/1308.6297.pdf' target='_blank' style='color: #DF63A4;'>Mohammad & Turney, 2013</a>)
+  was used to classify emotional content.</p>
+
+  <p>Bar plot was generated using the <code>ggplot2</code> package.</p>
+
+  <p>Colors were produced using the <code>rocket</code> palette of the <code>viridis</code> package.</p>")
+  })
 
 #########################################    
   ## Filters ## 

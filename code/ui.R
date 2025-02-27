@@ -3,8 +3,9 @@
 # by OAR Intern team             #
 # ui.R file                      #
 ##################################
-renv::restore() # if your project code isn't working. This probably implies that you have the wrong package versions installed and you need to restore from known good state in the lockfile.
+#renv::restore() # if your project code isn't working. This probably implies that you have the wrong package versions installed and you need to restore from known good state in the lockfile.
 
+# For some reason I need to run this separately to get the app to run when I get that remote sha error
 packages <- c("shiny", "reactable", "htmltools", 
               "treemapify", "tidyverse", "rvest",
               "leaflet.extras", "shinydashboard", 
@@ -320,32 +321,34 @@ ui <- shinyUI(fluidPage(
                                  plotOutput("campusTree"))
                       )
                     ), 
+                    
                     fluidRow(
                       column(width = 12, uiOutput("DisaggTreeCaption"))
                       #includeMarkdown("www/disaggtree_caption.md")) 
-                  ) # End of Full Campus Conditional
-                  
+                  ) 
+                  ) # Disaggregated Tree conditional panel
                 ), # End of Full Campus Condition Panel
                 
-                conditionalPanel(
-                  condition = "input.locationSelect == 'EMU Student Union'",
-                  fluidRow(
-                    column(4, uiOutput("typeSelectEmuTreeMap")),
-                    column(4, uiOutput("yearSelectEmuTreeMap")),
-                    column(4, uiOutput("cohortSelectEmuTreeMap"))
-                  ),
-                  
-                  fluidRow(
-                    column(width = 12,
-                           box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, 
-                               plotOutput("emuTree"))
-                    )
-                  ), 
-                  fluidRow(
-                       column(width = 12, uiOutput("EmuTreeCaption"))
-                       #includeMarkdown("www/emutree_caption.md")
-                  ) # End of EMU Student Union Conditional Panel
-                ), # End of EMU Conditional Panel, #End Full Campus
+                # conditionalPanel(
+                #   condition = "input.locationSelect == 'EMU Student Union'",
+                #   fluidRow(
+                #     column(4, uiOutput("typeSelectEmuTreeMap")),
+                #     column(4, uiOutput("yearSelectEmuTreeMap")),
+                #     column(4, uiOutput("cohortSelectEmuTreeMap"))
+                #   ),
+                #   
+                #   fluidRow(
+                #     column(width = 12,
+                #            box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, 
+                #                plotOutput("emuTree"))
+                #     )
+                #   ), 
+                #   
+                #   fluidRow(
+                #        column(width = 12, uiOutput("EmuTreeCaption"))
+                #        #includeMarkdown("www/emutree_caption.md")
+                #   )
+                #), # End of EMU Conditional Panel, #End Full Campus
                 
                 conditionalPanel(
                   condition = "input.locationSelect == 'EMU Student Union'",
@@ -379,10 +382,10 @@ ui <- shinyUI(fluidPage(
                          ),
                          uiOutput("placeSelect"),  # place select input for both word clouds and word nets
                          uiOutput("place2Select"),  # second place select input for word clouds and word nets i.e. Buildings within complexes
-                         # Can I add radio buttons to the inclusiveness page??
+                         # Should I add radio buttons to the inclusiveness page?
                          radioButtons("belongStatus", "Select Belonging Status:", 
                                       choices = c("Belong" = "b", "Don't Belong" = "db"), 
-                                      selected = "b"  # Default to "Belong"
+                                      selected = "b"  # Default to "Belong" # I am not sure this is working
                          )
                   ),
                   fluidRow(
@@ -401,7 +404,6 @@ ui <- shinyUI(fluidPage(
                       width = 12, uiOutput("NetCaption")
                       )
                   )
-                )
         ), # End words tab
       
       
@@ -437,11 +439,14 @@ ui <- shinyUI(fluidPage(
                 box(width = NULL, background = "black", "text about emo.")
               )
       ),
+      
     tabItem(tabName = "method",
             includeMarkdown("www/pbb_method.md")
             ),
+    
     tabItem(tabName = "brian",
             includeMarkdown("www/pbb_brian.md")
+            
     ) # end tabItems
     )# end dashboardBody
   ) # end dashboardPage
