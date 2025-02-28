@@ -44,3 +44,30 @@ pre, code {
 .skin-blue .main-sidebar {
   background-color: #333333;
 }
+
+/* Customize tabBox background and text color */
+.nav-tabs-custom {
+  background-color: #2d2d2d !important;  /* Dark background */
+  color: #dcdcdc !important; /* Light text */
+  border: none !important;
+}
+
+/* Customize tab headers */
+.nav-tabs-custom > .nav-tabs > li.active > a {
+  background-color: #333333 !important; /* Active tab background */
+  color: hotpink !important; /* Active tab text */
+  border: none !important;
+}
+
+.nav-tabs-custom > .nav-tabs > li > a {
+  background-color: #2d2d2d !important; /* Inactive tab background */
+  color: #dcdcdc !important; /* Inactive tab text */
+  border: none !important;
+}
+
+/* Customize tab content area */
+.nav-tabs-custom > .tab-content {
+  background-color: #1e1e1e !important; /* Darker background */
+  color: #dcdcdc !important;
+  border: none !important;
+}

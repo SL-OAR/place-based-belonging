@@ -16,6 +16,7 @@ reactable_fun<- function(dat) {
       pageButtonActiveStyle = list(backgroundColor = "hsl(233, 9%, 28%)")
     )
   )
+  
   rt<- dat %>%
     reactable(
       .,

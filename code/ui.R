@@ -166,7 +166,9 @@ ui <- shinyUI(fluidPage(
       max-width: 1400px;
       height: auto;
       display: block;
-      }"))
+      }")),
+        
+      tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
         ),
   
   # # JavaScript Fix for Resizing
@@ -187,7 +189,9 @@ ui <- shinyUI(fluidPage(
         
         tabItem(tabName = "campus",
                 includeMarkdown("www/campus_summary.md"), # change to correct file
-                
+            tabBox(
+              id = "campus_tabs", width = 12, 
+              tabPanel("Maps",
                 fluidRow(
                   column(4, uiOutput("typeSelectCampus")),
                   column(4, uiOutput("yearSelectCampus")),
@@ -217,14 +221,25 @@ ui <- shinyUI(fluidPage(
                 ),
                 
                 fluidRow(
-                  column(width = 12, uiOutput("CampusMapCaption")) # change to markdown
-                  #includeMarkdown("www/campusmap_caption.md")) # need to create markdown
-                ),
-                
-                fluidRow(
-                  column(6, reactableOutput("tableCampus"))
+                  column(width = 12, includeHTML("www/campus_map_caption.html")) 
                 )
-        ),
+                ), # End Campus Maps
+        
+      tabPanel("Tables",
+               fluidRow(
+                 column(4, uiOutput("typeSelectCampusTable")),
+                 column(4, uiOutput("yearSelectCampusTable")),
+                 column(4, uiOutput("cohortSelectCampusTable"))
+               ),
+                fluidRow(
+                  column(12, reactableOutput("tableCampus"))
+                  ),
+                fluidRow(
+                  column(width = 12, includeHTML("www/campus_table_caption.html"))
+                )
+          ) # End Campus Tables
+        ) # End Campus Box
+      ), # End Campus tab
         
         
         tabItem(tabName = "emu",
@@ -258,15 +273,14 @@ ui <- shinyUI(fluidPage(
                 ),
                 
                 fluidRow(
-                  column(width = 12, uiOutput("EmuMapCaption"))
-                  #includeMarkdown("www/emumap_caption.md")) # need to create still
-                ),
+                  column(width = 12, includeHTML("www/emu_map_caption.html"))
+                )
                 
-            fluidRow(
-                  column(width = 12,
-                         reactableOutput("tableEmu"))
-                 )
-            ),
+            # fluidRow(
+            #       column(width = 12,
+            #              reactableOutput("tableEmu"))
+            #      )
+            ), # End EMU Maps
         
         
         tabItem(tabName = "inclusiveness",
@@ -302,8 +316,7 @@ ui <- shinyUI(fluidPage(
                       )
                     ),
                     fluidRow(
-                      column(width = 12, uiOutput("AggBarCaption"))
-                      #includeMarkdown("www/aggbar_caption.md"))
+                      column(width = 12, includeHTML("www/aggbar_caption.html"))
                     )
                   ), # End of Aggregated - Bar Plot Conditional
                   
@@ -323,32 +336,10 @@ ui <- shinyUI(fluidPage(
                     ), 
                     
                     fluidRow(
-                      column(width = 12, uiOutput("DisaggTreeCaption"))
-                      #includeMarkdown("www/disaggtree_caption.md")) 
+                      column(width = 12, includeHTML("www/disaggtree_caption.html"))
                   ) 
                   ) # Disaggregated Tree conditional panel
                 ), # End of Full Campus Condition Panel
-                
-                # conditionalPanel(
-                #   condition = "input.locationSelect == 'EMU Student Union'",
-                #   fluidRow(
-                #     column(4, uiOutput("typeSelectEmuTreeMap")),
-                #     column(4, uiOutput("yearSelectEmuTreeMap")),
-                #     column(4, uiOutput("cohortSelectEmuTreeMap"))
-                #   ),
-                #   
-                #   fluidRow(
-                #     column(width = 12,
-                #            box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, 
-                #                plotOutput("emuTree"))
-                #     )
-                #   ), 
-                #   
-                #   fluidRow(
-                #        column(width = 12, uiOutput("EmuTreeCaption"))
-                #        #includeMarkdown("www/emutree_caption.md")
-                #   )
-                #), # End of EMU Conditional Panel, #End Full Campus
                 
                 conditionalPanel(
                   condition = "input.locationSelect == 'EMU Student Union'",
@@ -365,8 +356,7 @@ ui <- shinyUI(fluidPage(
                     )
                   ), 
                   fluidRow(
-                    #includeMarkdown("www/emutree_caption.md"))
-                    column(width = 12, uiOutput("EmuTreeCaption"))
+                    column(width = 12, includeHTML("www/emutree_caption.html"))
                   )
                 ) #EMU conditional panel
         ), #End of Inclusive tab
@@ -374,36 +364,56 @@ ui <- shinyUI(fluidPage(
         
         tabItem(tabName = "words", 
                 includeMarkdown("www/words_summary.md"), # change to correct file
+              tabBox(
+                  id = "words", width = 12, 
+                tabPanel("Word Clouds", 
                 fluidRow(
                   column(width = 12, 
-                         selectInput("typeSelectWords", "Select Type:", 
+                         selectInput("typeSelectWordsCloud", "Select Type:", 
                                      choices = c("Undergraduate", "International", "Graduate"), 
                                      selected = "Undergraduate" # Default to "Undergrad"
                          ),
-                         uiOutput("placeSelect"),  # place select input for both word clouds and word nets
-                         uiOutput("place2Select"),  # second place select input for word clouds and word nets i.e. Buildings within complexes
+                         uiOutput("placeSelectCloud"),  # place select input for both word clouds and word nets
+                         uiOutput("place2SelectCloud"),  # second place select input for word clouds and word nets i.e. Buildings within complexes
                          # Should I add radio buttons to the inclusiveness page?
                          radioButtons("belongStatus", "Select Belonging Status:", 
                                       choices = c("Belong" = "b", "Don't Belong" = "db"), 
                                       selected = "b"  # Default to "Belong" # I am not sure this is working
                          )
+                  )
                   ),
                   fluidRow(
                   column(width = 6,
                          imageOutput("wordCloudImage", width = "100%", height = "auto")),
-                     column(width = 12, uiOutput("CloudCaption"))
-                    #includeMarkdown("www/cloud_caption.md")
+                     column(width = 12, includeHTML("www/cloud_caption.html"))
                    )
-                  ),  
-                  
+                ),  # End word clouds panel
+                
+                tabPanel("Word Nets",
+                    fluidRow(
+                           column(width = 12, 
+                                  selectInput("typeSelectWordsNet", "Select Type:", 
+                                              choices = c("Undergraduate", "International", "Graduate"), 
+                                              selected = "Undergraduate" # Default to "Undergrad"
+                                  ),
+                                  uiOutput("placeSelectNet"),  # place select input for both word clouds and word nets
+                                  uiOutput("place2SelectNet"),  # second place select input for word clouds and word nets i.e. Buildings within complexes
+                                  # Should I add radio buttons to the inclusiveness page?
+                                  radioButtons("belongStatus", "Select Belonging Status:", 
+                                               choices = c("Belong" = "b", "Don't Belong" = "db"), 
+                                               selected = "b"  # Default to "Belong" # I am not sure this is working
+                                  )
+                           )
+                         ),
                   fluidRow(
                     column(width = 6,
                          imageOutput("wordNetImage", width = "100%", height = "auto")),
                     column(
-                    #  includeMarkdown("www/net_caption.md")
-                      width = 12, uiOutput("NetCaption")
+                      width = 12, includeHTML("www/net_caption.html")
                       )
                   )
+                ) # End word nets Panel
+              ) # End tab box
         ), # End words tab
       
       
@@ -426,8 +436,7 @@ ui <- shinyUI(fluidPage(
                          imageOutput("emotionImage", width = "100%", height = "auto")
                 )
               ),
-              column(width = 12, uiOutput("EmotionCaption"))
-              #includeMarkdown("www/emotion_caption.md"))
+              column(width = 12, includeHTML("www/emotion_caption.html"))
           )
         ), # End emotions tab
       
