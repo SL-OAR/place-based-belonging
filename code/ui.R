@@ -158,15 +158,26 @@ ui <- shinyUI(fluidPage(
       .map-container {
       width: 100%;
       max-width: 1400px; /* Adjust max width as needed */
-      margin: auto; /* Center it */
+      height: auto; /* Center it */
+      margin-bottom: 20px; /* Adds space below */
         }
 
-      .responsive-map {
+      .responsive-caption {
       width: 100%;
       max-width: 1400px;
       height: auto;
       display: block;
-      }")),
+      padding-top: 30px; /* Adds space above the caption */
+      }
+                        
+      .responsive-plot {
+      width: 100%; 
+      max-width: 1000px;
+      height: auto;
+      display: block;
+      margin-bottom: 20px;
+      }                  
+                        ")),
         
       tags$link(rel = "stylesheet", type = "text/css", href = "style.css")
         ),
@@ -199,31 +210,33 @@ ui <- shinyUI(fluidPage(
                 ),
                 
                 fluidRow(
-                  column(6, 
+                  column(12, 
                          tags$h3("Belonging Map"),
                          div(class = "map-container",
-                             uiOutput("belongingMapCampus")),
+                             uiOutput("belongingMapCampus", fill = "container")),
                          bsPopover(id = "belongingMapCampus", title = "Campus Belonging Map", 
                                    content = "Number equals the number of clicks. Color equals density of clicks.", 
-                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                                   trigger = "hover", placement = "bottom", options = list(container = "body"))
                   )
                 ),
                 
                 fluidRow(
-                  column(6, 
+                  column(12, 
                          tags$h3("Not Belonging Map"),
                          div(class = "map-container",
-                             uiOutput("notBelongingMapCampus")),
+                             uiOutput("notBelongingMapCampus", fill = "container")),
                          bsPopover(id = "notBelongingMapCampus", title = "Campus Don't Belong Map", 
                                    content = "Number equals the number of clicks. Color equals density of clicks.", 
-                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                                   trigger = "hover", placement = "bottom", options = list(container = "body"))
                   )
                 ),
                 
                 fluidRow(
-                  column(width = 12, includeHTML("www/campus_map_caption.html")) 
+                  column(width = 12, 
+                         div(class = "responsive-caption", includeHTML("www/campus_map_caption.html")) 
                 )
-                ), # End Campus Maps
+              )
+              ), # End Campus Maps
         
       tabPanel("Tables",
                fluidRow(
@@ -235,8 +248,10 @@ ui <- shinyUI(fluidPage(
                   column(12, reactableOutput("tableCampus"))
                   ),
                 fluidRow(
-                  column(width = 12, includeHTML("www/campus_table_caption.html"))
+                  column(width = 12, 
+                         div(class = "responsive-caption", includeHTML("www/campus_table_caption.html"))
                 )
+              )
           ) # End Campus Tables
         ) # End Campus Box
       ), # End Campus tab
@@ -251,29 +266,31 @@ ui <- shinyUI(fluidPage(
                 ),
                 
                 fluidRow(
-                  column(width = 6,
+                  column(width = 10,
                          tags$h3("Belonging Map"),
                          div(class = "map-container",
-                         uiOutput("belongingMapEmu")),
+                         uiOutput("belongingMapEmu", fill = "container")),
                          bsPopover(id = "belongingMapEmu", title = "Emu Belonging Map", 
-                                   content = "Number equals the number of clicks. Color equals density of clicks. Full information below.", 
-                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "bottom", options = list(container = "body"))
                   )
                 ),
                 
                 fluidRow(
-                  column(width = 6,
+                  column(width = 10,
                          tags$h3("Not Belonging Map"),
                          div(class = "map-container",
-                         uiOutput("notBelongingMapEmu")),
+                         uiOutput("notBelongingMapEmu", fill = "container")),
                          bsPopover(id = "notBelongingMapEmu", title = "Emu Don't Belong Map", 
-                                   content = "Number equals the number of clicks. Color equals density of clicks. Full information below.", 
-                                   trigger = "hover", placement = "right", options = list(container = "body"))
+                                   content = "Number equals the number of clicks. Color equals density of clicks.", 
+                                   trigger = "hover", placement = "bottom", options = list(container = "body"))
                   )
                 ),
                 
                 fluidRow(
-                  column(width = 12, includeHTML("www/emu_map_caption.html"))
+                  column(width = 12, 
+                         div(class = "responsive-caption", includeHTML("www/emu_map_caption.html"))
+                  )
                 )
                 
             # fluidRow(
@@ -310,13 +327,19 @@ ui <- shinyUI(fluidPage(
                     ),
                     
                     fluidRow(
-                      column(width = 12,
-                             box(width = 12, style = "height:400px;", title = "Inclusiveness", solidHeader = TRUE, 
-                                 uiOutput("inclusiveBar"))
+                      column(width = 6,
+                          div(class = "responsive-plot", 
+                             h3("Inclusiveness"), 
+                                 uiOutput("inclusiveBar")),
+                             bsPopover(id = "inclusiveBar", title = "Aggregated Inclusivity", 
+                                       content = "Aggregated Percent Inclusion by Place", 
+                                       trigger = "hover", placement = "right", options = list(container = "body"))
                       )
                     ),
                     fluidRow(
-                      column(width = 12, includeHTML("www/aggbar_caption.html"))
+                      column(width = 12, 
+                             div(class = "responsive-caption", includeHTML("www/aggbar_caption.html"))
+                      )
                     )
                   ), # End of Aggregated - Bar Plot Conditional
                   
@@ -330,14 +353,18 @@ ui <- shinyUI(fluidPage(
                     
                     fluidRow(
                       column(width = 12,
-                             box(width = 12, style = "height:400px;", title = "Campus Inclusiveness Tree Map", solidHeader = TRUE, 
-                                 plotOutput("campusTree"))
+                          div(class = "responsive-map",
+                             h3("Campus Inclusiveness Tree Map"), 
+                                 plotOutput("campusTree")
+                          )
                       )
                     ), 
                     
                     fluidRow(
-                      column(width = 12, includeHTML("www/disaggtree_caption.html"))
-                  ) 
+                      column(width = 12, 
+                             div(class = "responsive-caption", includeHTML("www/disaggtree_caption.html"))
+                      )
+                    ) 
                   ) # Disaggregated Tree conditional panel
                 ), # End of Full Campus Condition Panel
                 
@@ -351,12 +378,16 @@ ui <- shinyUI(fluidPage(
                   
                   fluidRow(
                     column(width = 12,
-                           box(width = 12, style = "height:400px;", title = "EMU Inclusiveness Tree Map", solidHeader = TRUE, 
-                               plotOutput("emuTree")) # Fix Nothing_to_see.png 
+                        div(class = "responsive-map",
+                           h3("EMU Inclusiveness Tree Map"), 
+                               plotOutput("emuTree") # Fix Nothing_to_see.png 
+                           )
                     )
                   ), 
                   fluidRow(
-                    column(width = 12, includeHTML("www/emutree_caption.html"))
+                    column(width = 12, 
+                           div(class = "responsive-caption", includeHTML("www/emutree_caption.html"))
+                    )
                   )
                 ) #EMU conditional panel
         ), #End of Inclusive tab
@@ -384,8 +415,12 @@ ui <- shinyUI(fluidPage(
                   ),
                   fluidRow(
                   column(width = 6,
+                      div(class = "responsive-plot", 
                          imageOutput("wordCloudImage", width = "100%", height = "auto")),
-                     column(width = 12, includeHTML("www/cloud_caption.html"))
+                     column(width = 12, 
+                            div(class = "responsive-caption", includeHTML("www/cloud_caption.html"))
+                        )
+                      )
                    )
                 ),  # End word clouds panel
                 
@@ -407,10 +442,12 @@ ui <- shinyUI(fluidPage(
                          ),
                   fluidRow(
                     column(width = 6,
+                        div(class = "responsive-plot", 
                          imageOutput("wordNetImage", width = "100%", height = "auto")),
-                    column(
-                      width = 12, includeHTML("www/net_caption.html")
+                    column(width = 12, 
+                           div(class = "responsive-caption", includeHTML("www/net_caption.html"))
                       )
+                    )
                   )
                 ) # End word nets Panel
               ) # End tab box
@@ -420,7 +457,7 @@ ui <- shinyUI(fluidPage(
         tabItem(tabName = "emotions",
                 includeMarkdown("www/emotion_summary.md"), # change to correct file
                 fluidRow(
-                  column(width = 4,
+                  column(width = 6,
                           selectInput("typeSelectEmotion", "Select Type",
                                       choices = c("Undergraduate", "International", "Graduate"),
                                       selected = "Undergraduate" # default selection
@@ -430,20 +467,24 @@ ui <- shinyUI(fluidPage(
                          radioButtons("belongStatus", "Select Belonging Status",
                                       choices = c("Belong" = "b", "Don't Belong" = "db"),
                                       selected = "b")
+                    )
                   ),
+                fluidPage(
                   column(width = 8,
-                         div(style = "max-width: 800px; margin: 0 auto;",  # Limit width and center it
+                         div(class = "responsive-plot",  # Limit width and center it
                          imageOutput("emotionImage", width = "100%", height = "auto")
                 )
-              ),
-              column(width = 12, includeHTML("www/emotion_caption.html"))
-          )
+              )
+            ),
+              column(width = 12, 
+                     div(class = "responsive-caption", includeHTML("www/emotion_caption.html"))
+              )
         ), # End emotions tab
       
       tabItem(tabName = "whom",
               includeMarkdown("www/whom.md"),
               fluidRow(
-                box(width = NULL, title = "Plutchik's Wheel of Emotions", solidHeader = TRUE),
+                h3("Plutchik's Wheel of Emotions"),
                 tags$img(src = "wheel.png", width = "100%"),
                 box(width = NULL, background = "black", "text about emo.")
               )
