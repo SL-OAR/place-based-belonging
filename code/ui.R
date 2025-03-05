@@ -14,7 +14,7 @@ packages <- c("shiny", "reactable", "htmltools",
               "shinyalert", "shinyBS", "farver", 
               "labeling", "crayon", "cli", "viridisLite",
               "remotes", "fastmap", "conflicted", 
-              "rsconnect"
+              "rsconnect", "wordcloud2"
 )
 
 # Function to handle errors
@@ -194,7 +194,7 @@ ui <- shinyUI(fluidPage(
       tabItems(
         tabItem(tabName = "intro", includeMarkdown("www/intro.md")),
         
-        tabItem(tabName = "about", includeMarkdown("www/pbb_about.md")),
+        tabItem(tabName = "about", includeMarkdown("www/about.md")),
         
         tabItem(tabName = "findings", includeMarkdown("www/findings.md")),
         
@@ -413,16 +413,33 @@ ui <- shinyUI(fluidPage(
                          )
                   )
                   ),
-                  fluidRow(
-                  column(width = 6,
-                      div(class = "responsive-plot", 
-                         imageOutput("wordCloudImage", width = "100%", height = "auto")),
+                # Static Word Clouds
+                  # fluidRow(
+                  # column(width = 6,
+                  #     div(class = "responsive-plot",
+                  #        imageOutput("wordCloudImage", width = "100%", height = "auto"))
+                  #     )
+                  # ),
+                # New Dynamic Word Clouds
+
+                         fluidRow(
+                           column(width = 12,
+                                #div(class = "responsive-plot",
+                                  tags$h3("Word Cloud"),
+                                    uiOutput("wordCloudUI"),  # This will show the placeholder image
+                                    wordcloud2Output("wordCloudPlot")  # Using wordcloud2 output instead of static images
+                            #)
+                           )
+                         ),
+                
+                  fluidRow(    
                      column(width = 12, 
                             div(class = "responsive-caption", includeHTML("www/cloud_caption.html"))
                         )
                       )
-                   )
                 ),  # End word clouds panel
+
+                
                 
                 tabPanel("Word Nets",
                     fluidRow(
@@ -441,15 +458,22 @@ ui <- shinyUI(fluidPage(
                            )
                          ),
                   fluidRow(
-                    column(width = 6,
+                    column(width = 12,
                         div(class = "responsive-plot", 
-                         imageOutput("wordNetImage", width = "100%", height = "auto")),
+                         imageOutput("wordNetImage", width = "100%", height = "auto"))
+                        )
+                      ),
+                  fluidRow(
                     column(width = 12, 
                            div(class = "responsive-caption", includeHTML("www/net_caption.html"))
                       )
-                    )
                   )
                 ) # End word nets Panel
+                
+                # Add panel for words summaries
+                
+                # Add panel for tables with reasons for picking places
+                
               ) # End tab box
         ), # End words tab
       

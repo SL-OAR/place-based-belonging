@@ -93,27 +93,6 @@
 # library(cli)
 # library(viridisLite)
 
-# Do we need a CSS styl sheet?
-
-#########
-# Code for shinyBS Popover
-# bsPopover(id=" ", title = " ", content = " ", trigger = "hover", 
-# placement = "right", options = list(container = "body"))
-## Most of these are self explanatory: 
-### id is the name of the object to use as a trigger
-### title is the title of the popover box
-### content is the text content of the popover box
-### trigger is the trigger mechanism (hover, click, )
-### placement determines where the popover appears (right, left, auto)
-### options 
-## The code goes in the dashboardBody in the desired section
-
-#popify? To wrap UI element in popify to add popover to wrapped element
-
-## Can also potentially use tooltip 
-# bsTooltip("Text", "Tooltip info", placement = "bottom", trigger = "hover", options = NULL)
-## Primarily for input to describe the function
-
 #####
 
 # library(conflicted)
@@ -165,25 +144,6 @@ server <- function(input, output, session) {
 
 #########################################    
   ## Filters ## 
-  
-  ## Campus Belonging
-  # Heat Maps
-  
-  # #Tried adding a filter file, but no luck
-  # # Type Select Campus
-  # output$typeSelectCampus <- renderUI({
-  #   typeSelectCampusUI("campus_filters")
-  # })
-  # 
-  # # Year Select Campus
-  # output$yearSelectCampus <- renderUI({
-  #   yearSelectCampusUI("campus_filters")
-  # })
-  # 
-  # # cohort Select campus
-  # output$cohortSelectCampus <- renderUI({
-  #   cohortSelectCampusUI("campus_filters")
-  # })
   
 ############################# 
   ## Campus Heat Maps
@@ -409,76 +369,150 @@ server <- function(input, output, session) {
 #############################   
   # Wordcloud filters
   
-  output$typeSelectWordsCloud <- renderUI({
-    selectInput("typeSelectWordsCloud", "Select Type:", 
-                choices = c("Undergraduate", "International", "Graduate"), 
-                selected = "Undergraduate"
-    )
-  })
+ # Word Clouds Filtering
+output$typeSelectWordsCloud <- renderUI({
+  selectInput("typeSelectWordsCloud", "Select Type:", 
+              choices = c("Undergraduate", "International", "Graduate"), 
+              selected = "Undergraduate"
+  )
+})
+
+# Generate the main location select input based on the selected student group
+output$placeSelectCloud <- renderUI({
+  req(input$typeSelectWordsCloud)
+
+  # Clear place2Select when switching between locations
+  updateSelectInput(session, "place2SelectCloud", selected = NULL)
+
+  if (input$typeSelectWordsCloud == "Undergraduate") {
+    selectInput("placeSelectCloud", "Select Location:",
+                choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                            "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                            "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                            "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                            "Tykeson", "University Health Services", "University Housing"))
+  } else if (input$typeSelectWordsCloud == "International") {
+    selectInput("placeSelectCloud", "Select Location:",
+                choices = c("Erb Memorial Union (EMU)", "Knight Library", "Lokey Science Complex",
+                            "Student Rec Complex", "University Housing"))
+  } else if (input$typeSelectWordsCloud == "Graduate") {
+    selectInput("placeSelectCloud", "Select Location:",
+                choices = c("Knight Library", "Student Rec Complex"))
+  }
+})
   
-  # Generate the main location select input based on the selected student group
-  output$placeSelectCloud <- renderUI({
-    req(input$typeSelectWordsCloud)  
-    
-    # Clear place2Select when switching between locations
-    updateSelectInput(session, "place2SelectCloud", selected = NULL)
-    
-    if (input$typeSelectWordsCloud == "Undergraduate") {
-      selectInput("placeSelectCloud", "Select Location:",
-                  choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
-                              "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
-                              "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
-                              "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
-                              "Tykeson", "University Health Services", "University Housing"))
-    } else if (input$typeSelectWordsCloud == "International") {
-      selectInput("placeSelectCloud", "Select Location:", 
-                  choices = c("Erb Memorial Union (EMU)", "Knight Library", "Lokey Science Complex",
-                              "Student Rec Complex", "University Housing"))
-    } else if (input$typeSelectWordsCloud == "Graduate") {
-      selectInput("placeSelectCloud", "Select Location:",
-                  choices = c("Knight Library", "Student Rec Complex"))
-    }
-  })
+
+# Generate the sub-location select input when a complex like EMU, Lokey, or Housing is selected
+output$place2SelectCloud <- renderUI({
+  req(input$placeSelectCloud)  # Ensure a place is selected
   
-  # Generate the sub-location select input when a complex like EMU, Lokey, or Housing is selected
-  output$place2SelectCloud <- renderUI({
-    req(input$placeSelectCloud)  # Ensure a place is selected
-    
-    if (input$typeSelectWordsCloud == "Undergraduate") {
-      if (input$placeSelectCloud == "Erb Memorial Union (EMU)") {
-        selectInput("place2SelectCloud", "Select Location:",
-                  choices = c("Overall", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
-                              "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
-                              "Multicultural Center", "O Lounge", "Taylor Lounge", "Women's Center"))
+  sub_location_choices <- NULL  # Default to no options
+  
+  # Special restrictions for International students
+  if (input$typeSelectWordsCloud == "International") {
+    if (input$placeSelectCloud == "Erb Memorial Union (EMU)") {
+      sub_location_choices <- c("Overall", "Mills Center")  # Limited options for EMU
     } else if (input$placeSelectCloud == "Lokey Science Complex") {
-      selectInput("place2SelectCloud", "Select Location:",
-                  choices = c("Overall", "Columbia", "Klamath", "Lewis", "Science Commons", "Willamette"))
+      sub_location_choices <- c("Overall")  # International students only get "Overall" at Lokey
     } else if (input$placeSelectCloud == "University Housing") {
-      selectInput("place2SelectCloud", "Select Location:",
-                  choices = c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
-                              "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton"))
-      }
+      sub_location_choices <- c("Overall")  # International students only get "Overall" at Housing
     }
-    else if (input$typeSelectWordsCloud == "International" && input$placeSelectCloud == "Erb Memorial Union (EMU)") {
-      # Special case: International students only get "Overall" and "Mills Center" for EMU
-      selectInput("place2SelectCloud", "Select Location:", 
-                  choices = c("Overall", "Mills Center"))
+  } else {
+    # Default sub-location choices for Undergraduate & Graduate students
+    if (input$placeSelectCloud == "Erb Memorial Union (EMU)") {
+      sub_location_choices <- c("Overall", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
+                                "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
+                                "Multicultural Center", "O Lounge", "Taylor Lounge", "Women's Center")
+    } else if (input$placeSelectCloud == "Lokey Science Complex") {
+      sub_location_choices <- c("Overall", "Columbia", "Klamath", "Lewis", "Science Commons", "Willamette")
+    } else if (input$placeSelectCloud == "University Housing") {
+      sub_location_choices <- c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
+                                "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton")
     }
-  })
+  }
   
-  observe({
-    req(input$typeSelectWordsCloud, input$placeSelectCloud)  # Ensure both inputs are available
+  # Render dropdown only if there are valid sub-location choices
+  if (!is.null(sub_location_choices)) {
+    selectInput("place2SelectCloud", "Select Location:", choices = sub_location_choices, selected = "Overall")
+  } else {
+    return(NULL)  # Hide input if no sub-location choices are available
+  }
+})
+
+
+observeEvent(input$typeSelectWordsCloud, {
+  req(input$typeSelectWordsCloud)
+  # Define available location choices based on selected type
+  location_choices <- switch(input$typeSelectWordsCloud,
+                             "Undergraduate" = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                                                 "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                                                 "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                                                 "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                                                 "Tykeson", "University Health Services", "University Housing"),
+                             "International" = c("Erb Memorial Union (EMU)", "Knight Library", "Lokey Science Complex",
+                                                 "Student Rec Complex", "University Housing"),
+                             "Graduate" = c("Knight Library", "Student Rec Complex"),
+                             c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                               "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                               "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                               "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                               "Tykeson", "University Health Services", "University Housing"))  # Default for Undergraduate
+  
+  # **Force Reset `placeSelectCloud`** by first setting it to an empty list
+  updateSelectInput(session, "placeSelectCloud", choices = NULL, selected = NULL)
+  # **After a short delay, update it with the correct values**  
+  later::later(function() {
+    updateSelectInput(session, "placeSelectCloud", choices = location_choices, selected = location_choices[1])
+  }, delay = 0.1)
+  
+  # Reset place2SelectCloud UI
+  output$place2SelectCloud <- renderUI({ NULL })
+})
+
+
+observeEvent(input$placeSelectCloud, {
+  req(input$placeSelectCloud)  # Ensure placeSelectCloud is not NULL
+  
+  if (input$placeSelectCloud %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
     
-    if (input$typeSelectWordsCloud == "International" && input$placeSelectCloud == "Erb Memorial Union (EMU)") {
-      # If International selects EMU, ensure place2Select defaults to "Overall" if not set
-      if (is.null(input$place2SelectCloud)) {
-        updateSelectInput(session, "place2SelectCloud", selected = "Overall")
-      }
-    } else if (input$typeSelectWordsCloud %in% c("International", "Graduate")) {
-      # Ensure "Overall" is assigned but place2Select is NOT visible for Graduate students
-      updateSelectInput(session, "place2SelectCloud", selected = "Overall")
-        }
+    # Handle International students separately
+    sub_location_choices <- if (input$typeSelectWordsCloud == "International") {
+      switch(input$placeSelectCloud,
+             "Erb Memorial Union (EMU)" = c("Overall", "Mills Center"),
+             "Lokey Science Complex" = c("Overall"),
+             "University Housing" = c("Overall"),
+             NULL)
+    } else {
+      # Default sub-location options for Undergraduate & Graduate students
+      switch(input$placeSelectCloud,
+             "Erb Memorial Union (EMU)" = c("Overall", "Atrium East", "Courtyard", "Craft", 
+                                            "Duck Nest", "Falling Sky", "Fishbowl", "Fresh Market", 
+                                            "LGBTQIA3", "Mills Center", "Multicultural Center", 
+                                            "O Lounge", "Taylor Lounge", "Women's Center"),
+             "Lokey Science Complex" = c("Overall", "Columbia", "Klamath", "Lewis", 
+                                         "Science Commons", "Willamette"),
+             "University Housing" = c("Overall", "Barnhart", "Bean", "Carson", "Earl", 
+                                      "Global Scholars", "Hamilton", "Kalapuya Ilihi", 
+                                      "Living Learning", "Unthank", "Walton"),
+             NULL)
+    }
+    
+    # Ensure sub_location_choices is valid before rendering UI
+    if (!is.null(sub_location_choices)) {
+      output$place2SelectCloud <- renderUI({
+        selectInput("place2SelectCloud", "Select Location:", choices = sub_location_choices, selected = "Overall")
       })
+    } else {
+      output$place2SelectCloud <- renderUI({ NULL })
+    }
+    
+  } else {
+    # Remove the sub-location dropdown when switching to a building without sub-locations
+    output$place2SelectCloud <- renderUI({ NULL })
+  }
+})
+
+
   
 #############################   
   # Wordnet filters
@@ -557,59 +591,65 @@ server <- function(input, output, session) {
 ############################# 
   
   location_file_name_map <- list(
-    "Allen" = "allen",
-    "Autzen Stadium" = "autzen",
-    "Cemetery" = "cemetery",
-    "Chapman" = "chapman",
-    "Erb Memorial Union (EMU)" = "emu",
-    "Frohnmayer" = "frohnmayer",
-    "Hayward Field" = "hayward",
-    "HEDCO" = "hedco",
-    "Jaqua" = "jaqua",
-    "Knight Law" = "law",
-    "Lawrence" = "lawrence",
-    "Knight Library" = "library",
-    "Lillis Business Complex" = "lillis",
-    "Lokey Science Complex" = "lokey",
-    "Matthew Knight Arena" = "mattknight",
-    "McKenzie" = "mckenzie",
-    "Oregon" = "oregon",
-    "Straub" = "straub",
-    "Student Rec Complex" = "src",
-    "Tykeson" = "tykeson",
-    "University Health Services" = "uhs",
-    "University Housing" = "housing",
+    "Allen" = list(wordnet = "allen", wordcloud = "allen"),
+    "Autzen Stadium" = list(wordnet = "autzen", wordcloud = "autzen_stadium"),
+    "Cemetery" = list(wordnet = "cemetery", wordcloud = "cemetery"),
+    "Chapman" = list(wordnet = "chapman", wordcloud = "chapman"),
+    "Erb Memorial Union (EMU)" = list(wordnet = "emu", wordcloud = "emu_overall"),
+    "Frohnmayer" = list(wordnet = "frohnmayer", wordcloud = "frohnmayer"),
+    "Hayward Field" = list(wordnet = "hayward", wordcloud = "hayward"),
+    "HEDCO" = list(wordnet = "hedco", wordcloud = "hedco"),
+    "Jaqua" = list(wordnet = "jaqua", wordcloud = "jaqua"),
+    "Knight Law" = list(wordnet = "law", wordcloud = "knight_law"),
+    "Lawrence" = list(wordnet = "lawrence", wordcloud = "lawrence"),
+    "Knight Library" = list(wordnet = "library", wordcloud = "library"),
+    "Lillis Business Complex" = list(wordnet = "lillis", wordcloud = "lillis"),
     
-    # Secondary level options
-    "Women's Center" = "womens",
-    "Willamette" = "willamette",
-    "Walton" = "walton",
-    "Unthank" = "unthank",
-    "Taylor Lounge" = "taylor",
-    "O Lounge" = "olounge",
-    "Mills Center" = "mills",
-    "Fishbowl" = "fishbowl",
-    "Falling Sky" = "fallingsky",
-    "Fresh Market" = "freshmarket",
-    "Duck Nest" = "ducknest",
-    "Craft" = "craft",
-    "Courtyard" = "courtyard",
-    "Columbia" = "columbia",
-    "Barnhart" = "barnhart",
-    "Bean" = "bean",
-    "Carson" = "carson",
-    "Earl" = "earl",
-    "Hamilton" = "hamilton",
-    "Kalapuya Ilihi" = "kalapuya",
-    "Living Learning" = "llc",
-    "Global Scholars" = "gsh",
-    "Atrium East" = "atrium",
-    "Science Commons" = "scicom",
-    "Multicultural Center" = "mcc",
-    "LGBTQIA3" = "lgbtqa3",
-    "Lisbon" = "lisb",
-    "Klamath" = "klamath"
-  )  
+    # Handle different naming conventions properly
+    "Lokey Science Complex" = list(wordnet = "lokey", wordcloud = "lokey_complex"),
+    
+    "Matthew Knight Arena" = list(wordnet = "mattknight", wordcloud = "mattknight"),
+    "McKenzie" = list(wordnet = "mckenzie", wordcloud = "mckenzie"),
+    "Oregon" = list(wordnet = "oregon", wordcloud = "oregon"),
+    "Straub" = list(wordnet = "straub", wordcloud = "straub"),
+    "Student Rec Complex" = list(wordnet = "src", wordcloud = "src"),
+    "Tykeson" = list(wordnet = "tykeson", wordcloud = "tykeson"),
+    "University Health Services" = list(wordnet = "uhs", wordcloud = "uhs"),
+    
+    # University Housing variations
+    "University Housing" = list(wordnet = "housing", wordcloud = "housing"),
+    
+    # Sub-locations
+    "Women's Center" = list(wordnet = "womens", wordcloud = "womens"),
+    "Willamette" = list(wordnet = "willamette", wordcloud = "willamette"),
+    "Walton" = list(wordnet = "walton", wordcloud = "walton"),
+    "Unthank" = list(wordnet = "unthank", wordcloud = "unthank"),
+    "Taylor Lounge" = list(wordnet = "taylor", wordcloud = "taylor"),
+    "O Lounge" = list(wordnet = "olounge", wordcloud = "olounge"),
+    "Mills Center" = list(wordnet = "mills", wordcloud = "mills_center"),
+    "Fishbowl" = list(wordnet = "fishbowl", wordcloud = "fishbowl"),
+    "Falling Sky" = list(wordnet = "fallingsky", wordcloud = "falling_sky"),
+    "Fresh Market" = list(wordnet = "freshmarket", wordcloud = "fresh_market"),
+    "Duck Nest" = list(wordnet = "ducknest", wordcloud = "duck_nest"),
+    "Craft" = list(wordnet = "craft", wordcloud = "craft_center"),
+    "Courtyard" = list(wordnet = "courtyard", wordcloud = "courtyard"),
+    "Columbia" = list(wordnet = "columbia", wordcloud = "columbia"),
+    "Barnhart" = list(wordnet = "barnhart", wordcloud = "barnhart"),
+    "Bean" = list(wordnet = "bean", wordcloud = "bean"),
+    "Carson" = list(wordnet = "carson", wordcloud = "carson"),
+    "Earl" = list(wordnet = "earl", wordcloud = "earl"),
+    "Hamilton" = list(wordnet = "hamilton", wordcloud = "hamilton"),
+    "Kalapuya Ilihi" = list(wordnet = "kalapuya", wordcloud = "kalapuya"),
+    "Living Learning" = list(wordnet = "llc", wordcloud = "llc"),
+    "Global Scholars" = list(wordnet = "gsh", wordcloud = "gsh"),
+    "Atrium East" = list(wordnet = "atrium", wordcloud = "atrium_east"),
+    "Science Commons" = list(wordnet = "scicom", wordcloud = "science_commons"),
+    "Multicultural Center" = list(wordnet = "mcc", wordcloud = "mcc"),
+    "LGBTQIA3" = list(wordnet = "lgbtqa3", wordcloud = "lgbtqa3"),
+    "Lisbon" = list(wordnet = "lisb", wordcloud = "lisb"),
+    "Klamath" = list(wordnet = "klamath", wordcloud = "klamath")
+  )
+  
   
   
   
@@ -1318,30 +1358,37 @@ server <- function(input, output, session) {
   
   ## Word Nets & Word Clouds
   
-  observeEvent(input$placeSelectCloud, {
-    # Reset the sub-location (place2Select) to "Overall" only if the previous building was EMU, Lokey, or University Housing
-    if (input$placeSelectCloud %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
-      updateSelectInput(session, "place2SelectCloud", selected = "Overall")
-    } else {
-      # For buildings without sub-locations, we can hide or disable the sub-location input if needed
-      updateSelectInput(session, "place2SelectCloud", selected = NULL)
-    }
-  })
+  ## Dynamic Word Clouds
   
-  output$wordCloudImage <- renderImage({
-    req(input$typeSelectWordsCloud, input$placeSelectCloud, input$belongStatus)  
+  
+  wc_data <- reactive({
+    req(input$typeSelectWordsCloud, input$placeSelectCloud, input$belongStatus)
     
     student_group <- switch(input$typeSelectWordsCloud,
                             "Undergraduate" = "us_ug",
                             "International" = "i",
                             "Graduate" = "gr")
     
-    building_name <- location_file_name_map[[input$placeSelectCloud]] 
-    building_name <- tolower(building_name)  
+    # Validate building name mapping
+    if (!input$placeSelectCloud %in% names(location_file_name_map)) {
+      warning(paste("Location not found in mapping:", input$placeSelectCloud))
+      return(NULL)
+    }
     
+    building_name <- location_file_name_map[[input$placeSelectCloud]]$wordcloud
+    if (is.null(building_name)) {
+      warning(paste("No wordcloud mapping found for:", input$placeSelectCloud))
+      return(NULL)
+    }
+    
+    building_name <- tolower(building_name)
+    
+    # Handle sub-location mappings (only for EMU, Lokey, and Housing)
     if (!is.null(input$place2SelectCloud) && input$place2SelectCloud != "Overall" &&
         input$placeSelectCloud %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
-      sub_location_mapped <- location_file_name_map[[input$place2SelectCloud]]
+      
+      sub_location_mapped <- location_file_name_map[[input$place2SelectCloud]]$wordcloud
+      
       if (!is.null(sub_location_mapped)) {
         building_name <- tolower(sub_location_mapped)
       } else {
@@ -1349,31 +1396,177 @@ server <- function(input, output, session) {
       }
     }
     
-    # Construct the file path
-    file_name <- paste0("wc_", building_name, "_", input$belongStatus, "_", student_group, ".png")
+    # Construct dataset key
+    key <- paste0("wc_", building_name, "_", input$belongStatus, "_", student_group)
     
-    # Define the full path to the image directory (in 'www/wordclouds')
-    full_image_path <- file.path(getwd(), "code", "www", "wordclouds", file_name)
+    message("Looking for dataset key: ", key)
+    
+    # Check if dataset exists
+    if (exists(key, envir = .GlobalEnv)) {
+      data <- get(key, envir = .GlobalEnv)
+      if (!is.null(data) && nrow(data) > 0) {
+        return(data)
+      }
+    }
+    
+    warning(paste("Dataset not found:", key))
+    return(NULL)
+  })
+  
+  
+  
+  # wc_data <- reactive({
+  #   req(input$typeSelectWordsCloud, input$placeSelectCloud, input$belongStatus)
+  #   
+  #   # Map student group
+  #   student_group <- switch(input$typeSelectWordsCloud,
+  #                           "Undergraduate" = "us_ug",
+  #                           "International" = "i",
+  #                           "Graduate" = "gr")
+  #   
+  #   # Check if location exists in the map
+  #   if (!input$placeSelectCloud %in% names(location_file_name_map)) {
+  #     warning(paste("Location not found in mapping:", input$placeSelectCloud))
+  #     return(NULL)
+  #   }
+  #   
+  #   # Retrieve word cloud building name from the mapping list
+  #   building_name <- location_file_name_map[[input$placeSelectCloud]]$wordcloud
+  #   if (is.null(building_name)) {
+  #     warning(paste("No wordcloud mapping found for:", input$placeSelectCloud))
+  #     return(NULL)
+  #   }
+  #   
+  #   building_name <- tolower(building_name)
+  #   
+  #   # Handle sub-location mappings
+  #   if (!is.null(input$place2SelectCloud) && input$place2SelectCloud != "Overall" &&
+  #       input$placeSelectCloud %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+  #     
+  #     sub_location_mapped <- location_file_name_map[[input$place2SelectCloud]]$wordcloud
+  #     
+  #     if (!is.null(sub_location_mapped)) {
+  #       building_name <- tolower(sub_location_mapped)
+  #     } else {
+  #       building_name <- tolower(gsub(" ", "_", input$place2SelectCloud))
+  #     }
+  #   }
+  #   
+  #   # Construct the key to retrieve the correct word cloud data
+  #   key <- paste0("wc_", building_name, "_", input$belongStatus, "_", student_group)
+  #   
+  #   # Placeholder image when no word cloud is available
+  #   no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
+  #   
+  #   # Check if the table exists in memory
+  # isolate({
+  #   if (exists(key, envir = .GlobalEnv)) {
+  #     data <- get(key, envir = .GlobalEnv)  # Retrieve data from memory
+  #     #print(paste("Found data for:", key, "with", nrow(data), "rows"))
+  #     if (!is.null(data) && nrow(data) > 0) {
+  #       return(data)  # Return valid word cloud data
+  #     }
+  #   } else {
+  #       # Render the placeholder image if the file does not exist
+  #       return(list(
+  #         src = no_data_image_path,
+  #         alt = "No data available for the selected options",
+  #         height = "400px"
+  #       ))
+  #     #print(paste("Table not found:", key))
+  #   }
+  # })
+  #   
+  #   return(NULL)  # Return NULL if no data available
+  # })
+  
+
+
+  # Render the word cloud dynamically using wordcloud2
+  output$wordCloudPlot <- renderWordcloud2({
+    wc_data_filtered <- wc_data()
+    
+    # Debugging: Check if data is valid
+    print("Rendering Word Cloud...")
+    #print(str(wc_data_filtered))
     
     # Placeholder image when no word cloud is available
     no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
     
-    # Check if the file exists for the selected belong status
-    if (file.exists(full_image_path)) {
-      return(list(
-        src = full_image_path, 
-        alt = paste("Word cloud for", input$place2SelectCloud, input$placeSelectCloud, input$typeSelectWordsCloud, input$belongStatus),
-        height = "400px"
-      ))
+    if (is.null(wc_data_filtered) || nrow(wc_data_filtered) == 0) {
+      print("No data available for word cloud.")
+      
+      # Show the image in a separate UI output
+      output$wordCloudPlaceholder <- renderUI({
+        tags$img(
+          src = "Nothing_to_see.png",  # Relative path; Shiny looks inside www/
+          alt = "No data available for the selected options",
+          style = "height: 400px; display: block; margin: auto;"
+        )
+      })
+      
+      return(NULL)  # Stop further processing
     } else {
-      # Render the placeholder image if the file does not exist
-      return(list(
-        src = no_data_image_path, 
-        alt = "No data available for the selected options",
-        height = "400px"
-      ))
+      # Clear the placeholder if word cloud data is available
+      output$wordCloudPlaceholder <- renderUI({ NULL })
     }
-  }, deleteFile = FALSE)
+    
+    # Define color mappings
+    color_mapping <- list(
+      "b" = "#FEE123",   # Color for belonging
+      "db" = "#9FD430"   # Color for don't belong
+    )
+    
+    bg_color_mapping <- list(
+      "b" = "#004D6C",   # Background color for belonging
+      "db" = "#820043"   # Background color for don't belong
+    )
+    
+    # Select the correct colors based on Belonging status
+    text_color <- color_mapping[[input$belongStatus]]  # Select text color
+    bg_color <- bg_color_mapping[[input$belongStatus]]  # Select background color
+    
+    wordcloud2(data = wc_data_filtered,
+               size = 1,
+               minSize = 9,
+               minRotation = pi/4,
+               maxRotation = -pi/6,
+               rotateRatio = 0.5,
+               color = text_color,  # Use dynamic color
+               backgroundColor = bg_color)  # Use dynamic background color
+  })
+  
+  # UI Output for placeholder image
+  output$wordCloudUI <- renderUI({
+    uiOutput("wordCloudPlaceholder")  # This will hold the image if no data exists
+  })
+  
+    
+    # #Construct the file path
+    # file_name <- paste0("wc_", building_name, "_", input$belongStatus, "_", student_group, ".png")
+    # 
+    # # Define the full path to the image directory (in 'www/wordclouds')
+    # full_image_path <- file.path(getwd(), "code", "www", "wordclouds", file_name)
+    # 
+    # # Placeholder image when no word cloud is available
+    # no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
+    # 
+    # # Check if the file exists for the selected belong status
+    # if (file.exists(full_image_path)) {
+    #   return(list(
+    #     src = full_image_path,
+    #     alt = paste("Word cloud for", input$place2SelectCloud, input$placeSelectCloud, input$typeSelectWordsCloud, input$belongStatus),
+    #     height = "400px"
+    #   ))
+    # } else {
+    #   # Render the placeholder image if the file does not exist
+    #   return(list(
+    #     src = no_data_image_path,
+    #     alt = "No data available for the selected options",
+    #     height = "400px"
+    #   ))
+    # }
+    # }, deleteFile = FALSE)
   
   # Word nets
   
@@ -1385,7 +1578,7 @@ server <- function(input, output, session) {
                             "International" = "i",
                             "Graduate" = "gr")
     
-    building_name <- location_file_name_map[[input$placeSelectNet]]
+    building_name <- location_file_name_map[[input$placeSelectNet]]$wordnet
     building_name <- tolower(building_name)
     
     if (!is.null(input$place2SelectNet) && input$place2SelectNet != "Overall" &&

@@ -22,6 +22,23 @@ for (name in pbb_tables_for_bp_names) {
   assign(paste0("bp_", name), pbb_tables_for_bp[[name]])
 }
 
+### To be added once word clouds are up in order to maintain function of wordclouds
+
+# word clouds 
+pbb_tables_for_wc <- readRDS(here::here("data/separated/pbb_tables_for_wc.rds"))
+pbb_tables_for_wc_names <- names(pbb_tables_for_wc)
+for (name in pbb_tables_for_wc_names) {
+  assign(name, pbb_tables_for_wc[[name]])
+}
+
+# Sentence Tables Reasons
+pbb_tables_for_reasons <- readRDS(here::here("data/separated/sent_tables_for_reasons.rds"))
+pbb_tables_for_reasons_names <- names(pbb_tables_for_reasons)
+for (name in pbb_tables_for_reasons_names) {
+  assign(name, pbb_tables_for_reasons[[name]])
+}
+
+
 # bar_plot_list <- list.files(path = "code/www/bars", pattern = "ebar_.*\\.png", full.names = TRUE)
 # bar_plot_info <- lapply(strsplit(basename(bar_plot_list), "_|\\.png"), function(x) {
 #  list(building_name = x[2], belong_status = x[3], group = x[4])
