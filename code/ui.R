@@ -394,9 +394,15 @@ ui <- shinyUI(fluidPage(
         
         
         tabItem(tabName = "words", 
-                includeMarkdown("www/words_summary.md"), # change to correct file
               tabBox(
                   id = "words", width = 12, 
+                tabPanel("Summary", 
+                  fluidRow(
+                    column(width = 12,
+                         includeMarkdown("www/words_summary.md")
+                    )
+                  )
+                ), # End Summary Tab)
                 tabPanel("Word Clouds", 
                 fluidRow(
                   column(width = 12, 
@@ -468,12 +474,23 @@ ui <- shinyUI(fluidPage(
                            div(class = "responsive-caption", includeHTML("www/net_caption.html"))
                       )
                   )
-                ) # End word nets Panel
+                ), # End word nets Panel
                 
-                # Add panel for words summaries
-                
-                # Add panel for tables with reasons for picking places
-                
+            tabPanel("Reasons",
+                     fluidRow(
+                       column(4, uiOutput("placeSelectReasonsTable")),
+                       column(4, uiOutput("place2SelectReasonsTable")),
+                       column(4, uiOutput("sentiSelectReasonsTable"))
+                     ),
+                     fluidRow(
+                       column(12, reactableOutput("tableReasons"))
+                     ),
+                     fluidRow(
+                       column(width = 12, 
+                              #div(class = "responsive-caption", includeHTML("www/reasons_table_caption.html"))
+                       )
+                     )
+            ) # End Reasons Tab
               ) # End tab box
         ), # End words tab
       

@@ -142,9 +142,8 @@ server <- function(input, output, session) {
   
 
 
-#########################################    
+##############################    
   ## Filters ## 
-  
 ############################# 
   ## Campus Heat Maps
   
@@ -591,66 +590,140 @@ observeEvent(input$placeSelectCloud, {
 ############################# 
   
   location_file_name_map <- list(
-    "Allen" = list(wordnet = "allen", wordcloud = "allen"),
-    "Autzen Stadium" = list(wordnet = "autzen", wordcloud = "autzen_stadium"),
-    "Cemetery" = list(wordnet = "cemetery", wordcloud = "cemetery"),
-    "Chapman" = list(wordnet = "chapman", wordcloud = "chapman"),
-    "Erb Memorial Union (EMU)" = list(wordnet = "emu", wordcloud = "emu_overall"),
-    "Frohnmayer" = list(wordnet = "frohnmayer", wordcloud = "frohnmayer"),
-    "Hayward Field" = list(wordnet = "hayward", wordcloud = "hayward"),
-    "HEDCO" = list(wordnet = "hedco", wordcloud = "hedco"),
-    "Jaqua" = list(wordnet = "jaqua", wordcloud = "jaqua"),
-    "Knight Law" = list(wordnet = "law", wordcloud = "knight_law"),
-    "Lawrence" = list(wordnet = "lawrence", wordcloud = "lawrence"),
-    "Knight Library" = list(wordnet = "library", wordcloud = "library"),
-    "Lillis Business Complex" = list(wordnet = "lillis", wordcloud = "lillis"),
+    "Allen" = list(wordnet = "allen", wordcloud = "allen", reasons = "allen"),
+    "Autzen Stadium" = list(wordnet = "autzen", wordcloud = "autzen_stadium", reasons = "autzen"),
+    "Cemetery" = list(wordnet = "cemetery", wordcloud = "cemetery", reasons = "cemetery"),
+    "Chapman" = list(wordnet = "chapman", wordcloud = "chapman", reasons = "chapman"),
+    "Erb Memorial Union (EMU)" = list(wordnet = "emu", wordcloud = "emu_overall", reasons = "emu"),
+    "Frohnmayer" = list(wordnet = "frohnmayer", wordcloud = "frohnmayer", reasons = "frohnmayer"),
+    "Hayward Field" = list(wordnet = "hayward", wordcloud = "hayward", reasons = "hayward"),
+    "HEDCO" = list(wordnet = "hedco", wordcloud = "hedco", reasons = "hedco"),
+    "Jaqua" = list(wordnet = "jaqua", wordcloud = "jaqua", reasons = "jaqua"),
+    "Knight Law" = list(wordnet = "law", wordcloud = "knight_law", reasons = "law"),
+    "Lawrence" = list(wordnet = "lawrence", wordcloud = "lawrence", reasons = "lawrence"),
+    "Knight Library" = list(wordnet = "library", wordcloud = "library", reasons = "library"),
+    "Lillis Business Complex" = list(wordnet = "lillis", wordcloud = "lillis", reasons = "lillis"),
+    "Lewis" = list(wordnet = "lewis", wordcloud = "lewis", reasons = "lewis"),
     
     # Handle different naming conventions properly
-    "Lokey Science Complex" = list(wordnet = "lokey", wordcloud = "lokey_complex"),
-    
-    "Matthew Knight Arena" = list(wordnet = "mattknight", wordcloud = "mattknight"),
-    "McKenzie" = list(wordnet = "mckenzie", wordcloud = "mckenzie"),
-    "Oregon" = list(wordnet = "oregon", wordcloud = "oregon"),
-    "Straub" = list(wordnet = "straub", wordcloud = "straub"),
-    "Student Rec Complex" = list(wordnet = "src", wordcloud = "src"),
-    "Tykeson" = list(wordnet = "tykeson", wordcloud = "tykeson"),
-    "University Health Services" = list(wordnet = "uhs", wordcloud = "uhs"),
-    
-    # University Housing variations
-    "University Housing" = list(wordnet = "housing", wordcloud = "housing"),
+    "Lokey Science Complex" = list(wordnet = "lokey", wordcloud = "lokey_complex", reasons = "lokey"),
+    "Matthew Knight Arena" = list(wordnet = "mattknight", wordcloud = "mattknight", reasons = "mattknight"),
+    "McKenzie" = list(wordnet = "mckenzie", wordcloud = "mckenzie", reasons = "mckenzie"),
+    "Oregon" = list(wordnet = "oregon", wordcloud = "oregon", reasons = "oregon"),
+    "Straub" = list(wordnet = "straub", wordcloud = "straub", reasons = "straub"),
+    "Student Rec Complex" = list(wordnet = "src", wordcloud = "src", reasons = "src"),
+    "Tykeson" = list(wordnet = "tykeson", wordcloud = "tykeson", reasons = "tykeson"),
+    "University Health Services" = list(wordnet = "uhs", wordcloud = "uhs", reasons = "uhs"),
+    "University Housing" = list(wordnet = "housing", wordcloud = "housing", reasons = "housing"),
+    "Spencer View" = list(wordnet = "spencer_view", wordcloud = "spencer_view", reasons = "spencer_view"),
+    "Pacific" = list(wordnet = "pacific", wordcloud = "pacific", reasons = "pacific"),
+    "Black Cultural Center" = list(wordnet = "bcc", wordcloud = "bcc", reasons = "bcc"),
+    "University Hall" = list(wordnet = "university_hall", wordcloud = "university_hall", reasons = "university_hall"),
     
     # Sub-locations
-    "Women's Center" = list(wordnet = "womens", wordcloud = "womens"),
-    "Willamette" = list(wordnet = "willamette", wordcloud = "willamette"),
-    "Walton" = list(wordnet = "walton", wordcloud = "walton"),
-    "Unthank" = list(wordnet = "unthank", wordcloud = "unthank"),
-    "Taylor Lounge" = list(wordnet = "taylor", wordcloud = "taylor"),
-    "O Lounge" = list(wordnet = "olounge", wordcloud = "olounge"),
-    "Mills Center" = list(wordnet = "mills", wordcloud = "mills_center"),
-    "Fishbowl" = list(wordnet = "fishbowl", wordcloud = "fishbowl"),
-    "Falling Sky" = list(wordnet = "fallingsky", wordcloud = "falling_sky"),
-    "Fresh Market" = list(wordnet = "freshmarket", wordcloud = "fresh_market"),
-    "Duck Nest" = list(wordnet = "ducknest", wordcloud = "duck_nest"),
-    "Craft" = list(wordnet = "craft", wordcloud = "craft_center"),
-    "Courtyard" = list(wordnet = "courtyard", wordcloud = "courtyard"),
-    "Columbia" = list(wordnet = "columbia", wordcloud = "columbia"),
-    "Barnhart" = list(wordnet = "barnhart", wordcloud = "barnhart"),
-    "Bean" = list(wordnet = "bean", wordcloud = "bean"),
-    "Carson" = list(wordnet = "carson", wordcloud = "carson"),
-    "Earl" = list(wordnet = "earl", wordcloud = "earl"),
-    "Hamilton" = list(wordnet = "hamilton", wordcloud = "hamilton"),
-    "Kalapuya Ilihi" = list(wordnet = "kalapuya", wordcloud = "kalapuya"),
-    "Living Learning" = list(wordnet = "llc", wordcloud = "llc"),
-    "Global Scholars" = list(wordnet = "gsh", wordcloud = "gsh"),
-    "Atrium East" = list(wordnet = "atrium", wordcloud = "atrium_east"),
-    "Science Commons" = list(wordnet = "scicom", wordcloud = "science_commons"),
-    "Multicultural Center" = list(wordnet = "mcc", wordcloud = "mcc"),
-    "LGBTQIA3" = list(wordnet = "lgbtqa3", wordcloud = "lgbtqa3"),
-    "Lisbon" = list(wordnet = "lisb", wordcloud = "lisb"),
-    "Klamath" = list(wordnet = "klamath", wordcloud = "klamath")
+    "Women's Center" = list(wordnet = "womens", wordcloud = "womens", reasons = "womens"),
+    "Willamette" = list(wordnet = "willamette", wordcloud = "willamette", reasons = "willamette"),
+    "Walton" = list(wordnet = "walton", wordcloud = "walton", reasons = "walton"),
+    "Unthank" = list(wordnet = "unthank", wordcloud = "unthank", reasons = "unthank"),
+    "Taylor Lounge" = list(wordnet = "taylor", wordcloud = "taylor", reasons = "taylor"),
+    "O Lounge" = list(wordnet = "olounge", wordcloud = "olounge", reasons = "olounge"),
+    "Mills Center" = list(wordnet = "mills", wordcloud = "mills_center", reasons = "mills"),
+    "Fishbowl" = list(wordnet = "fishbowl", wordcloud = "fishbowl", reasons = "fishbowl"),
+    "Falling Sky" = list(wordnet = "fallingsky", wordcloud = "falling_sky", reasons = "falling_sky"),
+    "Fresh Market" = list(wordnet = "freshmarket", wordcloud = "fresh_market", reasons = "fresh_market"),
+    "Duck Nest" = list(wordnet = "ducknest", wordcloud = "duck_nest", reasons = "duck_nest"),
+    "Duck Store" = list(wordnet = "duck_store", wordcloud = "duck_store", reasons = "duck_store"),
+    "Craft" = list(wordnet = "craft", wordcloud = "craft_center", reasons = "craft"),
+    "Courtyard" = list(wordnet = "courtyard", wordcloud = "courtyard", reasons = "courtyard"),
+    "Columbia" = list(wordnet = "columbia", wordcloud = "columbia", reasons = "columbia"),
+    "Barnhart" = list(wordnet = "barnhart", wordcloud = "barnhart", reasons = "barnhart"),
+    "Bean" = list(wordnet = "bean", wordcloud = "bean", reasons = "bean"),
+    "Carson" = list(wordnet = "carson", wordcloud = "carson", reasons = "carson"),
+    "Earl" = list(wordnet = "earl", wordcloud = "earl", reasons = "earl"),
+    "Hamilton" = list(wordnet = "hamilton", wordcloud = "hamilton", reasons = "hamilton"),
+    "Kalapuya Ilihi" = list(wordnet = "kalapuya", wordcloud = "kalapuya", reasons = "kalapuya"),
+    "Living Learning" = list(wordnet = "llc", wordcloud = "llc", reasons = "llc"),
+    "Global Scholars" = list(wordnet = "gsh", wordcloud = "gsh", reasons = "gsh"),
+    "Atrium East" = list(wordnet = "atrium", wordcloud = "atrium_east", reasons = "atrium"),
+    "Science Commons" = list(wordnet = "scicom", wordcloud = "science_commons", reasons = "scicom"),
+    "Multicultural Center" = list(wordnet = "mcc", wordcloud = "mcc", reasons = "mcc"),
+    "LGBTQIA3" = list(wordnet = "lgbtqa3", wordcloud = "lgbtqa3", reasons = "lgbtqa3"),
+    "Lisbon" = list(wordnet = "lisb", wordcloud = "lisb", reasons = "lisb"),
+    "Klamath" = list(wordnet = "klamath", wordcloud = "klamath", reaasons = "klamath")
   )
   
+
+############################# 
+  ## Reasons Tables 
   
+  output$placeSelectReasonsTable <- renderUI({
+    selectInput("placeSelectReasonsTable", "Select Location:",
+                choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                            "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                            "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                            "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                            "Tykeson", "University Health Services", "University Housing", "University Hall", 
+                            "Black Cultural Center"))
+  })
+  
+  output$place2SelectReasonsTable <- renderUI({
+    req(input$placeSelectReasonsTable)
+    
+    sub_location_choices <- NULL
+    default_selection <- NULL  # Default will be dynamically set
+    
+    if (input$placeSelectReasonsTable == "Erb Memorial Union (EMU)") {
+      sub_location_choices <- c("Erb Memorial Union (EMU)", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
+                                "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", "Duck Store", 
+                                "Multicultural Center", "O Lounge", "Taylor Lounge", "Women's Center")
+      default_selection <- "Overall"  # EMU starts with "Overall"
+    } else if (input$placeSelectReasonsTable == "Lokey Science Complex") {
+      sub_location_choices <- c("Columbia", "Klamath", "Lewis", "Science Commons", "Willamette", "Pacific")
+      default_selection <- sub_location_choices[1]  # Lokey starts with the first available sub-location
+    } else if (input$placeSelectReasonsTable == "University Housing") {
+      sub_location_choices <- c("Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
+                                "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton", "Spencer View")
+      default_selection <- sub_location_choices[1]  # Housing starts with the first available sub-location
+    }
+    
+    if (!is.null(sub_location_choices)) {
+      selectInput("place2SelectReasonsTable", "Select Location:", choices = sub_location_choices, selected = default_selection)
+    } else {
+      return(NULL)  # Hide dropdown if not needed
+    }
+  })
+  
+  
+  output$sentiSelectReasonsTable <- renderUI({
+    req(input$placeSelectReasonsTable)  # Ensure a place is selected
+    
+    # Only require place2SelectReasonsTable if the selected place is a complex
+    if (input$placeSelectReasonsTable %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      req(input$place2SelectReasonsTable)  # Ensure the secondary location is available
+    }
+    
+    # Define available sentiments dynamically based on the selected location
+    available_sentiments <- NULL
+    
+    # Dynamically check if the sentiment exists in `sentence_tables`
+    formatted_place <- gsub(" ", "_", tolower(input$placeSelectReasonsTable))
+    
+    sentiment_options <- c("b" = "Belong", "db" = "Don't Belong")  # New mapping
+    
+    available_sentiments <- names(sentiment_options)[paste0("sent_", formatted_place, "_", names(sentiment_options)) %in% names(sentence_tables)]
+    
+    # Convert shorthand ("b" → "Belong", "db" → "Don't Belong") for user display
+    sentiment_labels <- sentiment_options[available_sentiments]
+    
+    # If no sentiment data is available, default to "Belong"
+    if (length(sentiment_labels) == 0) {
+      sentiment_labels <- c("b" = "Belong")  # Default to "Belong" only
+    }
+    
+    selectInput("sentiSelectReasonsTable", "Select Sentiment:", choices = sentiment_labels, selected = names(sentiment_labels)[1])
+  })
+  
+
   
   
 #############################   
@@ -738,13 +811,16 @@ observeEvent(input$placeSelectCloud, {
     }
   })
 
+  
 ### End filters ##
+  
   
 #################################
   
   ## Rendering Logic ##  
   
 #################################
+  
   
   ## Inclusiveness ##
   ### RenderBarPlot Function ###
@@ -814,10 +890,7 @@ observeEvent(input$placeSelectCloud, {
     }
   })
   
-  
-  
-  
-  
+  #################################  
   ### Campus Trees ###
   
   renderCampusTree <- function(type, year, cohort) {
@@ -889,8 +962,6 @@ observeEvent(input$placeSelectCloud, {
     }
   }
   
-  
-  
   # Render tree maps for Campus
   output$campusTree <- renderPlot({
     req(input$visualizationType == "Disaggregated - Tree Maps" && input$locationSelect == "Full Campus")
@@ -898,6 +969,7 @@ observeEvent(input$placeSelectCloud, {
   })
   
   
+  #################################
   ### EMU Trees ###
   
   renderEmuTree <- function(type, year, cohort) {
@@ -968,6 +1040,7 @@ observeEvent(input$placeSelectCloud, {
   })
   
   
+  #################################
   ## Reactable Tables: 
   # Reactable Table for Campus Maps
   
@@ -1047,125 +1120,7 @@ observeEvent(input$placeSelectCloud, {
   
   
   
-  # output$tableCampus <- renderReactable({
-  #   
-  #   # Ensure inputs are available (A chhatGPT fix to handle null inputs)
-  #   if (is.null(input$typeSelectCampus) || is.null(input$yearSelectCampus) || is.null(input$cohortSelectCampus)) return()
-  #   
-  #   # Initialize variables
-  #   table_to_display <- NULL
-  #   year <- input$yearSelectCampus
-  #   cohort <- input$cohortSelectCampus
-  #   type <- input$typeSelectCampus
-  #   
-  #   # Mapping years
-  #   year_map <- switch(year,
-  #                      "2017" = "1617",
-  #                      "2018" = "1718",
-  #                      "2019" = "1819",
-  #                      "2020" = "1920", 
-  #                      "2022" = "2122")
-  #   
-  #   # Helper function to create table name
-  #   create_table_name <- function(type, year, cohort) {
-  #     mapped_year <- year_map[[year]]
-  #     if (is.null(mapped_year)) return(NULL)
-  #     
-  #     if (cohort == "All Cohorts" || cohort == "No cohort available") {
-  #       return(paste0("rt_", type, "_ay", mapped_year))
-  #     } else {
-  #       cohort <- gsub("/", "", cohort)
-  #       return(paste0("rt_", type, "_ay", mapped_year, "_c", cohort))
-  #     }
-  #   }
-  #   
-  #   # Determine the table to display
-  #   if (type == "Undergraduate") {
-  #     if (year == "Overall") {
-  #       table_to_display <- reactable_fun(rt_us_ug)
-  #     } else {
-  #       table_name <- create_table_name("us_ug", year, cohort)
-  #       table_to_display <- tryCatch({ reactable_fun(get(table_name)) }, error = function(e) { NULL })
-  #     }
-  #   } else if (type == "International") {
-  #     if (year == "Overall") {
-  #       table_to_display <- reactable_fun(rt_i)
-  #     } else if (year == "Undergrad 2020") {
-  #       table_to_display <- reactable_fun(rt_i_ug_ay1920)
-  #     } else if (year == "2022") {
-  #       table_to_display <- reactable_fun(rt_i_ay2122)
-  #     }
-  #   } else if (type == "Graduate" && year == "2022") {
-  #     table_to_display <- reactable_fun(rt_gr_ay2122)
-  #   }
-  #   
-  #   # Render the table or a message if no data is available
-  #   if (!is.null(table_to_display)) {
-  #     table_to_display
-  #   } else {
-  #     HTML("<p>No data available for the selected options.</p>")
-  #   }
-  # })
-  
-  
-  ## Reactable Tables: 
-  # Reactable Tables for EMU
-  # output$tableEmu <- renderReactable({
-  #   # Ensure inputs are available
-  #   if (is.null(input$typeSelectEmu) || is.null(input$yearSelectEmu) || is.null(input$cohortSelectEmu)) return()
-  #   
-  #   # Initialize variables
-  #   table_to_display <- NULL
-  #   year <- input$yearSelectEmu
-  #   cohort <- input$cohortSelectEmu
-  #   type <- input$typeSelectEmu
-  #   
-  #   # Mapping years
-  #   year_map <- list("2018" = "1718", "2019" = "1819", "2020" = "1920", "2022" = "2122")
-  #   
-  #   # Helper function to create table name
-  #   create_table_name <- function(type, year, cohort) {
-  #     mapped_year <- year_map[[year]]
-  #     if (is.null(mapped_year)) return(NULL)
-  #     
-  #     if (cohort == "All Cohorts" || cohort == "No cohort available") {
-  #       return(paste0("rt_", type, "_ay", mapped_year))
-  #     } else {
-  #       cohort <- gsub("/", "", cohort)
-  #       return(paste0("rt_", type, "_ay", mapped_year, "_c", cohort))
-  #     }
-  #   }
-  #   
-  #   # Determine the table to display
-  #   if (type == "Undergraduate") {
-  #     if (year == "Overall") {
-  #       table_to_display <- reactable_fun(pbb_tables_for_rt$us_ug)
-  #     } else {
-  #       table_name <- create_table_name("us_ug", year, cohort)
-  #       table_to_display <- tryCatch({ reactable_fun(pbb_tables_for_rt[[table_name]]) }, error = function(e) { NULL })
-  #     }
-  #   } else if (type == "International") {
-  #     if (year == "Overall") {
-  #       table_to_display <- reactable_fun(pbb_tables_for_rt$i)
-  #     } else if (year == "Undergrad 2020") {
-  #       table_to_display <- reactable_fun(pbb_tables_for_rt$i_ug_ay1920)
-  #     } else if (year == "2022") {
-  #       table_to_display <- reactable_fun(pbb_tables_for_rt$i_ay2122)
-  #     }
-  #   } else if (type == "Graduate" && year == "2022") {
-  #     table_to_display <- reactable_fun(pbb_tables_for_rt$gr_ay2122)
-  #   }
-  #   
-  #   # Render the table or a message if no data is available
-  #   if (!is.null(table_to_display)) {
-  #     table_to_display
-  #   } else {
-  #     HTML("<p>No data available for the selected options.</p>")
-  #   }
-  # })
-  
 ######################
-  
   ## Heat Maps: 
   # Heat Maps for EMU
   output$belongingMapEmu <- renderUI({
@@ -1256,7 +1211,8 @@ observeEvent(input$placeSelectCloud, {
              content = "Number equals the number of clicks. Color equals density of clicks.", 
              trigger = "hover", placement = "right", options = list(container = "body"))
   
-  
+ 
+  #######################  
   ## Heat Maps:
   # Heat Maps for Campus
   # Belonging Map
@@ -1355,8 +1311,8 @@ observeEvent(input$placeSelectCloud, {
             trigger = "hover", placement = "right", options = list(container = "body"))
   
   
-  
-  ## Word Nets & Word Clouds
+#######################   
+  ## Word Nets, Word Clouds, & Reason Tables
   
   ## Dynamic Word Clouds
   
@@ -1412,73 +1368,6 @@ observeEvent(input$placeSelectCloud, {
     warning(paste("Dataset not found:", key))
     return(NULL)
   })
-  
-  
-  
-  # wc_data <- reactive({
-  #   req(input$typeSelectWordsCloud, input$placeSelectCloud, input$belongStatus)
-  #   
-  #   # Map student group
-  #   student_group <- switch(input$typeSelectWordsCloud,
-  #                           "Undergraduate" = "us_ug",
-  #                           "International" = "i",
-  #                           "Graduate" = "gr")
-  #   
-  #   # Check if location exists in the map
-  #   if (!input$placeSelectCloud %in% names(location_file_name_map)) {
-  #     warning(paste("Location not found in mapping:", input$placeSelectCloud))
-  #     return(NULL)
-  #   }
-  #   
-  #   # Retrieve word cloud building name from the mapping list
-  #   building_name <- location_file_name_map[[input$placeSelectCloud]]$wordcloud
-  #   if (is.null(building_name)) {
-  #     warning(paste("No wordcloud mapping found for:", input$placeSelectCloud))
-  #     return(NULL)
-  #   }
-  #   
-  #   building_name <- tolower(building_name)
-  #   
-  #   # Handle sub-location mappings
-  #   if (!is.null(input$place2SelectCloud) && input$place2SelectCloud != "Overall" &&
-  #       input$placeSelectCloud %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
-  #     
-  #     sub_location_mapped <- location_file_name_map[[input$place2SelectCloud]]$wordcloud
-  #     
-  #     if (!is.null(sub_location_mapped)) {
-  #       building_name <- tolower(sub_location_mapped)
-  #     } else {
-  #       building_name <- tolower(gsub(" ", "_", input$place2SelectCloud))
-  #     }
-  #   }
-  #   
-  #   # Construct the key to retrieve the correct word cloud data
-  #   key <- paste0("wc_", building_name, "_", input$belongStatus, "_", student_group)
-  #   
-  #   # Placeholder image when no word cloud is available
-  #   no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
-  #   
-  #   # Check if the table exists in memory
-  # isolate({
-  #   if (exists(key, envir = .GlobalEnv)) {
-  #     data <- get(key, envir = .GlobalEnv)  # Retrieve data from memory
-  #     #print(paste("Found data for:", key, "with", nrow(data), "rows"))
-  #     if (!is.null(data) && nrow(data) > 0) {
-  #       return(data)  # Return valid word cloud data
-  #     }
-  #   } else {
-  #       # Render the placeholder image if the file does not exist
-  #       return(list(
-  #         src = no_data_image_path,
-  #         alt = "No data available for the selected options",
-  #         height = "400px"
-  #       ))
-  #     #print(paste("Table not found:", key))
-  #   }
-  # })
-  #   
-  #   return(NULL)  # Return NULL if no data available
-  # })
   
 
 
@@ -1541,33 +1430,7 @@ observeEvent(input$placeSelectCloud, {
     uiOutput("wordCloudPlaceholder")  # This will hold the image if no data exists
   })
   
-    
-    # #Construct the file path
-    # file_name <- paste0("wc_", building_name, "_", input$belongStatus, "_", student_group, ".png")
-    # 
-    # # Define the full path to the image directory (in 'www/wordclouds')
-    # full_image_path <- file.path(getwd(), "code", "www", "wordclouds", file_name)
-    # 
-    # # Placeholder image when no word cloud is available
-    # no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
-    # 
-    # # Check if the file exists for the selected belong status
-    # if (file.exists(full_image_path)) {
-    #   return(list(
-    #     src = full_image_path,
-    #     alt = paste("Word cloud for", input$place2SelectCloud, input$placeSelectCloud, input$typeSelectWordsCloud, input$belongStatus),
-    #     height = "400px"
-    #   ))
-    # } else {
-    #   # Render the placeholder image if the file does not exist
-    #   return(list(
-    #     src = no_data_image_path,
-    #     alt = "No data available for the selected options",
-    #     height = "400px"
-    #   ))
-    # }
-    # }, deleteFile = FALSE)
-  
+#######################  
   # Word nets
   
   output$wordNetImage <- renderImage({
@@ -1613,7 +1476,63 @@ observeEvent(input$placeSelectCloud, {
   }, deleteFile = FALSE)
   
   
+####################### 
+  ## Reasons Tables
   
+  output$tableReasons <- renderReactable({
+    req(input$placeSelectReasonsTable, input$sentiSelectReasonsTable)  # Ensure primary inputs exist
+    
+    # Check if the selected place requires a sub-location (EMU, Lokey, Housing)
+    requires_sub_location <- input$placeSelectReasonsTable %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")
+    
+    # Require place2SelectReasonsTable if the selected place needs a sub-location
+    if (requires_sub_location) {
+      req(input$place2SelectReasonsTable)
+    }
+    
+    # Retrieve the correctly mapped name for reasons tables
+    mapped_place <- location_file_name_map[[input$placeSelectReasonsTable]]$reasons
+    
+    # Ensure the mapping exists before proceeding
+    if (is.null(mapped_place)) {
+      print(paste("No mapping found for:", input$placeSelectReasonsTable))
+      return(reactable(data.frame(Message = "No data available for this selection")))
+    }
+    
+    # If a sub-location is selected, update mapped_place
+    if (requires_sub_location && !is.null(input$place2SelectReasonsTable)) {
+      mapped_place <- location_file_name_map[[input$place2SelectReasonsTable]]$reasons
+    }
+    
+    # Map sentiment to correct shorthand ("Belong" → "b", "Don't Belong" → "db")
+    sentiment_code <- ifelse(input$sentiSelectReasonsTable == "Belong", "b", "db")
+    
+    # Construct the expected table name
+    table_name <- paste0("sent_", mapped_place, "_", sentiment_code)
+    
+    # Debugging: Print the table name to console
+    print(paste("Looking for table:", table_name))
+    
+    # Check if the table exists in sentence_tables
+    if (table_name %in% names(sentence_tables)) {
+      print(paste("Rendering table:", table_name))
+      
+      reactable(sentence_tables[[table_name]], 
+                searchable = TRUE,  # Enables global search
+                filterable = TRUE,  # Enables column-specific filters
+                defaultPageSize = 10,  # Show 10 rows per page
+                showPagination = TRUE  # Show pagination controls
+      )
+    } else {
+      print(paste("Table not found:", table_name))
+      reactable(data.frame(Message = "No data available for this selection"))  # Show a message if no data exists
+    }
+  })
+  
+  
+  
+  
+#######################   
   ## Emotions Bar Plots ##
   
   observeEvent(input$buildingSelect, {
@@ -1634,7 +1553,7 @@ observeEvent(input$placeSelectCloud, {
                             "International" = "i",
                             "Graduate" = "gr")
     
-    building_name <- location_file_name_map[[input$buildingSelect]] 
+    building_name <- location_file_name_map[[input$buildingSelect]]$wordnet # Uses wordnet naming 
     building_name <- tolower(building_name)  
     
     if (!is.null(input$building2Select) && input$building2Select != "Overall" && input$buildingSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
