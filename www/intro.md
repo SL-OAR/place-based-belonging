@@ -16,10 +16,10 @@ Students participate by **clicking on respective locations** on an interactive c
 
 To **visualize and analyze** student responses, we employed a variety of analytical and graphical techniques:  
 
-- **<span style="background-color: #FFFF99;">Heat maps</span>** → Visually represent areas of high and low belongingness across campus.  
-- **<span style="background-color: #FFFF99;">Treemaps</span>** → Highlight the overall popularity of different locations.  
-- **<span style="background-color: #FFFF99;">Wordnets & Wordclouds</span>** → Capture the sentiments and language students use to describe their experiences in various places.  
-- **<span style="background-color: #FFFF99;">Bar graphs</span>** → Quantify student free responses, showing trends in emotions and perceptions tied to specific locations.  
+- **<span class="yellow-text">Heat maps</span>** → Visually represent areas of high and low belongingness across campus.  
+- **<span class="yellow-text">Tree maps</span>** → Highlight the overall popularity of different locations.  
+- **<span class="yellow-text">Wordnets & Wordclouds</span>** → Capture the sentiments and language students use to describe their experiences in various places.  
+- **<span class="yellow-text">Bar graphs</span>** → Quantify student free responses, showing trends in emotions and perceptions tied to specific locations.  
 
 These tools allow us to **identify patterns**, compare differences between student groups, and explore how campus spaces influence a sense of belonging.  
 
@@ -29,4 +29,4 @@ These tools allow us to **identify patterns**, compare differences between stude
 
 This section provides **summaries of select visualizations** that illustrate key findings. By engaging with these insights, we hope to spark further discussion on how campus spaces foster—or hinder—a sense of belonging among students.  
 
-**<span style="background-color: #FFFF99;">We invite the reader to explore with us.</span>**  
+**<span class="yellow-text">We invite the reader to explore with us.</span>**   
