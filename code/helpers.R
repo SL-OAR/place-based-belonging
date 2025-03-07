@@ -127,24 +127,112 @@ reactable_fun<- function(dat) {
 
 #### Tree map function ###
 
+# inclusive_tree_fun <- function(dat) {
+#   df <- dat
+#   cp <- as.vector(if_else(df$incl > 75, "#30313A", "#FCFFA4"))
+#   plot <- dat %>%
+#     ggplot(aes(area = tot, fill = incl, label = place)) +
+#     geom_treemap() +
+#     geom_treemap_text(place = "center", grow = TRUE, reflow = TRUE, color = cp) +
+#     scale_fill_viridis_c(name = "Inclusiveness", option = "inferno", limits = c(0, 100)) +
+#     theme(
+#       panel.background = element_rect(fill = "#30313A"),
+#       plot.background = element_rect(color = "#30313A", fill = "#30313A"),
+#       legend.background = element_rect(fill = "#30313A"),
+#       legend.title = element_text(color = "#FCFFA4"),
+#       legend.text = element_text(color = "#FCFFA4"),
+#       plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")
+#     )
+#   return(plot)
+# }
+
+## UO Colors
+
+uo_colors <- list(
+  # Primary Colors
+  green = "#154733",      # UO Green
+  yellow = "#FEE123",     # UO Yellow
+  
+  # Secondary Colors - Greens
+  legacy_green = "#004F27", # Legacy Green
+  grass_green = "#518241",  # Grass Green
+  lime_green = "#7BAE28",   # Lime Green
+  chartreuse = "#9FD430",   # Chartreuse
+  
+  # Secondary Colors - Blues
+  dark_blue = "#004D6C",    # Dark Blue
+  light_blue = "#3F8EA8",   # Light Blue
+  
+  # Secondary Colors - Berry
+  berry = "#820043",        # Berry
+  
+  # Secondary Colors - Grays
+  dark_gray = "#2E2E2E",    # Dark Gray
+  medium_gray = "#7C8487",  # Medium Gray
+  light_gray = "#E6E7E8",   # Light Gray
+  
+  # Accent Colors
+  pine = "#004225",         # Pine
+  forest = "#0E4B33",       # Forest
+  sage = "#899A75",         # Sage
+  moss = "#D5DD98",         # Moss
+  spring = "#A1D296",       # Spring
+  blue = "#84A4CC",         # Blue
+  tan = "#B3A369"          # Tan
+  
+  # color_scale = c("#D5DD98", "#FEE123", "#9FD430", "#004F27", "#004D6C", "#820043"), # Used for tree maps
+  # 
+  # color_scale_b = c("#D5DD98", "#A1D296", "#899A75", "#518241", "#9FD430", "#7BAE28", "#154733", "#004225"), # UO colors for b scheme
+  # 
+  # color_scale_db = c("#FEE123", "#D5DD98", "#B3A369", "#7C8487", "#84A4CC", "#3F8EA8", "#004D6C", "#820043"), # UO colors for db scheme
+  # 
+  # color_scale_b <- c("#D5DD98", "#A1D296", "#899A75", "#516841","#518241", "#9FD430", "#7BAF40", "#7BAE28", "#154733", "#004225"), # Expanded for donuts b
+  # 
+  # color_scale_db <- c("#FEE123", "#D5DD98", "#B3A369","#7C8467",, "#7C8487", "#84A4CC", "#3F8EA8", "#004D6C", "#824D78", "#820043") # Expanded for donuts db
+)
+
+# Tree Map Function using UO Approved Colors
+
 inclusive_tree_fun <- function(dat) {
-  df <- dat
-  cp <- as.vector(if_else(df$incl > 75, "#30313A", "#FCFFA4"))
+  df <- dat  # Store input data frame
+  
   plot <- dat %>%
     ggplot(aes(area = tot, fill = incl, label = place)) +
     geom_treemap() +
-    geom_treemap_text(place = "center", grow = TRUE, reflow = TRUE, color = cp) +
-    scale_fill_viridis_c(name = "Inclusiveness", option = "inferno", limits = c(0, 100)) +
+    geom_treemap_text(aes(color = incl > 75, size = tot), place = "center", grow = TRUE, reflow = TRUE, fontface = "bold") +
+    
+    # Using UO Color Gradient (Moss -> UO Yellow -> Chartreuse -> UO Green -> Dark Blue -> Berry)
+    scale_fill_gradientn(
+      name = "Inclusiveness",
+      colors = c("#D5DD98", "#FEE123", "#9FD430", "#004F27", "#004D6C", "#820043"),
+      limits = c(0, 100)
+    ) +
+    
+    #  Fix legend scaling (taller Y-axis)
+    guides(fill = guide_colorbar(title.position = "top", barwidth = 1, barheight = 15)) +
+    
+    #  Adjust text colors
+    scale_color_manual(values = c("#2E2E2E", "#D5DD98"), guide = "none") +
+    
+    # Scale text size dynamically
+    scale_size_continuous(range = c(3, 8)) +  
+    
+    #I mprove legend styling
     theme(
-      panel.background = element_rect(fill = "#30313A"),
-      plot.background = element_rect(color = "#30313A", fill = "#30313A"),
-      legend.background = element_rect(fill = "#30313A"),
-      legend.title = element_text(color = "#FCFFA4"),
-      legend.text = element_text(color = "#FCFFA4"),
+      panel.background = element_rect(fill = "#2E2E2E"),
+      plot.background = element_rect(color = "#2E2E2E", fill = "#2E2E2E"),
+      legend.background = element_rect(fill = "#2E2E2E"),
+      legend.title = element_text(color = "#D5DD98", size = 14, face = "bold"),
+      legend.text = element_text(color = "#D5DD98", size = 12),
+      legend.key.height = unit(2, "cm"),  #  Extend legend height
+      legend.key.width = unit(0.75, "cm"),  #  Keep legend width small
       plot.margin = margin(0.5, 0.5, 0.5, 0.5, "cm")
     )
+  
   return(plot)
 }
+
+
 
 
 

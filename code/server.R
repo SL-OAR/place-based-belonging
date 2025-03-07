@@ -438,6 +438,9 @@ output$place2SelectCloud <- renderUI({
   }
 })
 
+#####
+## Word cloud checks
+####
 
 observeEvent(input$typeSelectWordsCloud, {
   req(input$typeSelectWordsCloud)
@@ -511,6 +514,73 @@ observeEvent(input$placeSelectCloud, {
   }
 })
 
+#############################
+  ## Word Donut Filters  
+
+# Select student type for the donut plot
+output$typeSelectDonut <- renderUI({
+  selectInput("typeSelectDonut", "Select Type:", 
+              choices = c("Undergraduate", "International", "Graduate"), 
+              selected = "Undergraduate"
+  )
+})
+
+# Generate the main location select input based on the selected student group
+output$placeSelectDonut <- renderUI({
+  req(input$typeSelectDonut)
+  
+  # Reset sub-location when changing main location
+  updateSelectInput(session, "place2SelectDonut", selected = NULL)
+  
+  # Define available locations based on selected type
+  if (input$typeSelectDonut == "Undergraduate") {
+    selectInput("placeSelectDonut", "Select Location:",
+                choices = c("Allen", "Autzen Stadium", "Cemetery", "Chapman", "Erb Memorial Union (EMU)",
+                            "Frohnmayer", "Hayward Field", "HEDCO", "Jaqua", "Knight Law", "Lawrence",
+                            "Knight Library", "Lillis Business Complex", "Lokey Science Complex",
+                            "Matthew Knight Arena", "McKenzie", "Oregon", "Straub", "Student Rec Complex",
+                            "Tykeson", "University Health Services", "University Housing"))
+  } else if (input$typeSelectDonut == "International") {
+    selectInput("placeSelectDonut", "Select Location:",
+                choices = c("Erb Memorial Union (EMU)", "Knight Library", "Lokey Science Complex",
+                            "Student Rec Complex", "University Housing"))
+  } else if (input$typeSelectDonut == "Graduate") {
+    selectInput("placeSelectDonut", "Select Location:",
+                choices = c("Knight Library", "Student Rec Complex"))
+  }
+})
+
+# Generate the sub-location select input for complex locations
+output$place2SelectDonut <- renderUI({
+  req(input$placeSelectDonut)  # Ensure a place is selected
+  
+  sub_location_choices <- NULL  
+  
+  if (input$typeSelectDonut == "International") {
+    if (input$placeSelectDonut == "Erb Memorial Union (EMU)") {
+      sub_location_choices <- c("Overall", "Mills Center")
+    } else if (input$placeSelectDonut == "Lokey Science Complex" || input$placeSelectDonut == "University Housing") {
+      sub_location_choices <- c("Overall")
+    }
+  } else {
+    if (input$placeSelectDonut == "Erb Memorial Union (EMU)") {
+      sub_location_choices <- c("Overall", "Atrium East", "Courtyard", "Craft", "Duck Nest", "Falling Sky", 
+                                "Fishbowl", "Fresh Market", "LGBTQIA3", "Mills Center", 
+                                "Multicultural Center", "O Lounge", "Taylor Lounge", "Women's Center")
+    } else if (input$placeSelectDonut == "Lokey Science Complex") {
+      sub_location_choices <- c("Overall", "Columbia", "Klamath", "Lewis", "Science Commons", "Willamette")
+    } else if (input$placeSelectDonut == "University Housing") {
+      sub_location_choices <- c("Overall", "Barnhart", "Bean", "Carson", "Earl", "Global Scholars",
+                                "Hamilton", "Kalapuya Ilihi", "Living Learning", "Unthank", "Walton")
+    }
+  }
+  
+  if (!is.null(sub_location_choices)) {
+    selectInput("place2SelectDonut", "Select Sub-Location:", choices = sub_location_choices, selected = "Overall")
+  } else {
+    return(NULL)
+  }
+})
 
   
 #############################   
@@ -697,32 +767,40 @@ observeEvent(input$placeSelectCloud, {
   output$sentiSelectReasonsTable <- renderUI({
     req(input$placeSelectReasonsTable)  # Ensure a place is selected
     
-    # Only require place2SelectReasonsTable if the selected place is a complex
-    if (input$placeSelectReasonsTable %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
-      req(input$place2SelectReasonsTable)  # Ensure the secondary location is available
+    # Check if sub-location is required (EMU, Lokey, Housing)
+    requires_sub_location <- input$placeSelectReasonsTable %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")
+    if (requires_sub_location) {
+      req(input$place2SelectReasonsTable)  # Ensure sub-location input is available
     }
     
-    # Define available sentiments dynamically based on the selected location
-    available_sentiments <- NULL
+    sentiment_options <- c("b" = "Belong", "db" = "Less Belonging")  # Mapping
     
-    # Dynamically check if the sentiment exists in `sentence_tables`
+    # Format place name correctly
     formatted_place <- gsub(" ", "_", tolower(input$placeSelectReasonsTable))
-    
-    sentiment_options <- c("b" = "Belong", "db" = "Don't Belong")  # New mapping
-    
-    available_sentiments <- names(sentiment_options)[paste0("sent_", formatted_place, "_", names(sentiment_options)) %in% names(sentence_tables)]
-    
-    # Convert shorthand ("b" → "Belong", "db" → "Don't Belong") for user display
-    sentiment_labels <- sentiment_options[available_sentiments]
-    
-    # If no sentiment data is available, default to "Belong"
-    if (length(sentiment_labels) == 0) {
-      sentiment_labels <- c("b" = "Belong")  # Default to "Belong" only
+    if (requires_sub_location && !is.null(input$place2SelectReasonsTable)) {
+      formatted_place <- gsub(" ", "_", tolower(input$place2SelectReasonsTable))
     }
     
-    selectInput("sentiSelectReasonsTable", "Select Sentiment:", choices = sentiment_labels, selected = names(sentiment_labels)[1])
+    # Check which sentiment tables exist in the global environment
+    available_sentiments <- names(sentiment_options)[sapply(
+      paste0("sent_", formatted_place, "_", names(sentiment_options)), 
+      exists, 
+      envir = .GlobalEnv
+    )]
+    
+    # If no sentiment data is available, default to both "b" and "db"
+    if (length(available_sentiments) == 0) {
+      available_sentiments <- c("b", "db")
+    }
+    
+    # Create the sentiment dropdown
+    selectInput("sentiSelectReasonsTable", "Select Sentiment:", 
+                choices = setNames(available_sentiments, sentiment_options[available_sentiments]),
+                selected = available_sentiments[1])
   })
   
+  
+  sentiment_options <- c("b" = "Belong", "db" = "Less Belonging")
 
   
   
@@ -1110,11 +1188,14 @@ observeEvent(input$placeSelectCloud, {
       }
     }
     
-    # Render the table or a message if no data is available
-    if (!is.null(table_to_display)) {
-      table_to_display
+    # Debugging: Print the table name and type
+    print(paste("Selected Table:", table_name))
+
+    # Ensure the selected table is a data frame before rendering
+    if (!is.null(table_to_display) && inherits(table_to_display, "htmlwidget")) {
+      return(table_to_display)  # Directly return the reactable table
     } else {
-      HTML("<p>No data available for the selected options.</p>")
+      return(reactable(data.frame(Message = "No data available for the selected options")))
     }
   })
   
@@ -1312,7 +1393,7 @@ observeEvent(input$placeSelectCloud, {
   
   
 #######################   
-  ## Word Nets, Word Clouds, & Reason Tables
+  ## Word Nets, Word Clouds, Donuts & Reason Tables
   
   ## Dynamic Word Clouds
   
@@ -1430,6 +1511,173 @@ observeEvent(input$placeSelectCloud, {
     uiOutput("wordCloudPlaceholder")  # This will hold the image if no data exists
   })
   
+#######################   
+  # Word Donuts  
+  
+  output$wordDonutBelong <- renderPlot({
+    req(input$placeSelectDonut, input$typeSelectDonut)
+    
+    # Map student group
+    student_group <- switch(input$typeSelectDonut,
+                            "Undergraduate" = "us_ug",
+                            "International" = "i",
+                            "Graduate" = "gr")
+    
+    # Validate building name mapping
+    if (!input$placeSelectDonut %in% names(location_file_name_map)) {
+      warning(paste("Location not found in mapping:", input$placeSelectDonut))
+      return(NULL)
+    }
+    
+    building_name <- location_file_name_map[[input$placeSelectDonut]]$wordcloud
+    if (is.null(building_name)) {
+      warning(paste("No wordcloud mapping found for:", input$placeSelectDonut))
+      return(NULL)
+    }
+    
+    building_name <- tolower(building_name)
+    
+    # Handle sub-location mapping (EMU, Lokey, Housing)
+    if (!is.null(input$place2SelectDonut) && input$place2SelectDonut != "Overall" &&
+        input$placeSelectDonut %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      
+      sub_location_mapped <- location_file_name_map[[input$place2SelectDonut]]$wordcloud
+      if (!is.null(sub_location_mapped)) {
+        building_name <- tolower(sub_location_mapped)
+      } else {
+        building_name <- tolower(gsub(" ", "_", input$place2SelectDonut))
+      }
+    }
+    
+    # Construct dataset key for Belonging
+    belong_key <- paste0("wc_", building_name, "_b_", student_group)
+    
+    # Fetch data if it exists
+    belong_data <- if (exists(belong_key, envir = .GlobalEnv)) get(belong_key, envir = .GlobalEnv) else NULL
+    
+    # Process data: Keep only top 2 words
+    if (!is.null(belong_data) && nrow(belong_data) > 0) {
+      belong_data <- belong_data %>%
+        arrange(desc(freq)) %>%
+        head(10) %>%  # Keep only the top 10 words
+        mutate(fraction = freq / sum(freq))
+      
+      # Compute cumulative percentages
+      belong_data$ymax <- cumsum(belong_data$fraction)
+      belong_data$ymin <- c(0, head(belong_data$ymax, n = -1))
+      belong_data$labelPosition <- (belong_data$ymax + belong_data$ymin) / 2
+      
+      # Define Color Scale
+      color_scale_b <- c("#D5DD98", "#A1D296", "#899A75", "#516841","#518241", "#9FD430", "#7BAF40", "#7BAE28", "#154733", "#004225") # Expanded for donuts b
+      
+      # Create the Belonging Donut Plot
+      return(ggplot(belong_data, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = word)) +
+        geom_rect(color = "black") +
+        #geom_label(x = 2, aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%"), size = 4, color = "white", fontface = "bold") +
+        geom_text_repel(aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%")),
+                        x = 4.5, size = 4, color = "#FEE123", fontface = "bold") +
+        scale_fill_manual(values = color_scale_b) +  # Use custom color scale
+        coord_polar(theta = "y") +
+        xlim(c(0, 6)) +  # Adjust to create space for labels
+        theme_void() +
+        theme(
+          legend.position = "none",  # Remove legend
+          plot.title = element_text(hjust = 0.5, color = "#FEE123", size = 16),
+          plot.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E"),
+          panel.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E")
+        ) +
+        labs(title = "Top 10 Belonging Words"))
+    } else {
+      return(ggplot() + 
+               annotate("text", x = 1, y = 1, label = "No Data Available", size = 5, color = "gray") + 
+               theme_void())
+    }
+  }, height = 300, width = 300)
+  
+  
+### Don't belong donut
+  output$wordDonutDb <- renderPlot({
+    req(input$placeSelectDonut, input$typeSelectDonut)
+    
+    # Map student group
+    student_group <- switch(input$typeSelectDonut,
+                            "Undergraduate" = "us_ug",
+                            "International" = "i",
+                            "Graduate" = "gr")
+    
+    # Validate building name mapping
+    if (!input$placeSelectDonut %in% names(location_file_name_map)) {
+      warning(paste("Location not found in mapping:", input$placeSelectDonut))
+      return(NULL)
+    }
+    
+    building_name <- location_file_name_map[[input$placeSelectDonut]]$wordcloud
+    if (is.null(building_name)) {
+      warning(paste("No wordcloud mapping found for:", input$placeSelectDonut))
+      return(NULL)
+    }
+    
+    building_name <- tolower(building_name)
+    
+    # Handle sub-location mapping (EMU, Lokey, Housing)
+    if (!is.null(input$place2SelectDonut) && input$place2SelectDonut != "Overall" &&
+        input$placeSelectDonut %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      
+      sub_location_mapped <- location_file_name_map[[input$place2SelectDonut]]$wordcloud
+      if (!is.null(sub_location_mapped)) {
+        building_name <- tolower(sub_location_mapped)
+      } else {
+        building_name <- tolower(gsub(" ", "_", input$place2SelectDonut))
+      }
+    }
+    
+    # Construct dataset key for Less Belonging
+    db_key <- paste0("wc_", building_name, "_db_", student_group)
+    
+    # Fetch data if it exists
+    db_data <- if (exists(db_key, envir = .GlobalEnv)) get(db_key, envir = .GlobalEnv) else NULL
+    
+    # Process data: Keep only top 10 words
+    if (!is.null(db_data) && nrow(db_data) > 0) {
+      db_data <- db_data %>%
+        arrange(desc(freq)) %>%
+        head(10) %>%
+        mutate(fraction = freq / sum(freq))
+      
+      # Compute cumulative percentages
+      db_data$ymax <- cumsum(db_data$fraction)
+      db_data$ymin <- c(0, head(db_data$ymax, n = -1))
+      db_data$labelPosition <- (db_data$ymax + db_data$ymin) / 2
+      
+      # Define Color Scale
+      color_scale_db <- c("#FEE123", "#D5DD98", "#B3A369","#7C8467", "#7C8487", "#84A4CC", "#3F8EA8", "#004D6C", "#824D78", "#820043") # Expanded for donuts db
+      
+      # Create the Less Belonging Donut Plot
+      return(ggplot(db_data, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = word)) +
+               geom_rect(color = "black") +
+               geom_text_repel(aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%")),
+                               x = 4.5, size = 4, color = "#FEE123", fontface = "bold") +
+               scale_fill_manual(values = color_scale_db) +
+               coord_polar(theta = "y") +
+               xlim(c(2, 5)) +
+               theme_void() +
+               theme(
+                 legend.position = "none",  # Remove legend
+                 plot.title = element_text(hjust = 0.5, color = "#FEE123", size = 16),
+                 plot.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E"),
+                 panel.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E")
+               ) +
+               labs(title = "Top 10 Less Belonging Words"))
+    } else {
+        return(ggplot() + 
+                 annotate("text", x = 1, y = 1, label = "No Data Available", size = 5, color = "gray") + 
+                 theme_void())
+      }
+  }, height = 300, width = 300)
+  
+  
+  
+  
 #######################  
   # Word nets
   
@@ -1480,48 +1728,45 @@ observeEvent(input$placeSelectCloud, {
   ## Reasons Tables
   
   output$tableReasons <- renderReactable({
-    req(input$placeSelectReasonsTable, input$sentiSelectReasonsTable)  # Ensure primary inputs exist
+    req(input$placeSelectReasonsTable, input$sentiSelectReasonsTable)  # Ensure inputs exist
     
     # Check if the selected place requires a sub-location (EMU, Lokey, Housing)
     requires_sub_location <- input$placeSelectReasonsTable %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")
     
-    # Require place2SelectReasonsTable if the selected place needs a sub-location
-    if (requires_sub_location) {
-      req(input$place2SelectReasonsTable)
-    }
-    
     # Retrieve the correctly mapped name for reasons tables
     mapped_place <- location_file_name_map[[input$placeSelectReasonsTable]]$reasons
-    
-    # Ensure the mapping exists before proceeding
-    if (is.null(mapped_place)) {
-      print(paste("No mapping found for:", input$placeSelectReasonsTable))
-      return(reactable(data.frame(Message = "No data available for this selection")))
-    }
     
     # If a sub-location is selected, update mapped_place
     if (requires_sub_location && !is.null(input$place2SelectReasonsTable)) {
       mapped_place <- location_file_name_map[[input$place2SelectReasonsTable]]$reasons
     }
     
-    # Map sentiment to correct shorthand ("Belong" → "b", "Don't Belong" → "db")
-    sentiment_code <- ifelse(input$sentiSelectReasonsTable == "Belong", "b", "db")
-    
     # Construct the expected table name
-    table_name <- paste0("sent_", mapped_place, "_", sentiment_code)
+    table_name <- paste0("sent_", mapped_place, "_", input$sentiSelectReasonsTable)
     
     # Debugging: Print the table name to console
-    print(paste("Looking for table:", table_name))
+    #print(paste("Looking for table:", table_name))
     
-    # Check if the table exists in sentence_tables
-    if (table_name %in% names(sentence_tables)) {
+    # Check if the table exists in the global environment and retrieve it
+    if (exists(table_name, envir = .GlobalEnv)) {
       print(paste("Rendering table:", table_name))
       
-      reactable(sentence_tables[[table_name]], 
+      reactable(get(table_name, envir = .GlobalEnv),  # Retrieve table dynamically
                 searchable = TRUE,  # Enables global search
-                filterable = TRUE,  # Enables column-specific filters
                 defaultPageSize = 10,  # Show 10 rows per page
-                showPagination = TRUE  # Show pagination controls
+                showPagination = TRUE,  # Show pagination controls
+                theme = reactableTheme(
+                  backgroundColor = "#1E1E1E",   # Dark background
+                  color = "gray",             # White text
+                  borderColor = "#333333",       # Subtle border color
+                  headerStyle = list(
+                    backgroundColor = "#333333", # Dark header
+                    color = "gray",           # White text for header
+                    fontWeight = "bold"
+                  ),
+                  stripedColor = "#2C2C2C",      # Slightly lighter striping
+                  highlightColor = "#444444"     # Row highlight color
+                )
       )
     } else {
       print(paste("Table not found:", table_name))

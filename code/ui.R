@@ -14,7 +14,7 @@ packages <- c("shiny", "reactable", "htmltools",
               "shinyalert", "shinyBS", "farver", 
               "labeling", "crayon", "cli", "viridisLite",
               "remotes", "fastmap", "conflicted", 
-              "rsconnect", "wordcloud2"
+              "rsconnect", "wordcloud2", "ggrepel"
 )
 
 # Function to handle errors
@@ -131,14 +131,13 @@ ui <- shinyUI(fluidPage(
                        tags$a(href = "https://studentlife.uoregon.edu/research",
                               tags$img(src = "uo_stacked_gray.png", title = "Example Image Link", width = 250, height = 300)),
                        menuItem("Introduction", tabName = "intro", icon = icon("compass")),
-                       menuItem("Further Project Details", tabName = "about", icon = icon("info-circle")),
+                       menuItem("SwaSI Project Details", tabName = "about", icon = icon("info-circle")),
                        menuItem("Summary of Findings", tabName = "findings", icon = icon("lightbulb")),
                        menuItem("Where? Campus Belonging", tabName = "campus", icon = icon("table")),
                        menuItem("Where? EMU Belonging", tabName = "emu", icon = icon("random", lib = "glyphicon")),
                        menuItem("Where? Inclusiveness", tabName = "inclusiveness", icon = icon("stats", lib = "glyphicon")),
                        menuItem("Why There? Wordnets & Wordclouds", tabName = "words", icon = icon("comment")),
                        menuItem("Why There? Emotions", tabName = "emotions", icon = icon("face-smile")),
-                       menuItem("For Whom?", tabName = "whom", icon = icon("person")), # I am unsure if we need this
                        menuItem("Supplemental Method", tabName = "method", icon = icon("book")),
                        menuItem("In Rememberance of Brian", tabName = "brian", icon = icon("dove")),
                        HTML(paste0("<br>",
@@ -172,8 +171,8 @@ ui <- shinyUI(fluidPage(
                         
       .responsive-plot {
       width: 100%; 
-      max-width: 1000px;
-      height: auto;
+      max-width: 1400px;
+      height: 80vh;
       display: block;
       margin-bottom: 20px;
       }                  
@@ -199,7 +198,6 @@ ui <- shinyUI(fluidPage(
         tabItem(tabName = "findings", includeMarkdown("www/findings.md")),
         
         tabItem(tabName = "campus",
-                includeMarkdown("www/campus_summary.md"), # change to correct file
             tabBox(
               id = "campus_tabs", width = 12, 
               tabPanel("Maps",
@@ -252,13 +250,21 @@ ui <- shinyUI(fluidPage(
                          div(class = "responsive-caption", includeHTML("www/campus_table_caption.html"))
                 )
               )
-          ) # End Campus Tables
+          ), # End Campus Tables
+      
+      tabPanel("Summary",
+               fluidRow(
+                 includeMarkdown("www/campus_summary.md") # change to correct file
+               )
+              ) # End Summary Tab
         ) # End Campus Box
       ), # End Campus tab
         
         
         tabItem(tabName = "emu",
-                includeMarkdown("www/emu_summary.md"), 
+              tabBox(
+                id = "emu_tabs", width = 12,
+                tabPanel("Emu Maps",
                 fluidRow(
                   column(4, uiOutput("typeSelectEmu")),
                   column(4, uiOutput("yearSelectEmu")),
@@ -292,15 +298,24 @@ ui <- shinyUI(fluidPage(
                          div(class = "responsive-caption", includeHTML("www/emu_map_caption.html"))
                   )
                 )
+              ), # Emu Maps Panel
+              
+              tabPanel("Summary",
+                       includeMarkdown("www/emu_summary.md") 
+                ) # End EMU Summary
+              ) # End EMU Box
                 
             # fluidRow(
             #       column(width = 12,
             #              reactableOutput("tableEmu"))
             #      )
-            ), # End EMU Maps
+            ), # End EMU Tab Item
         
         
         tabItem(tabName = "inclusiveness",
+            tabBox(
+                id = "inclusive_tabs", width = 12,
+              tabPanel("Inclusivity Plots",
                 includeMarkdown("www/test.md"), # change to correct file
                 fluidRow(
                   column(12, 
@@ -330,7 +345,7 @@ ui <- shinyUI(fluidPage(
                       column(width = 6,
                           div(class = "responsive-plot", 
                              h3("Inclusiveness"), 
-                                 uiOutput("inclusiveBar")),
+                                 uiOutput("inclusiveBar", fill = "container")),
                              bsPopover(id = "inclusiveBar", title = "Aggregated Inclusivity", 
                                        content = "Aggregated Percent Inclusion by Place", 
                                        trigger = "hover", placement = "right", options = list(container = "body"))
@@ -355,7 +370,7 @@ ui <- shinyUI(fluidPage(
                       column(width = 12,
                           div(class = "responsive-map",
                              h3("Campus Inclusiveness Tree Map"), 
-                                 plotOutput("campusTree")
+                                 plotOutput("campusTree", height = "800px")
                           )
                       )
                     ), 
@@ -380,7 +395,7 @@ ui <- shinyUI(fluidPage(
                     column(width = 12,
                         div(class = "responsive-map",
                            h3("EMU Inclusiveness Tree Map"), 
-                               plotOutput("emuTree") # Fix Nothing_to_see.png 
+                               plotOutput("emuTree", height = "800px") # Fix Nothing_to_see.png 
                            )
                     )
                   ), 
@@ -390,19 +405,17 @@ ui <- shinyUI(fluidPage(
                     )
                   )
                 ) #EMU conditional panel
+              ), # End Inclusivity Plots
+            tabPanel("Summary",
+                     includeMarkdown("www/emu_summary.md")
+                     ) # End Summary Panel
+            ) # End inclusivity box
         ), #End of Inclusive tab
         
         
         tabItem(tabName = "words", 
               tabBox(
                   id = "words", width = 12, 
-                tabPanel("Summary", 
-                  fluidRow(
-                    column(width = 12,
-                         includeMarkdown("www/words_summary.md")
-                    )
-                  )
-                ), # End Summary Tab)
                 tabPanel("Word Clouds", 
                 fluidRow(
                   column(width = 12, 
@@ -445,7 +458,23 @@ ui <- shinyUI(fluidPage(
                       )
                 ),  # End word clouds panel
 
-                
+                tabPanel("Donut Words",
+                    fluidRow(
+                      column(width = 12,
+                             selectInput("typeSelectDonut", "Select Type:",
+                                         choices = c("Undergraduate", "International", "Graduate"),
+                                         selected = "Undergraduate" # Default to "Undergrad"
+                             ),
+                             uiOutput("placeSelectDonut"),  # place select input for both word clouds and word nets
+                             uiOutput("place2SelectDonut"),  # second place select input for word clouds and word nets i.e. Buildings within complexes
+                          )
+                        ),
+
+                    fluidRow(
+                      column(6, plotOutput("wordDonutBelong")), # Left Column for Belonging
+                      column(6, plotOutput("wordDonutDb"))      # Right Column for Less Belonging
+                      )
+                    ), # End Donuts tab
                 
                 tabPanel("Word Nets",
                     fluidRow(
@@ -465,11 +494,12 @@ ui <- shinyUI(fluidPage(
                          ),
                   fluidRow(
                     column(width = 12,
-                        div(class = "responsive-plot", 
-                         imageOutput("wordNetImage", width = "100%", height = "auto"))
+                       div(class = "responsive-plot", 
+                         imageOutput("wordNetImage", height = "600px", width = "100%")
+                          )
                         )
                       ),
-                  fluidRow(
+                fluidRow(
                     column(width = 12, 
                            div(class = "responsive-caption", includeHTML("www/net_caption.html"))
                       )
@@ -490,13 +520,23 @@ ui <- shinyUI(fluidPage(
                               #div(class = "responsive-caption", includeHTML("www/reasons_table_caption.html"))
                        )
                      )
-            ) # End Reasons Tab
+            ), # End Reasons Tab panel
+            
+            tabPanel("Summary", 
+                     fluidRow(
+                       column(width = 12,
+                              includeMarkdown("www/words_summary.md")
+                       )
+                     )
+                  ), # End Summary Tab)
               ) # End tab box
         ), # End words tab
       
       
         tabItem(tabName = "emotions",
-                includeMarkdown("www/emotion_summary.md"), # change to correct file
+              tabBox(
+                  id = "emotions", width = 12, 
+                tabPanel("Emotions",
                 fluidRow(
                   column(width = 6,
                           selectInput("typeSelectEmotion", "Select Type",
@@ -512,24 +552,33 @@ ui <- shinyUI(fluidPage(
                   ),
                 fluidPage(
                   column(width = 8,
-                         div(class = "responsive-plot",  # Limit width and center it
-                         imageOutput("emotionImage", width = "100%", height = "auto")
-                )
+                         #div(class = "responsive-plot",  # Limit width and center it
+                         imageOutput("emotionImage", height = "800px", width = "100%")
+                #)
               )
             ),
+              fluidRow(
               column(width = 12, 
                      div(class = "responsive-caption", includeHTML("www/emotion_caption.html"))
+                    )
+                  )
+                ), # End emotions tab panel
+            
+            tabPanel("Emotion Wheel",
+                     includeMarkdown("www/whom.md"),
+                     fluidRow(
+                       h3("Plutchik's Wheel of Emotions"),
+                       tags$img(src = "wheel.png", width = "100%"),
+                       box(width = NULL, background = "black", "text about emo.")
+                     )  
+                  ),  # End emotions wheel panel
+            
+            tabPanel("Summary", 
+                     includeMarkdown("www/emotion_summary.md") # change to correct file
+            ) 
+            
               )
         ), # End emotions tab
-      
-      tabItem(tabName = "whom",
-              includeMarkdown("www/whom.md"),
-              fluidRow(
-                h3("Plutchik's Wheel of Emotions"),
-                tags$img(src = "wheel.png", width = "100%"),
-                box(width = NULL, background = "black", "text about emo.")
-              )
-      ),
       
     tabItem(tabName = "method",
             includeMarkdown("www/pbb_method.md")
