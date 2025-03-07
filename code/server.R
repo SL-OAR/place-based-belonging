@@ -957,11 +957,19 @@ output$place2SelectDonut <- renderUI({
     full_image_path <- file.path(getwd(), "code", "www", "ibars", filename)
     print(paste("Checking full path:", full_image_path))
     
+    # Alt text code 
+    alt_text <- paste0(
+      "Inclusive bar plot showing aggregated percent inclusion for ", type,
+      " students in ", year, 
+      if (!is.null(cohort) && cohort != "All Years") paste0(" (", cohort, ")") else "",
+      "."
+    )
+    
     # Check if the file exists and then adjust the image path for Shiny
     if (file.exists(full_image_path)) {
       print(paste("File found:", full_image_path))
       image_path <- file.path("ibars", filename)
-      return(img(src = image_path, height = "400px"))
+      return(img(src = image_path, class = "responsive-plot", alt = alt_text))
     } else {
       print(paste("File not found:", full_image_path))
       return(HTML("<p>No image available for the selected options.</p>"))
@@ -1236,16 +1244,23 @@ output$place2SelectDonut <- renderUI({
       image_src_belonging <- "map_emu_b_gr_ay2122.png"
     }
     
+    alt_text <- paste0(
+      "EMU belonging map showing areas students associated with a greater sense of belonging in ", 
+      input$yearSelectEmu, " for ", input$typeSelectEmu, " students",
+      if (!is.null(input$cohortSelectEmu) && input$cohortSelectEmu != "All Cohorts" && input$cohortSelectEmu != "No cohort available") 
+        paste0(" (", input$cohortSelectEmu, " cohort)") else "", "."
+    )
+    
     if (image_src_belonging %in% available_maps) {
-      img(src = paste0(base_path, image_src_belonging), class = "responsive-map", alt = "EMU Belonging Map")
+      img(src = paste0(base_path, image_src_belonging), class = "responsive-map", alt = alt_text)
     } else {
       tags$p("No belonging map available for the selected options.")
     }
   })
   
-  addPopover(session, id = "belongingMapEmu", title = "EMU Belonging Map", 
-             content = "Number equals the number of clicks. Color equals density of clicks.", 
-             trigger = "hover", placement = "right", options = list(container = "body"))
+  # addPopover(session, id = "belongingMapEmu", title = "EMU Belonging Map", 
+  #            content = "Number equals the number of clicks. Color equals density of clicks.", 
+  #            trigger = "hover", placement = "right", options = list(container = "body"))
   
   
   ## Not Belonging Map for EMU
@@ -1281,16 +1296,23 @@ output$place2SelectDonut <- renderUI({
       image_src_not_belonging <- "map_emu_db_gr_ay2122.png"
     }
     
+    alt_text <- paste0(
+      "EMU belonging map showing areas students associated with a lower sense of belonging in ", 
+      input$yearSelectEmu, " for ", input$typeSelectEmu, " students",
+      if (!is.null(input$cohortSelectEmu) && input$cohortSelectEmu != "All Cohorts" && input$cohortSelectEmu != "No cohort available") 
+        paste0(" (", input$cohortSelectEmu, " cohort)") else "", "."
+    )
+    
     if (image_src_not_belonging %in% available_maps) {
-      img(src = paste0(base_path, image_src_not_belonging), class = "responsive-map", alt = "EMU Don't Belong Map")
+      img(src = paste0(base_path, image_src_not_belonging), class = "responsive-map", alt = alt_text)
     } else {
       tags$p("No 'Don't Belong' map available for the selected options.")
     }
   })
   
-  addPopover(session, id = "notBelongingMapEmu", title = "EMU Don't Belong Map", 
-             content = "Number equals the number of clicks. Color equals density of clicks.", 
-             trigger = "hover", placement = "right", options = list(container = "body"))
+  # addPopover(session, id = "notBelongingMapEmu", title = "EMU Don't Belong Map", 
+  #            content = "Number equals the number of clicks. Color equals density of clicks.", 
+  #            trigger = "hover", placement = "right", options = list(container = "body"))
   
  
   #######################  
@@ -1314,9 +1336,12 @@ output$place2SelectDonut <- renderUI({
         
         if (cohort == "All Cohorts" || cohort == "No cohort available") {
           image_src_belonging <- paste0("map_cam_b_us_ug_ay", mapped_year, ".png")
+          alt_text <- paste0("Belonging map for undergraduate students in ", year, ". Highlights student-reported locations where they felt a sense of belonging across
+          the University of Oregon Campus, which is based on where students clicked on the map.")
         } else {
           cohort <- gsub("/", "", cohort)
           image_src_belonging <- paste0("map_cam_b_us_ug_ay", mapped_year, "_c", cohort, ".png")
+          alt_text <- paste0("Belonging map for undergraduate students in ", year, ", specifically for cohort ", cohort, ",", "where students said they felt a sense of belonging.")
         }
     }     else if (input$typeSelectCampus == "International") {
       year <- input$yearSelectCampus
@@ -1326,21 +1351,26 @@ output$place2SelectDonut <- renderUI({
                                     "Undergrad & Grad 2022" = "map_cam_b_i_ay2122.png",
                                     NULL  # Ensures an invalid selection does not break the UI
                                     )
+      if (!is.null(image_src_belonging)) {
+        alt_text <- paste0("Belonging map for international students in ", year, ". Displays locations where international students clicked they felt a sense of belonging.")
+      }
+      
     } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
       image_src_belonging <- "map_cam_b_gr_ay2122.png"
+      alt_text <- "Belonging map for graduate students in 2022. Shows areas where graduate students clicked they felt a sense of belonging."
     }
     
     if (image_src_belonging %in% available_maps) {
       img(src = paste0(base_path, image_src_belonging), class = "responsive-map", 
-          alt = "Campus Belonging Map")
+          alt = alt_text)
     } else {
       tags$p("No belonging map available for the selected options.")
     }
   })
   
-  addPopover(session, id = "belongingMapCampus", title = "Campus Belonging Map", 
-            content = "Number equals the number of clicks. Color equals density of clicks.", 
-            trigger = "hover", placement = "right", options = list(container = "body"))
+  # addPopover(session, id = "belongingMapCampus", title = "Campus Belonging Map", 
+  #           content = "Number equals the number of clicks. Color equals density of clicks.", 
+  #           trigger = "hover", placement = "right", options = list(container = "body"))
   
   # Not Belonging Map
   output$notBelongingMapCampus <- renderUI({
@@ -1360,9 +1390,12 @@ output$place2SelectDonut <- renderUI({
         
         if (cohort == "All Cohorts" || cohort == "No cohort available") {
           image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, ".png")
+          alt_text <- paste0("Less belonging map for undergraduate students in ", year, ". Highlights student-reported locations where they felt a lower sense of belonging across
+          the University of Oregon Campus, which is based on where students clicked on the map.")
         } else {
           cohort <- gsub("/", "", cohort)
           image_src_not_belonging <- paste0("map_cam_db_us_ug_ay", mapped_year, "_c", cohort, ".png")
+          alt_text <- paste0("Less belonging map for undergraduate students in ", year, ", specifically for cohort ", cohort, ",", "where students said they felt a lower sense of belonging.")
         }
         
     } else if (input$typeSelectCampus == "International") {
@@ -1373,23 +1406,28 @@ output$place2SelectDonut <- renderUI({
                                     "Undergrad & Grad 2022" = "map_cam_db_i_ay2122.png",
                                     NULL  # Ensures an invalid selection does not break the UI
                                     )
+      
+      if (!is.null(image_src_belonging)) {
+        alt_text <- paste0("Less belonging map for international students in ", year, ". Displays locations where international students clicked they felt a lower sense of belonging.")
+      }
     
     } else if (input$typeSelectCampus == "Graduate" && input$yearSelectCampus == "2022") {
       image_src_not_belonging <- "map_cam_db_gr_ay2122.png"
+      alt_text <- "Less belonging map for graduate students in 2022. Shows areas where graduate students clicked they felt a lower sense of belonging."
     }
     
     if (image_src_not_belonging %in% available_maps) {
       img(src = paste0(base_path, image_src_not_belonging), class = "responsive-map", 
-          alt = "Campus Don't Belong Map")
+          alt = alt_text)
     } else {
       tags$p("No 'Don't Belong' map available for the selected options.")
     }
   }
   )
   
-  addPopover(session, id = "notBelongingMapCampus", title = "Campus Don't Belong Map", 
-            content = "Number equals the number of clicks. Color equals density of clicks.", 
-            trigger = "hover", placement = "right", options = list(container = "body"))
+  # addPopover(session, id = "notBelongingMapCampus", title = "Campus Don't Belong Map", 
+  #           content = "Number equals the number of clicks. Color equals density of clicks.", 
+  #           trigger = "hover", placement = "right", options = list(container = "body"))
   
   
 #######################   
@@ -1753,20 +1791,29 @@ output$place2SelectDonut <- renderUI({
     # Placeholder image when no word cloud is available
     no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
     
-    if (file.exists(full_image_path_net)) {
-      return(list(
-        src = full_image_path_net, 
-        alt = paste("Word net for", input$place2SelectNet, input$placeSelectNet, input$typeSelectWordsNet, input$belongStatus),
-        height = "400px"
-      ))
+    # Alt text code 
+    alt_text <- if (file.exists(full_image_path_net)) {
+      paste(
+        "Word net visualization for", input$place2SelectNet, input$placeSelectNet, 
+        "showing key words connected in responses from", input$typeSelectWordsNet, 
+        "students about why they picked this location. Words with stronger connections appear more frequently together."
+      )
     } else {
-      return(list(
-        src = no_data_image_path, 
-        alt = "No data available for the selected options",
-        height = "400px"
-      ))
+      "No data available for the selected options."
     }
+    
+    return(list(
+      src = if (file.exists(full_image_path_net)) full_image_path_net else no_data_image_path, 
+      alt = alt_text,
+      height = "400px"
+    ))
   }, deleteFile = FALSE)
+  
+  observe({
+    addPopover(session, id = "wordnetImageWrapper", title = "Word Connections", 
+               content = "Connections between adjacent words in response to 'Why did you select this place?' for the more belonging and less belonging locations.", 
+               trigger = "hover", placement = "bottom", options = list(container = "body"))
+  })
   
   
 ####################### 
@@ -1843,11 +1890,12 @@ output$place2SelectDonut <- renderUI({
                             "International" = "i",
                             "Graduate" = "gr")
     
-    building_name <- location_file_name_map[[input$buildingSelect]]$wordnet # Uses wordnet naming 
-    building_name <- tolower(building_name)  
+    building_name <- tolower(location_file_name_map[[input$buildingSelect]]$wordnet)
     
-    if (!is.null(input$building2Select) && input$building2Select != "Overall" && input$buildingSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
-      sub_location_mapped <- location_file_name_map[[input$building2Select]]
+    # If a sub-location (building2Select) is selected, use its specific name
+    if (!is.null(input$building2Select) && input$building2Select != "Overall" &&
+        input$buildingSelect %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      sub_location_mapped <- location_file_name_map[[input$building2Select]]$wordnet
       if (!is.null(sub_location_mapped)) {
         building_name <- tolower(sub_location_mapped)
       } else {
@@ -1864,21 +1912,36 @@ output$place2SelectDonut <- renderUI({
     # Placeholder image when no word cloud is available
     no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
     
+    # ALT Text code
+    alt_text <- paste0(
+      "Emotion bar plot for ", input$buildingSelect,
+      if (!is.null(input$building2Select) && input$building2Select != "Overall") paste0(" - ", input$building2Select) else "",
+      " showing sentiment: ", if (input$belongStatus == "b") "Belonging" else "Less Belonging",
+      " for ", input$typeSelectEmotion, " students."
+    )
+    
     # Check if the file exists for the selected belong status
     if (file.exists(full_image_path)) {
       return(list(
         src = full_image_path, 
-        alt = paste("Emotion Bar Plot for", input$building2Select, input$buildingSelect, input$typeSelectEmotion, input$belongStatus),
+        alt = alt_text,
         height = "400px"
       ))
     } else {
       # Render the placeholder image if the file does not exist
       return(list(
-        src = no_data_image_path, 
+        src = no_data_image_path,
         alt = "No data available for the selected options",
         height = "400px"
       ))
     }
   }, deleteFile = FALSE)
+  
+  observe({
+    addPopover(session, id = "emotionImageWrapper", title = "Campus Emotions", 
+               content = "The emotions associated with a place based on an analysis of responses to 'Why did you pick this location'.", 
+               trigger = "hover", placement = "right", options = list(container = "body"))
+  })
+  
   
 }

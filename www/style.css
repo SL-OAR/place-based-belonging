@@ -71,3 +71,60 @@ pre, code {
   color: #dcdcdc !important;
   border: none !important;
 }
+
+/* Popover color background*/
+.popover {
+    background-color: #2E2E2E !important;  /* Dark background */
+    color: white !important;  /* White text */
+    border: 2px solid #FEE123 !important; /* Optional: Yellow border */
+}
+
+/* Popover color title */
+.popover-title {
+    background-color: #2E2E2E !important; /* Dark title background */
+    color: white !important; /* White title text */
+    font-weight: bold;
+    font-size: 1rem; /* Apparently this is the html font sizing which is scalable */
+}
+
+/* Popover color text */
+.popover-body {
+    background-color: #2E2E2E !important;
+    color: white !important;
+}
+
+/* Container for Map objects */
+.map-container {
+    width: 100%;
+    max-width: 1400px; /* Adjust max width as needed */
+    height: auto; /* Center it */
+    margin-bottom: 20px; /* Adds space below */
+}
+
+/* Container for captions */
+.responsive-caption {
+    width: 100%;
+    max-width: 1400px;
+    height: auto;
+    display: block;
+    padding-top: 30px; /* Adds space above the caption */
+}
+
+/* Container for plots */                      
+/*.responsive-plot {
+    width: 80vh; 
+    max-width: 1400px;
+    height: 60vh;
+    display: block;
+    margin-bottom: 10px;
+} */
+
+/* COntainer for Plot images */
+.responsive-plot img {
+    max-width: 100%;  /* Ensures image doesn't stretch */
+    height: auto !important;  /* Maintains aspect ratio */
+    display: block;
+    margin: 0 auto; /* Centers the image */
+    padding-bottom: 20px; /* Adds space below to prevent overlap */
+}
+
