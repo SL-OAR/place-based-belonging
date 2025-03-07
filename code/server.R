@@ -1608,27 +1608,7 @@ output$place2SelectDonut <- renderUI({
       # Define Color Scale
       color_scale_b <- c("#A1D296", "#899A75", "#516841","#518241" ,"#567344", "#9FD430", "#7BAF40", "#7BAE28", "#154733", "#004225") # Expanded for donuts b
       
-      # Create the Belonging Donut Plot
-      # return(ggplot(belong_data, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = word)) +
-      #   geom_rect(color = "black") +
-      #     geom_label(
-      #       x = 2, 
-      #       aes(y = labelPosition, 
-      #           label = paste0(word, "\n", round(fraction * 100, 1), "%")),
-      #       size = 4, color = "white", fontface = "bold") + 
-      #   # geom_text_repel(aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%")),
-      #   #                 x = 4.5, size = 4, color = "#FEE123", fontface = "bold") +
-      #   scale_fill_manual(values = color_scale_b) +  # Use custom color scale
-      #   coord_polar(theta = "y") +
-      #   xlim(c(0, 8)) +  # Adjust to create space for labels
-      #   theme_void() +
-      #   theme(
-      #     legend.position = "none",  # Remove legend
-      #     plot.title = element_text(hjust = 0.5, color = "#FEE123", size = 16),
-      #     plot.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E"),
-      #     panel.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E")
-      #   ) +
-      #   labs(title = "Top 10 Belonging Words"))
+
       return(plot_ly(
         data = belong_data, 
         labels = ~word,  # Labels for each section
@@ -1712,27 +1692,6 @@ output$place2SelectDonut <- renderUI({
       # Define Color Scale
       color_scale_db <- c("#FEE123", "#D5D345", "#B3A369","#7C8467", "#7C8487", "#84A4CC", "#3F8EA8", "#004D6C", "#824D78", "#820043") # Expanded for donuts db
       
-      # Create the Less Belonging Donut Plot
-      # return(ggplot(db_data, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = word)) +
-      #          geom_rect(color = "black") +
-      #          geom_label(
-      #            x = 2, 
-      #            aes(y = labelPosition, 
-      #                label = paste0(word, "\n", round(fraction * 100, 1), "%")),
-      #            size = 4, color = "white", fontface = "bold") + 
-      #          # geom_text_repel(aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%")),
-      #          #                 x = 4.5, size = 4, color = "#FEE123", fontface = "bold") +
-      #          scale_fill_manual(values = color_scale_db) +
-      #          coord_polar(theta = "y") +
-      #          xlim(c(0, 8)) +
-      #          theme_void() +
-      #          theme(
-      #            legend.position = "none",  # Remove legend
-      #            plot.title = element_text(hjust = 0.5, color = "#FEE123", size = 16),
-      #            plot.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E"),
-      #            panel.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E")
-      #          ) +
-      #          labs(title = "Top 10 Less Belonging Words"))
       return(plot_ly(
         data = db_data, 
         labels = ~word,  # Labels for each section
@@ -1804,8 +1763,7 @@ output$place2SelectDonut <- renderUI({
     
     return(list(
       src = if (file.exists(full_image_path_net)) full_image_path_net else no_data_image_path, 
-      alt = alt_text,
-      height = "400px"
+      alt = alt_text
     ))
   }, deleteFile = FALSE)
   

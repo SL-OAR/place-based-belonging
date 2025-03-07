@@ -104,18 +104,6 @@ cat("✅ Environment successfully activated and libraries loaded\n")
 # path <- here::here()
 # setwd(path)
 
-# Code for shinyBS Popover
-# bsPopover(id=" ", title = " ", content = " ", trigger = "hover", 
-# placement = "right", options = list(container = "body"))
-## Most of these are self explanatory: 
-### id is the name of the object to use as a trigger
-### title is the title of the popover box
-### content is the text content of the popover box
-### trigger is the trigger mechanism (hover, click, )
-### placement determines where the popover appears (right, left, auto)
-### options 
-## The code goes in the dashboardBody in the desired section
-
 
 # UI
 ui <- shinyUI(fluidPage(
@@ -404,7 +392,7 @@ ui <- shinyUI(fluidPage(
                          uiOutput("place2SelectCloud"),  # second place select input for word clouds and word nets i.e. Buildings within complexes
                          # Should I add radio buttons to the inclusiveness page?
                          radioButtons("belongStatus", "Select Belonging Status:", 
-                                      choices = c("Belong" = "b", "Don't Belong" = "db"), 
+                                      choices = c("More Belong" = "b", "Less Belong" = "db"), 
                                       selected = "b"  # Default to "Belong" # I am not sure this is working
                          )
                   )
@@ -456,6 +444,11 @@ ui <- shinyUI(fluidPage(
                       column(12, 
                           #div(class = "responsive-plot",
                                  plotlyOutput("wordDonutDb"))      # Lower Column for Less Belonging
+                      ),
+                    fluidRow(
+                        column(width = 12,
+                               div(class = "responsive-caption", includeHTML("www/donut_plot_caption.html"))
+                          )
                       )
                     ), # End Donuts tab
                 
@@ -470,7 +463,7 @@ ui <- shinyUI(fluidPage(
                                   uiOutput("place2SelectNet"),  # second place select input for word clouds and word nets i.e. Buildings within complexes
                                   # Should I add radio buttons to the inclusiveness page?
                                   radioButtons("belongStatus", "Select Belonging Status:", 
-                                               choices = c("Belong" = "b", "Don't Belong" = "db"), 
+                                               choices = c("More Belonging" = "b", "Less Belonging" = "db"), 
                                                selected = "b"  # Default to "Belong" # I am not sure this is working
                                   )
                            )
@@ -478,14 +471,15 @@ ui <- shinyUI(fluidPage(
                   fluidRow(
                     column(width = 12,
                        div(id = "wordnetImageWrapper", class = "responsive-plot", 
-                         imageOutput("wordNetImage", height = "600px", width = "100%"))
+                         imageOutput("wordNetImage", height = "600px", width = "100%")),
+                       div(class = "responsive-caption", includeHTML("www/net_caption.html"))
                           )
-                      ),
-                fluidRow(
-                    column(width = 12, 
-                           div(class = "responsive-caption", includeHTML("www/net_caption.html"))
                       )
-                  )
+                # fluidRow(
+                #     column(width = 12, 
+                #            div(class = "responsive-caption", includeHTML("www/net_caption.html"))
+                #       )
+                #   )
                 ), # End word nets Panel
                 
             tabPanel("Reasons",
@@ -499,7 +493,7 @@ ui <- shinyUI(fluidPage(
                      ),
                      fluidRow(
                        column(width = 12, 
-                              #div(class = "responsive-caption", includeHTML("www/reasons_table_caption.html"))
+                              div(class = "responsive-caption", includeHTML("www/reasons_table_caption.html"))
                        )
                      )
             ), # End Reasons Tab panel
@@ -528,25 +522,26 @@ ui <- shinyUI(fluidPage(
                          uiOutput("buildingSelect"),
                          uiOutput("building2Select"),
                          radioButtons("belongStatus", "Select Belonging Status",
-                                      choices = c("Belong" = "b", "Don't Belong" = "db"),
+                                      choices = c("More Belonging" = "b", "Less Belonging" = "db"),
                                       selected = "b")
                     )
                   ),
                 fluidRow(
                   column(width = 9,
                          div(id = "emotionImageWrapper" , class = "responsive-plot",  # Limit width and center it
-                         imageOutput("emotionImage"))
+                         imageOutput("emotionImage")),
+                         div(class = "responsive-caption", includeHTML("www/emotion_caption.html"))
                     )
-                  ),
+                  )
                 
               #     column(width = 9,
               #          div(class = "responsive-caption", includeHTML("www/emotion_caption.html"))
               #     ),
-              fluidRow(
-              column(width = 12,
-                     div(class = "responsive-caption", includeHTML("www/emotion_caption.html"))
-                    )
-                  )
+              # fluidRow(
+              # column(width = 12,
+              #        div(class = "responsive-caption", includeHTML("www/emotion_caption.html"))
+              #       )
+              #     )
                 ), # End emotions tab panel
             
             tabPanel("Emotion Wheel",
