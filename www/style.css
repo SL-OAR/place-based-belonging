@@ -6,12 +6,13 @@ body, .content-wrapper, .main-sidebar {
 
 /* Custom style for hyperlinks */
 a {
-  color: hotpink;
+  color: #489D46;
 }
 
 /* Custom class for green text */
-.green-text {
-  color: #66FF00 !important;
+.yellow-text {
+  color: #FEE11A
+ !important;
 }
 
 /* Style for code blocks in dark mode */
@@ -55,7 +56,7 @@ pre, code {
 /* Customize tab headers */
 .nav-tabs-custom > .nav-tabs > li.active > a {
   background-color: #333333 !important; /* Active tab background */
-  color: hotpink !important; /* Active tab text */
+  color: #f5e347 !important; /* Active tab text */
   border: none !important;
 }
 
