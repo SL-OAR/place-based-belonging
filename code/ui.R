@@ -14,7 +14,7 @@ packages <- c("shiny", "reactable", "htmltools",
               "shinyalert", "shinyBS", "farver", 
               "labeling", "crayon", "cli", "viridisLite",
               "remotes", "fastmap", "conflicted", 
-              "rsconnect", "wordcloud2", "ggrepel"
+              "rsconnect", "wordcloud2", "ggrepel", "plotly"
 )
 
 # Function to handle errors
@@ -47,7 +47,8 @@ tryCatch({
     dplyr::lag(),
     bslib::page(),
     markdown::rpubsUpload(),
-    rsconnect::serverInfo()
+    rsconnect::serverInfo(),
+    plotly::layout()
   )
 }, error = function(e) handle_error("conflict resolution", e))
 
@@ -170,11 +171,11 @@ ui <- shinyUI(fluidPage(
       }
                         
       .responsive-plot {
-      width: 100%; 
+      width: 80vh; 
       max-width: 1400px;
-      height: 80vh;
+      height: 60vh;
       display: block;
-      margin-bottom: 20px;
+      margin-bottom: 10px;
       }                  
                         ")),
         
@@ -471,8 +472,14 @@ ui <- shinyUI(fluidPage(
                         ),
 
                     fluidRow(
-                      column(6, plotOutput("wordDonutBelong")), # Left Column for Belonging
-                      column(6, plotOutput("wordDonutDb"))      # Right Column for Less Belonging
+                      column(12, 
+                            #div(class = "responsive-plot",
+                              plotlyOutput("wordDonutBelong"))
+                      ), # Left Column for Belonging
+                    fluidRow(
+                      column(12, 
+                          #div(class = "responsive-plot",
+                                 plotlyOutput("wordDonutDb"))      # Right Column for Less Belonging
                       )
                     ), # End Donuts tab
                 

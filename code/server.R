@@ -1514,7 +1514,7 @@ output$place2SelectDonut <- renderUI({
 #######################   
   # Word Donuts  
   
-  output$wordDonutBelong <- renderPlot({
+  output$wordDonutBelong <- renderPlotly({
     req(input$placeSelectDonut, input$typeSelectDonut)
     
     # Map student group
@@ -1568,35 +1568,57 @@ output$place2SelectDonut <- renderUI({
       belong_data$labelPosition <- (belong_data$ymax + belong_data$ymin) / 2
       
       # Define Color Scale
-      color_scale_b <- c("#D5DD98", "#A1D296", "#899A75", "#516841","#518241", "#9FD430", "#7BAF40", "#7BAE28", "#154733", "#004225") # Expanded for donuts b
+      color_scale_b <- c("#A1D296", "#899A75", "#516841","#518241" ,"#567344", "#9FD430", "#7BAF40", "#7BAE28", "#154733", "#004225") # Expanded for donuts b
       
       # Create the Belonging Donut Plot
-      return(ggplot(belong_data, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = word)) +
-        geom_rect(color = "black") +
-        #geom_label(x = 2, aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%"), size = 4, color = "white", fontface = "bold") +
-        geom_text_repel(aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%")),
-                        x = 4.5, size = 4, color = "#FEE123", fontface = "bold") +
-        scale_fill_manual(values = color_scale_b) +  # Use custom color scale
-        coord_polar(theta = "y") +
-        xlim(c(0, 6)) +  # Adjust to create space for labels
-        theme_void() +
-        theme(
-          legend.position = "none",  # Remove legend
-          plot.title = element_text(hjust = 0.5, color = "#FEE123", size = 16),
-          plot.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E"),
-          panel.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E")
-        ) +
-        labs(title = "Top 10 Belonging Words"))
+      # return(ggplot(belong_data, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = word)) +
+      #   geom_rect(color = "black") +
+      #     geom_label(
+      #       x = 2, 
+      #       aes(y = labelPosition, 
+      #           label = paste0(word, "\n", round(fraction * 100, 1), "%")),
+      #       size = 4, color = "white", fontface = "bold") + 
+      #   # geom_text_repel(aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%")),
+      #   #                 x = 4.5, size = 4, color = "#FEE123", fontface = "bold") +
+      #   scale_fill_manual(values = color_scale_b) +  # Use custom color scale
+      #   coord_polar(theta = "y") +
+      #   xlim(c(0, 8)) +  # Adjust to create space for labels
+      #   theme_void() +
+      #   theme(
+      #     legend.position = "none",  # Remove legend
+      #     plot.title = element_text(hjust = 0.5, color = "#FEE123", size = 16),
+      #     plot.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E"),
+      #     panel.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E")
+      #   ) +
+      #   labs(title = "Top 10 Belonging Words"))
+      return(plot_ly(
+        data = belong_data, 
+        labels = ~word,  # Labels for each section
+        values = ~fraction,  # Values for the donut chart
+        type = 'pie', 
+        textinfo = 'label+percent',  # Show labels + percentages
+        insidetextfont = list(color = 'white', size = 14),  # Label styling
+        hoverinfo = 'label+percent',  # Tooltip on hover
+        marker = list(colors = color_scale_b, line = list(color = "black", width = 1)),  # Colors + borders
+        hole = 0.4  # Creates the donut effect
+      ) %>%
+        layout(
+          title = list(text = "<b>Top 10 Belonging Words</b>", font = list(color = "white", size = 16)),
+          font = list(color = "white"),
+          plot_bgcolor = "#2E2E2E",
+          paper_bgcolor = "#2E2E2E",
+          showlegend = FALSE
+        ))
     } else {
       return(ggplot() + 
                annotate("text", x = 1, y = 1, label = "No Data Available", size = 5, color = "gray") + 
                theme_void())
     }
-  }, height = 300, width = 300)
+  })
   
   
 ### Don't belong donut
-  output$wordDonutDb <- renderPlot({
+  output$wordDonutDb <- renderPlotly({
     req(input$placeSelectDonut, input$typeSelectDonut)
     
     # Map student group
@@ -1650,30 +1672,53 @@ output$place2SelectDonut <- renderUI({
       db_data$labelPosition <- (db_data$ymax + db_data$ymin) / 2
       
       # Define Color Scale
-      color_scale_db <- c("#FEE123", "#D5DD98", "#B3A369","#7C8467", "#7C8487", "#84A4CC", "#3F8EA8", "#004D6C", "#824D78", "#820043") # Expanded for donuts db
+      color_scale_db <- c("#FEE123", "#D5D345", "#B3A369","#7C8467", "#7C8487", "#84A4CC", "#3F8EA8", "#004D6C", "#824D78", "#820043") # Expanded for donuts db
       
       # Create the Less Belonging Donut Plot
-      return(ggplot(db_data, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = word)) +
-               geom_rect(color = "black") +
-               geom_text_repel(aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%")),
-                               x = 4.5, size = 4, color = "#FEE123", fontface = "bold") +
-               scale_fill_manual(values = color_scale_db) +
-               coord_polar(theta = "y") +
-               xlim(c(2, 5)) +
-               theme_void() +
-               theme(
-                 legend.position = "none",  # Remove legend
-                 plot.title = element_text(hjust = 0.5, color = "#FEE123", size = 16),
-                 plot.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E"),
-                 panel.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E")
-               ) +
-               labs(title = "Top 10 Less Belonging Words"))
+      # return(ggplot(db_data, aes(ymax = ymax, ymin = ymin, xmax = 4, xmin = 3, fill = word)) +
+      #          geom_rect(color = "black") +
+      #          geom_label(
+      #            x = 2, 
+      #            aes(y = labelPosition, 
+      #                label = paste0(word, "\n", round(fraction * 100, 1), "%")),
+      #            size = 4, color = "white", fontface = "bold") + 
+      #          # geom_text_repel(aes(y = labelPosition, label = paste0(word, "\n", round(fraction * 100, 1), "%")),
+      #          #                 x = 4.5, size = 4, color = "#FEE123", fontface = "bold") +
+      #          scale_fill_manual(values = color_scale_db) +
+      #          coord_polar(theta = "y") +
+      #          xlim(c(0, 8)) +
+      #          theme_void() +
+      #          theme(
+      #            legend.position = "none",  # Remove legend
+      #            plot.title = element_text(hjust = 0.5, color = "#FEE123", size = 16),
+      #            plot.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E"),
+      #            panel.background = element_rect(fill = "#2E2E2E", color = "#2E2E2E")
+      #          ) +
+      #          labs(title = "Top 10 Less Belonging Words"))
+      return(plot_ly(
+        data = db_data, 
+        labels = ~word,  # Labels for each section
+        values = ~fraction,  # Values for the donut chart
+        type = 'pie', 
+        textinfo = 'label+percent',  # Show labels + percentages
+        insidetextfont = list(color = 'white', size = 14),  # Label styling
+        hoverinfo = 'label+percent',  # Tooltip on hover
+        marker = list(colors = color_scale_db, line = list(color = "black", width = 1)),  # Colors + borders
+        hole = 0.4  # Creates the donut effect
+      ) %>%
+        layout(
+          title = list(text = "<b>Top 10 Less Belonging Words</b>", font = list(color = "white", size = 16)),  # Fix title formatting
+          font = list(color = "white"),  # Ensure global font settings
+          plot_bgcolor = "#2E2E2E",  # Dark plot area
+          paper_bgcolor = "#2E2E2E",  # Dark background
+          showlegend = FALSE)  # Properly placed legend setting
+        )
     } else {
         return(ggplot() + 
                  annotate("text", x = 1, y = 1, label = "No Data Available", size = 5, color = "gray") + 
                  theme_void())
       }
-  }, height = 300, width = 300)
+  })
   
   
   
