@@ -166,6 +166,7 @@ ui <- shinyUI(fluidPage(
             tabBox(
               id = "campus_tabs", width = 12, 
               tabPanel("Maps",
+                      includeMarkdown("www/maps_intro.md"),
                 fluidRow(
                   column(4, uiOutput("typeSelectCampus")),
                   column(4, uiOutput("yearSelectCampus")),
@@ -230,6 +231,7 @@ ui <- shinyUI(fluidPage(
               tabBox(
                 id = "emu_tabs", width = 12,
                 tabPanel("Emu Maps",
+                    includeMarkdown("www/emu_intro.md"),
                 fluidRow(
                   column(4, uiOutput("typeSelectEmu")),
                   column(4, uiOutput("yearSelectEmu")),
@@ -281,7 +283,7 @@ ui <- shinyUI(fluidPage(
             tabBox(
                 id = "inclusive_tabs", width = 12,
               tabPanel("Inclusivity Plots",
-                includeMarkdown("www/test.md"), # change to correct file
+                includeMarkdown("www/Inclusiveness_intro.md"),
                 fluidRow(
                   column(12, 
                          selectInput("locationSelect", "Select Campus Location:", 
@@ -381,7 +383,11 @@ ui <- shinyUI(fluidPage(
         tabItem(tabName = "words", 
               tabBox(
                   id = "words", width = 12, 
+                tabPanel("Introduction to Words",
+                        includeMarkdown("www/word_intro.md")
+                        ), # End of Intro to words panel
                 tabPanel("Word Clouds", 
+                         includeMarkdown("www/clouds_intro.md"),
                 fluidRow(
                   column(width = 12, 
                          selectInput("typeSelectWordsCloud", "Select Type:", 
@@ -424,6 +430,7 @@ ui <- shinyUI(fluidPage(
                 ),  # End word clouds panel
 
                 tabPanel("Donut Words",
+                         includeMarkdown("www/donuts_intro.md"),
                     fluidRow(
                       column(width = 12,
                              selectInput("typeSelectDonut", "Select Type:",
@@ -453,6 +460,7 @@ ui <- shinyUI(fluidPage(
                     ), # End Donuts tab
                 
                 tabPanel("Word Nets",
+                         includeMarkdown("www/nets_intro.md"),
                     fluidRow(
                            column(width = 12, 
                                   selectInput("typeSelectWordsNet", "Select Type:", 
@@ -483,6 +491,7 @@ ui <- shinyUI(fluidPage(
                 ), # End word nets Panel
                 
             tabPanel("Reasons",
+                     includeMarkdown("www/reasons_intro.md"),
                      fluidRow(
                        column(4, uiOutput("placeSelectReasonsTable")),
                        column(4, uiOutput("place2SelectReasonsTable")),
@@ -513,6 +522,7 @@ ui <- shinyUI(fluidPage(
               tabBox(
                   id = "emotions", width = 12, 
                 tabPanel("Emotions",
+                      includeMarkdown("www/emotions_intro.md"),
                 fluidRow(
                   column(width = 6,
                           selectInput("typeSelectEmotion", "Select Type",
