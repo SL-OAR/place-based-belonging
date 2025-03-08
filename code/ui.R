@@ -479,15 +479,15 @@ ui <- shinyUI(fluidPage(
                   fluidRow(
                     column(width = 12,
                        div(id = "wordnetImageWrapper", class = "responsive-plot", 
-                         imageOutput("wordNetImage", height = "600px", width = "100%")),
-                       div(class = "responsive-caption", includeHTML("www/net_caption.html"))
+                         imageOutput("wordNetImage", height = "600px", width = "100%"))
+                       #div(class = "responsive-caption", includeHTML("www/net_caption.html"))
                           )
+                      ),
+                fluidRow(
+                    column(width = 12,
+                           div(class = "responsive-caption", includeHTML("www/net_caption.html"))
                       )
-                # fluidRow(
-                #     column(width = 12, 
-                #            div(class = "responsive-caption", includeHTML("www/net_caption.html"))
-                #       )
-                #   )
+                  )
                 ), # End word nets Panel
                 
             tabPanel("Reasons",

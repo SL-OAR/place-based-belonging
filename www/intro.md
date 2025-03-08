@@ -14,12 +14,12 @@ Students participate by **clicking on respective locations** on an interactive c
 
 ## **How We Use These Responses**  
 
-To **visualize and analyze** student responses, we employed a variety of analytical and graphical techniques:  
+To **visualize and analyze** student responses, we employed a variety of analytic and graphic techniques:  
 
-- **<span class="yellow-text">Heat maps</span>** → Visually represent areas of high and low belongingness across campus.  
-- **<span class="yellow-text">Tree maps</span>** → Highlight the overall popularity of different locations.  
-- **<span class="yellow-text">Wordnets & Wordclouds</span>** → Capture the sentiments and language students use to describe their experiences in various places.  
-- **<span class="yellow-text">Bar graphs</span>** → Quantify student free responses, showing trends in emotions and perceptions tied to specific locations.  
+- **<span class="yellow-text">Heat maps</span>** → Visually represent areas of high sense of belonging and low sense of belonging across campus and the EMU.  
+- **<span class="yellow-text">Tree maps</span>** → Highlight the overall sense of belonging of different locations on campus and in the EMU.  
+- **<span class="yellow-text">Word Clouds, Word Donuts, & Word Nets</span>** → Capture the sentiments and language students use to describe their experiences in various places.  
+- **<span class="yellow-text">Bar graphs</span>** → Quantify feelings of inclusion across campus and trends in emotions tied to locations.  
 
 These tools allow us to **identify patterns**, compare differences between student groups, and explore how campus spaces influence a sense of belonging.  
 
