@@ -41,4 +41,4 @@ The project was put together by **Office of Assessment and Research Interns.** F
 
 Much of the content of this dashboard was built on the foundation laid by Dr. Brian Clark. This dashboard was completed by the interns at the Office of Assessment and Research just before his passing. 
 
-His devotion and support to supporting students at the university is immeasurable. We dedicate this dashboard to him.
+*His devotion and support to supporting students at the university was immeasurable. We dedicate this dashboard to him.*
