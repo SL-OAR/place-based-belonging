@@ -12,7 +12,7 @@
 
 - **International students** most reported feeling a sense of belonging in the **EMU**, particularly the [Mills International Center](https://mills.uoregon.edu/) (*N = 22*). Apart from EMU-specific places, [Allen](https://journalism.uoregon.edu/about/facilities) was the second-most selected location for a sense of belonging (*N = 7*).  
 
-- Graduate students most reported feeling a sense of belonging in the [cemetery](https://expo.uoregon.edu/spotlight/history-uo-architecture/feature/eugene-pioneer-cemetery) (*N = 10*).  
+- Apart from the **EMU**, **Graduate students** most reported feeling a sense of belonging in the [cemetery](https://expo.uoregon.edu/spotlight/history-uo-architecture/feature/eugene-pioneer-cemetery) (*N = 10*).  
 
 ---
 
