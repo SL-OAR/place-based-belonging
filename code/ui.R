@@ -291,7 +291,7 @@ ui <- shinyUI(fluidPage(
             tabBox(
                 id = "inclusive_tabs", width = 12,
               tabPanel("Inclusivity Plots",
-                includeMarkdown("www/Inclusiveness_intro.md"),
+                includeMarkdown("www/inclusiveness_intro.md"),
                 fluidRow(
                   column(12, 
                          selectInput("locationSelect", "Select Campus Location:", 
