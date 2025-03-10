@@ -37,7 +37,7 @@ To cite, please use the following.
 
 Guha, A., Daza, T., Aragon, D., & Clark, B.A.M. (2025). University of Oregon Place-Based Belonging Dashboard. Office of Assessment and Research, Division of Student Life. University of Oregon.
 
-The project was put together by *OAR Interns.* Formatting and display are courtesy of Denicia Aragon. Filter and tab functionality are by Tony Daza. Project conceptualization and management are from Anwesha Guha.
+The project was put together by **Office of Assessment and Research Interns.** Formatting and display are courtesy of Denicia Aragon. Filter and tab functionality are by Tony Daza. Project conceptualization and management are from Anwesha Guha.
 
 Much of the content of this dashboard was built on the foundation laid by Dr. Brian Clark. This dashboard was completed by the interns at the Office of Assessment and Research just before his passing. 
 
