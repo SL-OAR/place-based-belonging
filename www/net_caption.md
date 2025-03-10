@@ -1,27 +1,23 @@
-# Emotion Caption
+**Note:** Wordnet = adjacent (≤ 1 word apart) adjective-noun bigrams visualized as a network.  
+These word nets show how words in the responses to "Why there?" are connected.
 
-**Note:** Emotions are presented in rank order from most to least prevalent.
+Line **thickness** represents **frequency** of co-occurrence.
 
-**Percentage** = the percentage of all eligible words classified as being representative of one of eight emotions 
-(anger, anticipation, disgust, fear, joy, sadness, surprise, trust), based on  
-[Plutchik's psychoevolutionary theory of emotion](https://doi.org/10.1177/053901882021004003)(#) ([Figure 1](#f1)(#}).
+If a word seems negatively valenced, it was very likely negated (e.g., preceded by the word "not").
 
-The threshold for the minimum number of responses was 20.
+**Generally**, US undergraduates of all years/cohorts (mostly 1st-through-4th-year and predominantly first-year)  
+contributed data in `r ayrs_cam`. Because analyses combine data from multiple academic years,  
+some students contributed data more than once.
 
-Because analyses combine data from multiple academic years, some students contributed data more than once.
+**Across all places that were not subsequently aggregated into superordinate places  
+and then disaggregated by subordinate places** (i.e., not Erb Memorial Union, Lokey Science Complex, or University Housing)  
+**as well as across sentiments** (i.e., "belong" and "don't belong"),  
+most students contributed to only one wave of data collection.
 
-<span style="color: #11E8FF; font-weight: bold;">Across all places that were not subsequently aggregated into superordinate places 
-and then disaggregated by subordinate places</span> (i.e., not Erb Memorial Union, Lokey Science Complex, or University Housing)  
-<span style="color: #11E8FF; font-weight: bold;">as well as across sentiments</span> (i.e., "belong" and "don't belong"), 
-most students contributed to only one wave of data collection, relatively few students contributed to two waves, 
-and no one contributed to three waves.
+See [Supplemental Method](#supmeth){.color-#489D46} for more details.
 
-See [Supplemental Method](#supmeth)(#) for more details.
+Text data were annotated using the `udpipe` package.
 
-Text was annotated using the `tidytext` package.
-
-The `nrc` lexicon ([Mohammad & Turney, 2013](https://arxiv.org/pdf/1308.6297.pdf)(#) was used to classify emotional content.
-
-Bar plot was generated using the `ggplot2` package.
+Wordnet was generated using the `ggraph` and `igraph` packages.
 
 Colors were produced using the `rocket` palette of the `viridis` package.

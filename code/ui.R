@@ -478,14 +478,14 @@ ui <- shinyUI(fluidPage(
                          ),
                   fluidRow(
                     column(width = 12,
-                       div(id = "wordnetImageWrapper", class = "responsive-plot", 
-                         imageOutput("wordNetImage", height = "600px", width = "100%"))
+                       #div(id = "wordnetImageWrapper", class = "responsive-plot", 
+                         uiOutput("wordNetImage", height = "600px", width = "100%"))
                        #div(class = "responsive-caption", includeHTML("www/net_caption.html"))
-                          )
+                          #)
                       ),
                 fluidRow(
                     column(width = 12,
-                           div(class = "responsive-caption", includeHTML("www/net_caption.html"))
+                           div(class = "responsive-caption", includeMarkdown("www/net_caption.md"))
                       )
                   )
                 ), # End word nets Panel
@@ -538,10 +538,10 @@ ui <- shinyUI(fluidPage(
                   ),
                 fluidRow(
                   column(width = 9,
-                         div(id = "emotionImageWrapper" , class = "responsive-plot",  # Limit width and center it
-                         imageOutput("emotionImage")),
-                         div(class = "responsive-caption", includeHTML("www/emotion_caption.html"))
-                    )
+                         #div(id = "emotionImageWrapper" , class = "responsive-plot",  # Limit width and center it
+                         uiOutput("emotionImage")),
+                         div(class = "responsive-caption", includeMarkdown("www/emotion_caption.md"))
+                    #)
                   )
                 
               #     column(width = 9,

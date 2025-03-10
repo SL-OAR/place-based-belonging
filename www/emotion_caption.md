@@ -1,4 +1,3 @@
-# Emotion Caption
 
 **Note:** Emotions are presented in rank order from most to least prevalent.
 

@@ -1614,7 +1614,7 @@ output$place2SelectDonut <- renderUI({
 #######################  
   # Word nets
   
-  output$wordNetImage <- renderImage({
+  output$wordNetImage <- renderUI({
     req(input$typeSelectWordsNet, input$placeSelectNet, input$belongStatus)  
     
     student_group <- switch(input$typeSelectWordsNet,
@@ -1622,12 +1622,12 @@ output$place2SelectDonut <- renderUI({
                             "International" = "i",
                             "Graduate" = "gr")
     
-    building_name <- location_file_name_map[[input$placeSelectNet]]$wordnet
-    building_name <- tolower(building_name)
+    building_name <- tolower(location_file_name_map[[input$placeSelectNet]]$wordnet)
     
+    # Handle sub-location selection if applicable
     if (!is.null(input$place2SelectNet) && input$place2SelectNet != "Overall" &&
         input$placeSelectNet %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
-      sub_location_mapped <- location_file_name_map[[input$place2SelectNet]]
+      sub_location_mapped <- location_file_name_map[[input$place2SelectNet]]$wordnet
       if (!is.null(sub_location_mapped)) {
         building_name <- tolower(sub_location_mapped)
       } else {
@@ -1635,34 +1635,38 @@ output$place2SelectDonut <- renderUI({
       }
     }
     
-    # Construct the file path for word nets
+    # Construct file path
     file_name_net <- paste0("bg_", building_name, "_", input$belongStatus, "_", student_group, ".png")
-    full_image_path_net <- file.path(getwd(), "code", "www", "wordnets", file_name_net)
-    # Placeholder image when no word cloud is available
-    no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
+    full_image_path_net <- file.path("wordnets", file_name_net)  # Adjusted for `www/`
     
-    # Alt text code 
-    alt_text <- if (file.exists(full_image_path_net)) {
+    # Placeholder image if data is missing
+    no_data_image_path <- "Nothing_to_see.png"
+    
+    # **Alt Text Generation**
+    alt_text <- if (file.exists(file.path("code/www", full_image_path_net))) {
       paste(
-        "Word net visualization for", input$place2SelectNet, input$placeSelectNet, 
-        "showing key words connected in responses from", input$typeSelectWordsNet, 
-        "students about why they picked this location. Words with stronger connections appear more frequently together."
+        "Word net visualization for", input$placeSelectNet, 
+        if (!is.null(input$place2SelectNet) && input$place2SelectNet != "Overall") paste0(" - ", input$place2SelectNet) else "",
+        "showing how words are connected in responses from", input$typeSelectWordsNet,
+        "students about why they picked this location. Thicker lines represent stronger word relationships."
       )
     } else {
       "No data available for the selected options."
     }
     
-    return(list(
-      src = if (file.exists(full_image_path_net)) full_image_path_net else no_data_image_path, 
-      alt = alt_text
-    ))
-  }, deleteFile = FALSE)
-  
-  observe({
-    addPopover(session, id = "wordnetImageWrapper", title = "Word Connections", 
-               content = "Connections between adjacent words in response to 'Why did you select this place?' for the more belonging and less belonging locations.", 
-               trigger = "hover", placement = "bottom", options = list(container = "body"))
+    # **Render UI for the image**
+    div(
+      class = "responsive-plot",
+      img(src = if (file.exists(file.path("code/www", full_image_path_net))) full_image_path_net else no_data_image_path, 
+          width = "100%", height = "500px", alt = alt_text),
+      
+      # Popover for additional context
+      bsPopover(id = "wordNetImage", title = "Word Connections",
+                content = "Connections between adjacent words in response to 'Why did you select this place?' for more belonging and less belonging locations.",
+                trigger = "hover", placement = "bottom", options = list(container = "body"))
+    )
   })
+  
   
   
 ####################### 
@@ -1731,7 +1735,7 @@ output$place2SelectDonut <- renderUI({
     }
   })
   
-  output$emotionImage <- renderImage({
+  output$emotionImage <- renderUI({
     req(input$typeSelectEmotion, input$buildingSelect, input$belongStatus)  
     
     student_group <- switch(input$typeSelectEmotion,
@@ -1754,14 +1758,12 @@ output$place2SelectDonut <- renderUI({
     
     # Construct the file path
     file_name <- paste0("ebar_", building_name, "_", input$belongStatus, "_", student_group, ".png")
+    full_image_path <- file.path("ebars", file_name)  # Adjusted for `www/` folder
     
-    # Define the full path to the image directory (in 'www/wordclouds')
-    full_image_path <- file.path(getwd(), "code", "www", "ebars", file_name)
+    # Placeholder image
+    no_data_image_path <- "Nothing_to_see.png"
     
-    # Placeholder image when no word cloud is available
-    no_data_image_path <- file.path(getwd(), "code", "www", "Nothing_to_see.png")
-    
-    # ALT Text code
+    # **ALT Text generation**
     alt_text <- paste0(
       "Emotion bar plot for ", input$buildingSelect,
       if (!is.null(input$building2Select) && input$building2Select != "Overall") paste0(" - ", input$building2Select) else "",
@@ -1769,28 +1771,22 @@ output$place2SelectDonut <- renderUI({
       " for ", input$typeSelectEmotion, " students."
     )
     
-    # Check if the file exists for the selected belong status
-    if (file.exists(full_image_path)) {
-      return(list(
-        src = full_image_path, 
-        alt = alt_text,
-        height = "400px"
-      ))
+    img_src <- if (file.exists(file.path("code/www", full_image_path))) {
+      full_image_path
     } else {
-      # Render the placeholder image if the file does not exist
-      return(list(
-        src = no_data_image_path,
-        alt = "No data available for the selected options",
-        height = "400px"
-      ))
+      no_data_image_path
     }
-  }, deleteFile = FALSE)
-  
-  observe({
-    addPopover(session, id = "emotionImageWrapper", title = "Campus Emotions", 
-               content = "The emotions associated with a place based on an analysis of responses to 'Why did you pick this location'.", 
-               trigger = "hover", placement = "right", options = list(container = "body"))
+    
+    # **Return UI for the image**
+    div(
+      class = "responsive-plot",
+      img(src = img_src, width = "100%", height = "400px", alt = alt_text),
+      bsPopover(id = "emotionImage", title = "Campus Emotions",
+                content = "The emotions associated with a place based on an analysis of responses to 'Why did you pick this location'.",
+                trigger = "hover", placement = "right", options = list(container = "body"))
+    )
   })
+  
   
   
 }
