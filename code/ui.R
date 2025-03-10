@@ -17,6 +17,7 @@ packages <- c("shiny", "reactable", "htmltools",
               "rsconnect", "wordcloud2", "ggrepel", "plotly"
 )
 
+
 # Function to handle errors
 handle_error <- function(step, err) {
   cat(paste0("ERROR during ", step, ": ", conditionMessage(err), "\n"))
@@ -65,6 +66,13 @@ tryCatch({
 
 # If everything runs successfully
 cat("✅ Environment successfully activated and libraries loaded\n")
+
+
+rsconnect::setAccountInfo(name='mprtiq-denicia-aragon',
+                          token='196EBA0006791900EE09674D5B8F4AE9',
+                          secret='ATJyLtbft69CYZS+nvQBkbq/MXprH+JBi60XO6K+')
+
+
 
 
 # 
