@@ -1,4 +1,5 @@
 
+options(repos = c(CRAN = "https://cran.rstudio.com/"))
 
 # Reading in data
 # tree maps
