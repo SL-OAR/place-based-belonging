@@ -388,14 +388,30 @@ ui <- shinyUI(fluidPage(
 
                     fluidRow(
                       column(12, 
-                            #div(class = "responsive-plot",
-                              plotlyOutput("wordDonutBelong"))
-                      ), # Upper Column for Belonging
+                             conditionalPanel(
+                               condition = "output.wordDonutBelong !== null",
+                               plotlyOutput("wordDonutBelong")
+                             ),
+                             conditionalPanel(
+                               condition = "output.wordDonutBelong === null",
+                               textOutput("noBelongingDataMessage")
+                             )
+                      )
+                    ), # Belonging Donut Plot
+                    
                     fluidRow(
                       column(12, 
-                          #div(class = "responsive-plot",
-                                 plotlyOutput("wordDonutDb"))      # Lower Column for Less Belonging
-                      ),
+                             conditionalPanel(
+                               condition = "output.wordDonutDb !== null",  # Show plot only if it exists
+                               plotlyOutput("wordDonutDb")
+                             ),
+                             conditionalPanel(
+                               condition = "output.wordDonutDb === null",  # Show message if plot is NULL
+                               textOutput("noLessBelongingDataMessage")
+                             )
+                      )
+                    ), # Less belonging Donut plot
+                    
                     fluidRow(
                         column(width = 12,
                                div(class = "responsive-caption", includeHTML("www/donut_plot_caption.html"))

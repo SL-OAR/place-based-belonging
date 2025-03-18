@@ -576,12 +576,11 @@ output$place2SelectDonut <- renderUI({
     "Knight Library" = list(wordnet = "library", wordcloud = "library", reasons = "library"),
     "Lillis Business Complex" = list(wordnet = "lillis", wordcloud = "lillis_complex", reasons = "lillis"),
     "Lewis" = list(wordnet = "lewis", wordcloud = "lewis", reasons = "lewis"),
-    
-    # Handle different naming conventions properly
     "Lokey Science Complex" = list(wordnet = "lokey", wordcloud = "lokey_complex", reasons = "lokey"),
     "Matthew Knight Arena" = list(wordnet = "mattknight", wordcloud = "mattknight", reasons = "mattknight"),
     "McKenzie" = list(wordnet = "mckenzie", wordcloud = "mckenzie", reasons = "mckenzie"),
     "Oregon" = list(wordnet = "oregon", wordcloud = "oregon", reasons = "oregon"),
+    
     "Straub" = list(wordnet = "straub", wordcloud = "straub", reasons = "straub"),
     "Student Rec Complex" = list(wordnet = "src", wordcloud = "src", reasons = "src"),
     "Tykeson" = list(wordnet = "tykeson", wordcloud = "tykeson", reasons = "tykeson"),
@@ -591,8 +590,6 @@ output$place2SelectDonut <- renderUI({
     "Pacific" = list(wordnet = "pacific", wordcloud = "pacific", reasons = "pacific"),
     "Black Cultural Center" = list(wordnet = "bcc", wordcloud = "bcc", reasons = "bcc"),
     "University Hall" = list(wordnet = "university_hall", wordcloud = "university_hall", reasons = "university_hall"),
-    
-    # Sub-locations
     "Women's Center" = list(wordnet = "womens", wordcloud = "womens", reasons = "womens"),
     "Willamette" = list(wordnet = "willamette", wordcloud = "willamette", reasons = "willamette"),
     "Walton" = list(wordnet = "walton", wordcloud = "walton", reasons = "walton"),
@@ -1454,6 +1451,7 @@ output$place2SelectDonut <- renderUI({
 #######################   
   # Word Donuts  
   
+  
   output$wordDonutBelong <- renderPlotly({
     req(input$placeSelectDonut, input$typeSelectDonut)
     
@@ -1465,17 +1463,17 @@ output$place2SelectDonut <- renderUI({
     
     # Validate building name mapping
     if (!input$placeSelectDonut %in% names(location_file_name_map)) {
-      warning(paste("Location not found in mapping:", input$placeSelectDonut))
+     # warning(paste("Location not found in mapping:", input$placeSelectDonut))
       return(NULL)
     }
     
     building_name <- location_file_name_map[[input$placeSelectDonut]]$wordcloud
     if (is.null(building_name)) {
-      warning(paste("No wordcloud mapping found for:", input$placeSelectDonut))
+     # warning(paste("No wordcloud mapping found for:", input$placeSelectDonut))
       return(NULL)
     }
     
-    building_name <- tolower(building_name)
+    building_name <- tolower(as.character(building_name))
     
     # Handle sub-location mapping (EMU, Lokey, Housing)
     if (!is.null(input$place2SelectDonut) && input$place2SelectDonut != "Overall" &&
@@ -1483,7 +1481,7 @@ output$place2SelectDonut <- renderUI({
       
       sub_location_mapped <- location_file_name_map[[input$place2SelectDonut]]$wordcloud
       if (!is.null(sub_location_mapped)) {
-        building_name <- tolower(sub_location_mapped)
+        building_name <- tolower(as.character(sub_location_mapped))
       } else {
         building_name <- tolower(gsub(" ", "_", input$place2SelectDonut))
       }
@@ -1492,11 +1490,14 @@ output$place2SelectDonut <- renderUI({
     # Construct dataset key for Belonging
     belong_key <- paste0("wc_", building_name, "_b_", student_group)
     
-    # Fetch data if it exists
-    belong_data <- if (exists(belong_key, envir = .GlobalEnv)) get(belong_key, envir = .GlobalEnv) else NULL
     
-    # Process data: Keep only top 2 words
-    if (!is.null(belong_data) && nrow(belong_data) > 0) {
+    # Fetch data if it exists
+   belong_data <- if (exists(belong_key, envir = .GlobalEnv)) get(belong_key, envir = .GlobalEnv) else NULL
+    
+    
+    # Process data: Keep only top 10 words
+  if (!is.null(belong_data) && nrow(belong_data) > 0) {
+
       belong_data <- belong_data %>%
         arrange(desc(freq)) %>%
         head(10) %>%  # Keep only the top 10 words
@@ -1528,17 +1529,78 @@ output$place2SelectDonut <- renderUI({
           font = list(color = "white"),
           plot_bgcolor = "#2E2E2E",
           paper_bgcolor = "#2E2E2E",
-          showlegend = FALSE
-        ))
-    } else {
-      return(ggplot() + 
-               annotate("text", x = 1, y = 1, label = "No Data Available", size = 5, color = "gray") + 
-               theme_void())
-    }
+          showlegend = FALSE)
+        )
+  } else {
+    return(NULL)
+  }
   })
   
   
+  output$noBelongingDataMessage <- renderText({
+    # Ensure input exists before using it
+    if (is.null(input$placeSelectDonut) || input$placeSelectDonut == "") {
+      return("Not enough data available for the selected location.")
+    }
+    
+    # Map student group
+    student_group <- switch(input$typeSelectDonut,
+                            "Undergraduate" = "us_ug",
+                            "International" = "i",
+                            "Graduate" = "gr")
+    
+    # Validate building name mapping
+    if (!(input$placeSelectDonut %in% names(location_file_name_map))) {  
+      return("Not enough data available for the selected location.")
+    }
+    
+    # Retrieve wordcloud mapping safely
+    building_name <- location_file_name_map[[input$placeSelectDonut]]$wordcloud
+    if (is.null(building_name) || building_name == "") {
+      return("Not enough data available for the selected location.")
+    }
+    
+    building_name <- tolower(as.character(building_name))
+    
+    # Handle sub-location mapping (EMU, Lokey, Housing)
+    if (!is.null(input$place2SelectDonut) && input$place2SelectDonut != "Overall" &&
+        input$placeSelectDonut %in% c("Erb Memorial Union (EMU)", "Lokey Science Complex", "University Housing")) {
+      
+      sub_location_mapped <- location_file_name_map[[input$place2SelectDonut]]$wordcloud
+      if (!is.null(sub_location_mapped) && sub_location_mapped != "") {
+        building_name <- tolower(as.character(sub_location_mapped))
+      } else {
+        building_name <- tolower(gsub(" ", "_", input$place2SelectDonut))
+      }
+    }
+    
+    # Construct dataset key for Belonging
+    belong_key <- paste0("wc_", building_name, "_b_", student_group)
+    
+    # If dataset key does not exist, return the message
+    if (!exists(belong_key, envir = .GlobalEnv)) {  
+      return("Not enough data available for the selected location.")
+    }
+    
+    # Fetch data if it exists
+    belong_data <- get(belong_key, envir = .GlobalEnv)
+    
+    # If dataset is NULL or has no rows, return the message
+    if (is.null(belong_data) || nrow(belong_data) == 0) {
+      return("Not enough data available for the selected location.")
+    }
+    
+    return("")  # If everything is fine, return an empty string so the message is hidden
+  })
+  
+    
+  
+  
+  
+  
+  
 ### Don't belong donut
+  
   output$wordDonutDb <- renderPlotly({
     req(input$placeSelectDonut, input$typeSelectDonut)
     
@@ -1550,17 +1612,17 @@ output$place2SelectDonut <- renderUI({
     
     # Validate building name mapping
     if (!input$placeSelectDonut %in% names(location_file_name_map)) {
-      warning(paste("Location not found in mapping:", input$placeSelectDonut))
+      # warning(paste("Location not found in mapping:", input$placeSelectDonut))
       return(NULL)
     }
     
     building_name <- location_file_name_map[[input$placeSelectDonut]]$wordcloud
     if (is.null(building_name)) {
-      warning(paste("No wordcloud mapping found for:", input$placeSelectDonut))
+     # warning(paste("No wordcloud mapping found for:", input$placeSelectDonut))
       return(NULL)
     }
     
-    building_name <- tolower(building_name)
+    building_name <- tolower(as.character(building_name))
     
     # Handle sub-location mapping (EMU, Lokey, Housing)
     if (!is.null(input$place2SelectDonut) && input$place2SelectDonut != "Overall" &&
@@ -1568,7 +1630,7 @@ output$place2SelectDonut <- renderUI({
       
       sub_location_mapped <- location_file_name_map[[input$place2SelectDonut]]$wordcloud
       if (!is.null(sub_location_mapped)) {
-        building_name <- tolower(sub_location_mapped)
+        building_name <- tolower(as.character(sub_location_mapped))
       } else {
         building_name <- tolower(gsub(" ", "_", input$place2SelectDonut))
       }
@@ -1578,10 +1640,11 @@ output$place2SelectDonut <- renderUI({
     db_key <- paste0("wc_", building_name, "_db_", student_group)
     
     # Fetch data if it exists
-    db_data <- if (exists(db_key, envir = .GlobalEnv)) get(db_key, envir = .GlobalEnv) else NULL
+     db_data <- if (exists(db_key, envir = .GlobalEnv)) get(db_key, envir = .GlobalEnv) else NULL
     
     # Process data: Keep only top 10 words
     if (!is.null(db_data) && nrow(db_data) > 0) {
+      
       db_data <- db_data %>%
         arrange(desc(freq)) %>%
         head(10) %>%
@@ -1593,6 +1656,7 @@ output$place2SelectDonut <- renderUI({
       db_data$ymin <- c(0, head(db_data$ymax, n = -1))
       db_data$labelPosition <- (db_data$ymax + db_data$ymin) / 2
       
+
       # Define Color Scale
       color_scale_db <- unname(c("#FEE123", "#D5D345", "#B3A369","#7C8467", "#7C8487", "#84A4CC", "#3F8EA8", "#004D6C", "#824D78", "#820043") )# Expanded for donuts db
       
@@ -1614,12 +1678,66 @@ output$place2SelectDonut <- renderUI({
           paper_bgcolor = "#2E2E2E",  # Dark background
           showlegend = FALSE)  # Properly placed legend setting
         )
-    } else {
-        return(ggplot() + 
-                 annotate("text", x = 1, y = 1, label = "No Data Available", size = 5, color = "gray") + 
-                 theme_void())
-      }
+       } else {
+      return(NULL)
+    }
+    })  
+  
+
+  
+  output$noLessBelongingDataMessage <- renderText({
+    # Ensure input exists before using it
+    if (is.null(input$placeSelectDonut) || input$placeSelectDonut == "") {
+      return("Not enough data available for the selected location.")
+    }
+    
+    # Ensure place selection exists in location mapping
+    if (!(input$placeSelectDonut %in% names(location_file_name_map))) {
+      return("Not enough data available for the selected location.")
+    }
+    
+    # Retrieve location mapping safely
+    location_entry <- location_file_name_map[[input$placeSelectDonut]]
+    
+    # Ensure location mapping is not NULL before accessing wordcloud
+    if (is.null(location_entry) || !("wordcloud" %in% names(location_entry))) {
+      return("Not enough data available for the selected location.")
+    }
+    
+    # Retrieve the wordcloud mapping
+    wordcloud_mapping <- location_entry$wordcloud
+    
+    # If mapping is missing or empty, return the message
+    if (is.null(wordcloud_mapping) || wordcloud_mapping == "") {
+      return("Not enough data available for the selected location.")
+    }
+    
+    # Ensure proper case handling
+    building_name <- tolower(as.character(wordcloud_mapping))
+    
+    # Construct dataset key properly for "Less Belonging" data
+    db_key <- paste0("wc_", building_name, "_db_", 
+                     switch(input$typeSelectDonut, 
+                            "Undergraduate" = "us_ug", 
+                            "International" = "i", 
+                            "Graduate" = "gr"))
+    
+    # If the dataset key does not exist, return the message
+    if (!exists(db_key, envir = .GlobalEnv)) {
+      return("Not enough data available for the selected location.")
+    }
+    
+    # Retrieve dataset
+    db_data <- get(db_key, envir = .GlobalEnv)
+    
+    # If dataset is NULL or empty, return the message
+    if (is.null(db_data) || nrow(db_data) == 0) {
+      return("Not enough data available for the selected location.")
+    }
+    
+    return("")  # If data exists, return an empty string to hide the message
   })
+  
   
   
   
